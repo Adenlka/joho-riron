@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情報理論 練習 — 文章題・選択題・計算題</title>
+<style>
+  :root{
+    --bg:#f4f7fb; --card:#ffffff; --ink:#1f2d3d; --sub:#5b6b7d;
+    --accent:#1F4E79; --accent2:#2E74B5; --ok:#1f8a5b; --okbg:#e6f6ee;
+    --ng:#c0392b; --ngbg:#fdecea; --line:#e2e8f0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  .wrap{max-width:720px;margin:0 auto;padding:16px 16px 60px}
+  header{text-align:center;padding:14px 0 6px}
+  header h1{margin:0;font-size:22px;color:var(--accent)}
+  header p{margin:4px 0 0;font-size:13px;color:var(--sub)}
+  .tabs{display:flex;gap:8px;margin:16px 0 10px}
+  .tab{flex:1;padding:12px 8px;border:none;border-radius:12px;background:#e7eef7;color:var(--accent);
+    font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
+  .tab small{display:block;font-weight:400;font-size:11px;color:var(--sub);margin-top:2px}
+  .tab.active{background:var(--accent);color:#fff}
+  .tab.active small{color:#dbe7f5}
+  .bar{display:flex;align-items:center;gap:8px;margin:6px 0 14px;flex-wrap:wrap}
+  .bar .prog{font-size:13px;color:var(--sub);flex:1}
+  .bar .prog b{color:var(--accent);font-size:15px}
+  .btn{padding:9px 14px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+  .btn-line{background:#fff;border:1.5px solid var(--accent2);color:var(--accent2)}
+  .btn-accent{background:var(--accent2);color:#fff}
+  .btn-sm{padding:7px 12px;font-size:13px}
+  .card{background:var(--card);border-radius:16px;padding:20px 18px;box-shadow:0 2px 14px rgba(31,78,121,.08);
+    border:1px solid var(--line)}
+  .qno{font-size:12px;color:var(--sub);letter-spacing:.05em}
+  .src{font-size:12px;color:var(--accent2);font-weight:700;margin-top:2px}
+  .qtext{font-size:19px;font-weight:600;margin:10px 0 4px;white-space:pre-wrap}
+  .blank{display:inline-block;min-width:80px;border-bottom:2px solid var(--accent2);color:var(--accent2);
+    text-align:center;font-weight:700;padding:0 8px}
+  .ctx{font-size:14px;color:var(--sub);margin-top:8px;white-space:pre-wrap;border-left:3px solid var(--line);padding-left:10px}
+  .ex{font-size:13.5px;color:#8A6D3B;background:#FFF8E8;border:1px solid #EBD9A8;border-radius:10px;
+    padding:9px 12px;margin-top:10px;line-height:1.65}
+  .ex b{color:#7A5A1E}
+  .qnum{display:inline-block;background:#eef3f9;color:var(--accent);font-weight:800;font-size:13px;
+    border-radius:7px;padding:2px 9px;margin-right:8px;vertical-align:2px}
+  .ans{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--okbg);border:1px solid #b9e6cf;display:none}
+  .ans.show{display:block}
+  .ans .lab{font-size:12px;color:var(--ok);font-weight:700}
+  .ans .val{font-size:19px;font-weight:800;color:var(--ok);margin-top:2px}
+  .inrow{display:flex;gap:8px;margin-top:14px}
+  .inrow input{flex:1;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:16px}
+  .inrow input:focus{outline:none;border-color:var(--accent2)}
+  .feedback{margin-top:8px;font-size:14px;font-weight:700;min-height:20px}
+  .feedback.ok{color:var(--ok)}
+  .feedback.ng{color:var(--ng)}
+  .opts{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+  .opt{text-align:left;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;
+    font-size:15px;cursor:pointer;transition:.12s}
+  .opt:hover{border-color:var(--accent2)}
+  .opt.correct{background:var(--okbg);border-color:var(--ok);color:var(--ok);font-weight:700}
+  .opt.wrong{background:var(--ngbg);border-color:var(--ng);color:var(--ng)}
+  .opt.disabled{pointer-events:none}
+  .nav{display:flex;gap:8px;margin-top:16px}
+  .nav .btn{flex:1}
+  .done{text-align:center;padding:30px 16px}
+  .done .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .done p{color:var(--sub)}
+  .rowbtns{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+  .hidebtn{background:none;border:none;color:var(--accent2);font-size:13px;cursor:pointer;text-decoration:underline;margin-top:8px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{padding:7px 12px;border-radius:999px;border:1.5px solid var(--line);background:#fff;
+    font-size:13px;font-weight:700;color:var(--sub);cursor:pointer}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .given{background:#F7FAFD;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:15px}
+  .given table{border-collapse:collapse;margin-top:6px;width:100%}
+  .given th,.given td{border:1px solid #cfd9e4;padding:5px 8px;text-align:center;font-size:14px}
+  .given th{background:#eef3f9}
+  .given code{font-size:15px}
+  .fld{margin-top:12px}
+  .fld label{display:block;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:5px}
+  .fld input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:16px}
+  .fld input:focus{outline:none;border-color:var(--accent2)}
+  .fld .mk{margin-left:8px;font-weight:800}
+  .sol{margin-top:14px;padding:13px 15px;border-radius:12px;background:#FFFBF0;border:1px solid #E8D5A8;display:none}
+  .sol.show{display:block}
+  .sol h4{margin:0 0 6px;font-size:14px;color:#7A6033}
+  .sol .stp{font-size:14.5px;line-height:1.85;color:#4a4a4a}
+  .sol .fin{font-weight:800;color:var(--ng);font-size:16px}
+  .hint{font-size:12.5px;color:var(--sub);margin-top:4px}
+  .bline{font-size:16.5px;line-height:2.5;margin:2px 0;display:flex;flex-wrap:wrap;align-items:baseline}
+  .bline.plainl{color:var(--sub);font-size:15px;padding-left:34px;line-height:1.9}
+  .bline.subl{padding-left:34px}
+  .lno{display:inline-block;min-width:26px;font-weight:800;color:var(--accent);flex:none}
+  .btxt{flex:1;min-width:0}
+  input.bi{display:inline-block;border:none;border-bottom:2px solid var(--accent2);background:#F5F9FD;
+    border-radius:5px 5px 0 0;font-size:16px;font-weight:700;color:var(--accent);
+    padding:2px 8px;margin:0 3px;text-align:center;font-family:inherit}
+  input.bi:focus{outline:none;background:#E9F2FB}
+  input.bi.ok{border-color:var(--ok);color:var(--ok);background:var(--okbg)}
+  input.bi.ng{border-color:var(--ng);color:var(--ng);background:var(--ngbg)}
+  .refl{font-size:12.5px;color:var(--sub);margin:0 0 6px 34px;line-height:1.55}
+  .refl b{color:var(--accent2)}
+  .exl{font-size:12.5px;color:#8A6D3B;background:#FFF8E8;border-left:3px solid #E8C86A;
+    border-radius:0 8px 8px 0;padding:5px 10px;margin:2px 0 8px 34px;line-height:1.6;display:none}
+  .exl.show{display:block}
+  .setttl{font-size:17px;font-weight:800;color:#7A6033;background:#FFFBF0;border:1px solid #E8D5A8;
+    border-radius:10px;padding:9px 13px;margin-bottom:12px}
+  .sc{font-size:13px;color:var(--sub);margin-top:10px}
+  .seg{display:inline-flex;border:1.5px solid var(--accent2);border-radius:999px;overflow:hidden}
+  .seg button{border:none;background:#fff;color:var(--accent2);font-size:12.5px;font-weight:700;
+    padding:6px 13px;cursor:pointer;font-family:inherit}
+  .seg button.on{background:var(--accent2);color:#fff}
+  .why{margin-top:9px;padding:10px 13px;border-radius:10px;background:#F3F8FC;
+    border-left:4px solid var(--accent2);font-size:14px;line-height:1.75;color:#2a3b4d;display:none}
+  .why.show{display:block}
+  .why b{color:var(--accent)}
+  .why .wq{font-size:12.5px;color:var(--sub);display:block;margin-bottom:3px}
+  .whyl{margin:2px 0 10px 34px;padding:8px 12px;border-radius:0 10px 10px 0;background:#F3F8FC;
+    border-left:4px solid var(--accent2);font-size:13.5px;line-height:1.7;color:#2a3b4d;display:none}
+  .whyl.show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>情報理論 練習</h1>
+    <p>文章題（穴埋め）・選択題・計算題</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" id="tabA" onclick="switchMode('bunsho')">文章題<small>穴埋め</small></button>
+    <button class="tab" id="tabB" onclick="switchMode('sentaku')">選択題<small>定理・キーワード</small></button>
+    <button class="tab" id="tabC" onclick="switchMode('keisan')">計算題<small>毎回 数値が変わる</small></button>
+  </div>
+
+  <div class="bar">
+    <div class="prog">第 <b id="cur">1</b> / <span id="total">0</span> <span id="unit">問</span>
+      <span id="scorewrap" style="display:none">　正解 <b id="score" style="color:var(--ok)">0</b></span>
+    </div>
+    <span style="font-size:12px;color:var(--sub)">解説</span><span id="segWrap"></span>
+    <button class="btn btn-line btn-sm" id="btnShuf" onclick="shuffleNow()">🔀 順番を打ち乱す</button>
+    <button class="btn btn-line btn-sm" id="btnRe" onclick="restart()">↻ 最初から</button>
+  </div>
+
+  <div id="stage"></div>
+</div>
+
+<script>
+/* =========================================================
+   題庫：練習問題.docx の原文どおり（太字下線＝解答）
+   t: 原文（___ が空欄）  a: 解答  alt: 許容表記  src: 出典
+   ctx: 同じ設問の他の行（文脈）
+   ========================================================= */
+const BSETS = [
+{src:"練習問題(第一回)", lines:[
+  {no:"1", t:"1948年(___)が論文発表", a:[{v:"シャノン",alt:["シャナン","shannon"],e1:"1948年に情報理論を創始した人（C. E. Shannon）。",e2:"論文「A Mathematical Theory of Communication」で情報量・エントロピーを定義し、情報源符号化定理と通信路符号化定理の2つを示した。この科目全体の出発点。"}]},
+  {no:"",  t:"ア)で(___)な符号化する", a:[{v:"効率的",alt:[],e1:"むだを削る方向。＝情報源符号化（第4章）の目的。",e2:"平均符号長 L をエントロピー H に近づけること。高頻度の記号を短い符号語にする。もう一方の「信頼性」とは逆方向（あちらは冗長を足す）。"}]},
+  {no:"",  t:"イ）で(___)の高い符号化をする。", a:[{v:"信頼性",alt:[],e1:"誤りに強くする方向。＝通信路符号化（第6章）の目的。",e2:"検査ビットを加えて誤りを検出・訂正できるようにする。冗長を「足す」ので効率とは逆。R=k/n が下がる代わりに誤りに強くなる。"}]},
+]},
+
+{src:"練習問題(第二回)", lines:[
+  {no:"1", t:"情報量は(___)の関数", a:[{v:"確率",alt:[],e1:"情報量は確率だけで決まる。I(P) = -log P。",e2:"I は確率 P の関数。P が小さい（めずらしい）ほど I は大きい。エントロピーが最大になるのも「確率が等しい」ときで、やはり確率で決まる。"}]},
+  {plain:"I(P) = log（1/P）= -logP[ビット]"},
+  {no:"2", t:"確率が大きくなると、情報量は(___)なる", a:[{v:"小さく",alt:["小さい"],e1:"P が大きいほど -log P は小さい。",e2:"P=1 なら I=-log1=0。当たり前のことが起きても情報はゼロ。逆に P が 0 に近いほど I は大きくなる。"}]},
+]},
+
+{src:"練習問題2(第三回)", lines:[
+  {no:"1", t:"エントロピーは事象の(___)の期待値", a:[{v:"情報量",alt:[],e1:"H = -ΣP log P は、各事象の情報量 I=-log P の期待値。",e2:"「期待値」なので確率で重み付けして足す。単なる合計ではない点に注意（練習問題2(第5回)5. と同じ論点）。"}]},
+  {plain:"H(A) = - P1 logP1 – P2logP2....-Pjlog Pj"},
+  {no:"2", t:"事象系の(___)を表す", a:[{v:"不確実さ",alt:[],e1:"エントロピーは「結果がどれだけ読めないか」の尺度。",e2:"0 ≦ H ≦ log n。結果が決まっていれば H=0、等確率のとき H=log n で最大。H(A|B) は B を知ってもなお残る A の不確実さ。"}]},
+  {no:"3", t:"(___)の値が(___)なるとき最大となる", a:[{v:"確率",alt:[],e1:"情報量は確率だけで決まる。I(P) = -log P。",e2:"I は確率 P の関数。P が小さい（めずらしい）ほど I は大きい。エントロピーが最大になるのも「確率が等しい」ときで、やはり確率で決まる。"},{v:"等しく",alt:["等しい"],e1:"等確率のとき H = log n で最大になる。",e2:"偏りがあるほど予測しやすくなり H は下がる。逆にどれも同じ確率だといちばん読めない＝最大。"}]},
+]},
+
+{src:"練習問題3(第4回)", lines:[
+  {no:"1", t:"確率分布なら(___)計算可能", a:[{v:"エントロピー",alt:[],e1:"確率分布さえあれば H = -ΣP log P が計算できる。",e2:"平均符号長 L の下限でもある（情報源符号化定理 L ≧ H）。第2章の中心概念で、③の計算題はこれ。"}]},
+  {no:"2", t:"結合確率なら(___)でH(A,B)と表す", a:[{v:"結合エントロピー",alt:[],e1:"2つの事象系をまとめた不確実さ H(A,B)。",e2:"H(A,B) = -ΣΣ P(aᵢ,bⱼ) log P(aᵢ,bⱼ)。連鎖則 H(A,B) = H(A) + H(B|A) が成り立つ。"}]},
+  {no:"3", t:"条件付き確率なら(___)でH(A|B)", a:[{v:"条件付きエントロピー",alt:[],e1:"B を知った後に残る A の不確実さ H(A|B)。",e2:"H(A|B) = Σⱼ P(bⱼ)H(A|bⱼ)。まず各 bⱼ ごとに H(A|bⱼ) を出し、P(bⱼ) で重み付けして足す。必ず H(A|B) ≦ H(A)。"}]},
+  {no:"4", t:"H(A|B)はBを知って依然残るAの(___)", a:[{v:"不確実さ",alt:[],e1:"H(A|B) は B を知ってもなお残る A の不確実さ。",e2:"B から情報を得た分だけ減っており、H(A|B) ≦ H(A)。減った差 H(A)-H(A|B) が相互情報量。"}]},
+]},
+
+{src:"練習問題2(第5回)", lines:[
+  {no:"1", t:"事象の数が増加すれば不確実さは(___)する", a:[{v:"増加",alt:[],e1:"選択肢が増えれば読みにくくなる。",e2:"最大値 log n の n が増えるので上限そのものが上がる。例：2択なら最大1bit、4択なら最大2bit。"}]},
+  {no:"2", t:"他の事象の情報が得られれば不確実さは(___)する", a:[{v:"減少",alt:[],e1:"情報を得れば不確実さは減る。",e2:"式で書くと H(A|B) ≦ H(A)。減った分がちょうど相互情報量 I(A;B) = H(A) - H(A|B)（第5章）。"}]},
+  {no:"3", t:"情報の発生元を(___)という", a:[{v:"情報源",alt:[],e1:"記号を次々に発生させるもと。",e2:"記号の集合と確率で表す。生起が独立なら無記憶情報源、依存性があればマルコフ情報源。"}]},
+  {no:"4", t:"記号の生起が独立である 3. を(___)という", a:[{v:"無記憶情報源",alt:["無記憶"],e1:"各記号が互いに独立に出る情報源。",e2:"前に何が出たかに影響されない。n次拡大すると H(Sⁿ) = n·H(S) がちょうど成り立つ（マルコフではこうならない）。"}],
+    ref:"「3.」＝ 3. の解答", ex:"3.＝情報源 →「記号の生起が独立である情報源を…」"},
+  {no:"5", t:"3. は総和でなく(___)つまりエントロピーで評価", a:[{v:"期待値",alt:[],e1:"エントロピーは総和ではなく、確率で重み付けした平均。",e2:"H = ΣPᵢ·(その事象の情報量) という形。ここを「総和」と勘違いしないよう問題文がわざわざ念を押している。"}],
+    ref:"「3.」＝ 3. の解答", ex:"3.＝情報源 →「情報源は総和でなく…」"},
+  {no:"6", t:"n個組み合わせた 3. を(___)という", a:[{v:"n次拡大",alt:["ｎ次拡大","n次拡張"],e1:"n個の記号をひとまとめにした情報源 Sⁿ。",e2:"無記憶なら H(Sⁿ)=n·H(S)。情報源符号化定理の証明で使い、1記号あたりの平均符号長を H に近づける役割をする。"}],
+    ref:"「3.」＝ 3. の解答", ex:"3.＝情報源 →「n個組み合わせた情報源を…」"},
+]},
+
+{src:"練習問題2（マルコフ情報源）", lines:[
+  {no:"1", t:"(___)情報源は記号間の生起に依存性がある", a:[{v:"マルコフ",alt:[],e1:"記号間の生起に依存性がある情報源。",e2:"いまの状態によって次の記号の確率が変わる。無記憶情報源との対比で覚える。エントロピーは定常分布で重み付けして求める。"}]},
+  {no:"2", t:"1. の記号の生起は状態の(___)を考える必要がある", a:[{v:"遷移",alt:[],e1:"いまの状態から次の状態へ移ること。",e2:"状態遷移図と遷移確率で表す。マルコフ情報源では記号の生起を「状態の遷移」として捉えるのがポイント。"}],
+    ref:"「1.」＝ 1. の解答", ex:"1.＝マルコフ情報源 →「マルコフ情報源の記号の生起は…」"},
+  {no:"3", t:"まず、平衡方程式より(___)を求める", a:[{v:"定常分布",alt:[],e1:"平衡方程式を解いて得る、各状態に居る確率。",e2:"w = wP と Σw=1 を連立して解く。マルコフ情報源のエントロピーを求める4ステップの2番目。"}]},
+  {no:"4", t:"次に, 各(___)のエントロピーを求める", a:[{v:"状態",alt:[],e1:"各状態ごとにエントロピーを計算する。",e2:"状態 i でのエントロピー Hᵢ = -Σ P(記号|状態i) log P(記号|状態i)。最後に定常分布 wᵢ で重み付けする。"}]},
+  {no:"5", t:"3 と 4 より(___)のエントロピー求める。", a:[{v:"マルコフ情報源",alt:[],e1:"定常分布と各状態のエントロピーから H = Σ wᵢHᵢ。",e2:"4ステップ：①状態遷移図 ②平衡方程式→定常分布 ③各状態のエントロピー ④定常分布で重み付け。"}],
+    ref:"「3 と 4」＝ 3. と 4. の内容", ex:"3＝定常分布、4＝各状態のエントロピー"},
+]},
+
+{src:"練習問題（情報源の符号化について答えよ）", lines:[
+  {plain:"・情報源の符号化について答えよ"},
+  {no:"1", t:"(___)な符号化を目的とする", a:[{v:"効率的",alt:[],e1:"むだを削る方向。＝情報源符号化（第4章）の目的。",e2:"平均符号長 L をエントロピー H に近づけること。高頻度の記号を短い符号語にする。もう一方の「信頼性」とは逆方向（あちらは冗長を足す）。"}]},
+  {no:"2", t:"情報源記号を(___)にすることである", a:[{v:"符号語",alt:[],e1:"情報源記号に割り当てる 0/1 の列。",e2:"情報源符号化とは「記号 → 符号語」の対応をつくること。どんな符号語を割り当てるかで平均符号長が変わる。"}]},
+  {no:"3", t:"(___)に復号可能な符号が望ましい", a:[{v:"瞬時",alt:[],e1:"最後まで見なくても、その場で復号できること。",e2:"瞬時符号 ⊂ 一意に復号可能な符号。語頭条件を満たせば瞬時。実用上いちばん望ましい性質。"}]},
+  {no:"4", t:"3. の符号は(___)条件により判定できる",
+    a:[{v:"語頭/プレフィックス",alt:["語頭","プレフィックス","語頭／プレフィックス"],e1:"どの符号語も、他の符号語の先頭部分になっていないこと。",e2:"例：s4=101 が s5=1011 の語頭になっていると瞬時に復号できない。符号木で見ると全記号が葉にあるかどうか。"}],
+    ref:"「3.」＝ 3. の解答", ex:"3.＝瞬時（に復号可能な符号）"},
+  {no:"5", t:"3 の符号は(___)で効率的に判定できる", a:[{v:"符号木",alt:[],e1:"木に描いて、全記号が葉にあるかを見る方法。",e2:"途中の節点に記号があるとその先の記号の語頭になってしまう＝瞬時でない。目で見て判定できるので速い。"}],
+    ref:"「3」＝ 3. の解答", ex:"3.＝瞬時（に復号可能な符号）"},
+]},
+
+{src:"練習問題1（平均符号長・情報源符号化定理）", lines:[
+  {no:"1", t:"瞬時符号の伝送、効率は(___)で評価する", a:[{v:"平均符号長",alt:[],e1:"L = Σ Pᵢlᵢ。1記号あたり平均何ビット送るか。",e2:"伝送効率の指標。効率 η = H/L、冗長度 = 1-η。下限は H（情報源符号化定理）。"}]},
+  {no:"2", t:"1 は高頻度記号の符号語長を(___)すると短くなる", a:[{v:"短く",alt:["短い"],e1:"高頻度の記号を短い符号語にすると L が小さくなる。",e2:"L=ΣPᵢlᵢ なので、Pᵢ が大きい項の lᵢ を削ると効果が大きい。ハフマン符号はこれを最適に行う方法。"}],
+    ref:"「1」＝ 1. の解答", ex:"1＝平均符号長"},
+  {no:"3", t:"① は(___)未満できず、(___)が定まる",
+    a:[{v:"エントロピー",alt:[],e1:"確率分布さえあれば H = -ΣP log P が計算できる。",e2:"平均符号長 L の下限でもある（情報源符号化定理 L ≧ H）。第2章の中心概念で、③の計算題はこれ。"},{v:"下限",alt:[],e1:"L の下限はエントロピー H。これより下げられない。",e2:"情報源符号化定理 H ≦ L < H+1。下限が「定まる」＝いくら工夫しても H より下には行けない、という意味。"}],
+    ref:"「①」＝ 1. の解答", ex:"①＝平均符号長"},
+  {no:"4", t:"② を下限に限りなく近づける瞬時符号が(___)する", a:[{v:"存在",alt:[],e1:"下限 H に限りなく近づく瞬時符号が存在する。",e2:"n次拡大に適用すると H ≦ Lₙ/n < H + 1/n。n を大きくすれば 1/n→0 なので H に近づく。「存在する」ことの証明が定理の中身。"}],
+    ref:"「②」＝ 1. の解答", ex:"②＝平均符号長"},
+  {no:"5", t:"③ と ④ を(___)という", a:[{v:"情報源符号化定理",alt:[],e1:"「L は H 未満にできない」＋「H に近づける瞬時符号が存在する」。",e2:"この2つを合わせた定理。シャノン符号に n次拡大を適用して証明し、クラフトの不等式で瞬時性を保証する。"}],
+    ref:"「③」「④」＝ 3. と 4. の内容", ex:"③＝「平均符号長はエントロピー未満にできない」、④＝「下限に限りなく近づける瞬時符号が存在する」"},
+  {no:"6", t:"⑤ は(___)符号に(___)適用し証明する。",
+    a:[{v:"シャノン",alt:["シャナン","shannon"],e1:"1948年に情報理論を創始した人（C. E. Shannon）。",e2:"論文「A Mathematical Theory of Communication」で情報量・エントロピーを定義し、情報源符号化定理と通信路符号化定理の2つを示した。この科目全体の出発点。"},{v:"n次拡大",alt:["ｎ次拡大","n次拡張"],e1:"n個の記号をひとまとめにした情報源 Sⁿ。",e2:"無記憶なら H(Sⁿ)=n·H(S)。情報源符号化定理の証明で使い、1記号あたりの平均符号長を H に近づける役割をする。"}],
+    ref:"「⑤」＝ 5. の解答", ex:"⑤＝情報源符号化定理"},
+  {no:"7", t:"⑥ の符号は(___)より瞬時符号である", a:[{v:"クラフトの不等式",alt:["クラフト不等式"],e1:"Σ 2^(-lᵢ) ≦ 1 を満たせば瞬時符号が存在する。",e2:"逆に瞬時符号なら必ずこの式を満たす。似た式のマクミランの不等式は「一意に復号可能な符号」についての主張。"}],
+    ref:"「⑥」＝ 6. の解答", ex:"⑥＝シャノン符号"},
+]},
+
+{src:"練習問題（通信路符号化定理）", lines:[
+  {no:"1", t:"2^k個のメッセージは(___)ビットで構成可能。", a:[{v:"k",alt:["ｋ"],e1:"2^k 個を区別するには k ビット必要。",e2:"2ビットなら4通り、3ビットなら8通り。逆に 2^k 通りを表すのにちょうど k ビット。"}]},
+  {no:"2", t:"n=7(___)で構成し、通信路で3ビット以下の誤り", a:[{v:"2^k",alt:["2k","2ᵏ","2^ｋ"],e1:"符号語を 2^k 個つくる、という意味。",e2:"原文は上付きが落ちて「2k」に見えるが、1行目の「2^k個のメッセージ」と同じもの。n=7 の空間（2⁷=128通り）に符号語を 2^k 個置く、という話。"}],
+    ref:"符号語を何個つくるか", ex:"原文は上付きが落ちて「2k」に見えるが 2ᵏ（符号語の個数）"},
+  {sub:true, t:"小領域は符号語と高々3異なる(___)個の系列。", a:[{v:"64",alt:["６４"],e1:"C(7,0)+C(7,1)+C(7,2)+C(7,3) = 1+7+21+35 = 64。",e2:"長さ7の系列のうち、ある符号語とのハミング距離が3以下のものの個数。0個違い1通り、1個違い7通り、2個違い21通り、3個違い35通り。"}],
+    ref:"n=7 で距離3以内の系列は何個か", ex:"C(7,0)+C(7,1)+C(7,2)+C(7,3) = 1+7+21+35 = 64"},
+  {sub:true, t:"平均誤り率 Pe は 小領域が(___)と大きくなる", a:[{v:"重なる",alt:[],e1:"2^k×64 が 2⁷=128 を超えると小領域が重なる。",e2:"k=1 なら 2×64=128 でちょうど重ならない。k=2 なら 4×64=256>128 で必ず重なり、どの符号語か判別できず Pe が大きくなる。"}],
+    ex:"2ᵏ×64 > 2⁷=128 になると重なる"},
+  {no:"3", t:"kに比して(___)を十分大きくするとPeは小さくなる。", a:[{v:"n",alt:["ｎ"],e1:"n を大きくすると空間 2ⁿ が広がり、小領域が重ならなくなる。",e2:"球（小領域）の大きさに対して入れ物が広くなるので余裕ができる。ただし R=k/n が下がるという副作用がある。"}]},
+  {no:"4", t:"しかし、(___)も小さくなる。", a:[{v:"情報伝送速度",alt:[],e1:"R = k/n。n を増やすと R は下がる。",e2:"1記号あたり運べる情報の量。誤りに強くしようと n を増やすと遅くなる、というトレードオフ。"}]},
+  {no:"5", t:"Rが(___)未満となるようkとnを両方増加。", a:[{v:"通信路容量",alt:[],e1:"C = max I(A;B)。R < C が条件。",e2:"その通信路が1記号あたり運べる情報の上限。入力の確率分布を変えて相互情報量を最大化した値。"}]},
+  {no:"6", t:"Rを有限に保ちPeを任意に小さくできる符号が存在 →(___)という。",
+    a:[{v:"通信路符号化定理",alt:["通信路符号化理"],e1:"R < C なら、誤り確率 Pe を任意に小さくできる符号が存在する。",e2:"逆に R > C ではどんな符号でも Pe を小さくできない。第6章の到達点。情報源符号化定理（第4章）と対になる。"}]},
+]},
+];
+
+/* 選択題：⑥「重要な定理・keyword」対策。原文の用語をそのまま使用 */
+const SENTAKU = [
+ // ═══ 練習問題から ═══
+ {src:"練習問題(第一回)", q:"1948年に論文を発表し、情報理論を始めたのは？", opts:["シャノン","ハミング","マルコフ","クラフト"], c:0, e1:"シャノン(C. E. Shannon)。1948年の論文が情報理論の出発点。", e2:"ハミングは誤り訂正符号、マルコフは確率過程、クラフトは瞬時符号の不等式。それぞれ別の人・別の概念。"},
+ {src:"練習問題(第二回)", q:"情報量は何の関数か？", opts:["確率","符号長","距離","容量"], c:0, e1:"I(P) = -log P。確率だけで決まる。", e2:"符号長や距離は符号化の話であって、情報量の定義には出てこない。"},
+ {src:"練習問題(第二回)", q:"確率が大きくなると、情報量は？", opts:["小さくなる","大きくなる","変わらない","0になる"], c:0, e1:"P が大きいほど -log P は小さい。", e2:"P=1 なら I=0（当たり前のことは情報ゼロ）。P→0 で I→∞。"},
+ {src:"練習問題2(第三回)", q:"エントロピーは事象の何の期待値か？", opts:["情報量","符号長","確率","距離"], c:0, e1:"H = -ΣP log P は情報量 I=-log P の期待値。", e2:"「期待値」なので確率で重み付け。単なる合計ではない。"},
+ {src:"練習問題2(第三回)", q:"エントロピーが最大となるのは、確率の値がどうなるとき？", opts:["等しくなるとき","0になるとき","1になるとき","異なるとき"], c:0, e1:"すべての確率が等しいとき、H = log n で最大。", e2:"偏りがあるほど予測しやすく H は下がる。逆に H=0 になるのはある事象の確率が1のとき。"},
+ {src:"練習問題3(第4回)", q:"結合確率のとき、H(A,B) を何という？", opts:["結合エントロピー","条件付きエントロピー","相互情報量","平均符号長"], c:0, e1:"2つの事象系をまとめた不確実さ＝結合エントロピー。", e2:"H(A,B) = -ΣΣP(aᵢ,bⱼ)logP(aᵢ,bⱼ)。連鎖則 H(A,B)=H(A)+H(B|A)。"},
+ {src:"練習問題3(第4回)", q:"条件付き確率のとき、H(A|B) を何という？", opts:["条件付きエントロピー","結合エントロピー","エントロピー","冗長度"], c:0, e1:"B を知った後の A の不確実さ＝条件付きエントロピー。", e2:"H(A|B)=Σⱼ P(bⱼ)H(A|bⱼ)。各 bⱼ ごとに出して重み付けする。"},
+ {src:"練習問題3(第4回)", q:"H(A|B) は B を知って依然残る A の何か？", opts:["不確実さ","情報量","確率","期待値"], c:0, e1:"B を知ってもなお残る A の不確実さ。", e2:"必ず H(A|B) ≦ H(A)。減った差が相互情報量 I(A;B)。"},
+ {src:"練習問題2(第5回)", q:"記号の生起が独立である情報源を何という？", opts:["無記憶情報源","マルコフ情報源","随伴情報源","定常情報源"], c:0, e1:"各記号が独立に出る＝無記憶情報源。", e2:"マルコフ情報源は依存性あり。随伴情報源はマルコフの定常分布を無記憶とみなしたもの。"},
+ {src:"練習問題2（マルコフ）", q:"記号間の生起に依存性がある情報源は？", opts:["マルコフ情報源","無記憶情報源","独立情報源","n次拡大情報源"], c:0, e1:"依存性あり＝マルコフ情報源。", e2:"いまの状態で次の確率が変わる。エントロピーは定常分布で重み付けして求める。"},
+ {src:"練習問題2（マルコフ）", q:"マルコフ情報源では、まず平衡方程式より何を求めるか？", opts:["定常分布","符号木","生成行列","ハミング距離"], c:0, e1:"平衡方程式 w=wP を解いて定常分布を求める。", e2:"4ステップ：①状態遷移図 ②定常分布 ③各状態のエントロピー ④重み付け。"},
+ {src:"練習問題2(第5回)", q:"n個組み合わせた情報源を何という？", opts:["n次拡大","n重符号","n元符号","n次マルコフ"], c:0, e1:"n次拡大 Sⁿ。", e2:"無記憶なら H(Sⁿ)=n·H(S)。情報源符号化定理の証明に使う。"},
+ {src:"練習問題（情報源の符号化）", q:"情報源記号を何にすることが情報源符号化か？", opts:["符号語","符号木","状態","事象"], c:0, e1:"情報源記号 → 符号語 への対応をつくること。", e2:"符号語の割り当て方で平均符号長が変わる。目的は効率的な符号化。"},
+ {src:"練習問題（情報源の符号化）", q:"瞬時に復号可能かは何条件で判定できるか？", opts:["語頭（プレフィックス）条件","平衡方程式","クラフトの不等式","最小距離"], c:0, e1:"語頭（プレフィックス）条件。", e2:"どの符号語も他の符号語の先頭部分でないこと。クラフトの不等式は「存在するか」の条件で別物。"},
+ {src:"練習問題（情報源の符号化）", q:"瞬時符号を効率的に判定できるのは？", opts:["符号木","真理値表","生成行列","検査行列"], c:0, e1:"符号木。全記号が葉にあるかを見る。", e2:"途中の節点に記号があると、その先の記号の語頭になってしまう＝瞬時でない。"},
+ {src:"練習問題1（平均符号長）", q:"瞬時符号の伝送効率は何で評価するか？", opts:["平均符号長","符号語数","ハミング距離","通信路容量"], c:0, e1:"平均符号長 L = ΣPᵢlᵢ。", e2:"効率 η=H/L、冗長度 1-η も合わせて覚える。"},
+ {src:"練習問題1（平均符号長）", q:"平均符号長は何未満にできないか（下限）？", opts:["エントロピー","符号長の最大値","記号数","通信路容量"], c:0, e1:"下限はエントロピー H。", e2:"情報源符号化定理 H ≦ L < H+1。通信路容量は第5章の別概念。"},
+ {src:"練習問題1（平均符号長）", q:"「下限に限りなく近づける瞬時符号が存在する」ことを何という？", opts:["情報源符号化定理","通信路符号化定理","クラフトの不等式","ハミング界"], c:0, e1:"情報源符号化定理。", e2:"第4章の定理。通信路符号化定理（R<C なら Pe→0）は第6章で別物。"},
+ {src:"練習問題1（平均符号長）", q:"瞬時符号であることは何より分かるか？", opts:["クラフトの不等式","シュワルツの不等式","三角不等式","チェビシェフの不等式"], c:0, e1:"クラフトの不等式 Σ2^(-lᵢ) ≦ 1。", e2:"似た名前のマクミランの不等式は「一意に復号可能な符号」についての主張。"},
+ {src:"練習問題（通信路符号化）", q:"R が何未満となるよう k と n を両方増加させるか？", opts:["通信路容量","平均符号長","エントロピー","最小距離"], c:0, e1:"通信路容量 C。", e2:"R<C が通信路符号化定理の条件。C は相互情報量の最大値。"},
+ {src:"練習問題（通信路符号化）", q:"「R を有限に保ち Pe を任意に小さくできる符号が存在する」ことを何という？", opts:["通信路符号化定理","情報源符号化定理","マルコフ性","語頭条件"], c:0, e1:"通信路符号化定理。", e2:"R>C ではどんな符号でも Pe を小さくできない。情報源符号化定理と対になる。"},
+ {src:"練習問題（通信路符号化）", q:"k に比して n を十分大きくすると Pe はどうなる？", opts:["小さくなる","大きくなる","変わらない","1に近づく"], c:0, e1:"空間 2ⁿ が広がり小領域が重ならなくなるので Pe は小さくなる。", e2:"ただし R=k/n が下がる（＝遅くなる）というトレードオフがある。"},
+ {src:"練習問題（通信路符号化）", q:"k に比して n を大きくすると、代わりに何が小さくなる？", opts:["情報伝送速度","エントロピー","符号長","誤り率"], c:0, e1:"R = k/n が下がる＝情報伝送速度が小さくなる。", e2:"だから R を保ったまま k と n を両方増やす、という話につながる。"},
+ {src:"練習問題c", q:"誤り検出が可能なビット数 t' の条件式は？", opts:["dmin ≧ t' + 1","dmin ≧ 2t' + 1","dmin ≦ t' - 1","dmin = t'"], c:0, e1:"dmin ≧ t' + 1 → t' = dmin - 1。", e2:"訂正のほうは dmin ≧ 2t+1 で t=⌊(dmin-1)/2⌋。検出より訂正のほうが厳しい。"},
+ {src:"練習問題c", q:"誤り訂正が可能なビット数 t の条件式は？", opts:["dmin ≧ 2t + 1","dmin ≧ t + 1","dmin ≦ 2t","dmin = t"], c:0, e1:"dmin ≧ 2t + 1 → t = ⌊(dmin-1)/2⌋。", e2:"符号語のまわりに半径 t の球を描き、球が重ならなければ訂正できる、というイメージ。"},
+ {src:"練習問題a", q:"ハミング距離 dH とは？", opts:["2つの符号語で異なるビットの数","符号語の長さ","1の個数の和","符号語の積"], c:0, e1:"対応するビットが異なる個数（x⊕y の 1 の数）。", e2:"dmin は全符号語対の距離の最小値で、検出・訂正能力を決める。"},
+ {src:"課題 8個の情報源記号", q:"系統符号の生成行列 G の形は？", opts:["[ I | P ]","[ Pᵀ | I ]","[ P | I ]","[ I | Pᵀ ]"], c:0, e1:"G = [ I | P ]。前半が単位行列。", e2:"符号語 = 情報ベクトル × G。検査行列は H = [ Pᵀ | I ] で形が逆。"},
+ {src:"課題 8個の情報源記号", q:"検査行列 H の形は？", opts:["[ Pᵀ | I ]","[ I | P ]","[ P | I ]","[ I | Pᵀ ]"], c:0, e1:"H = [ Pᵀ | I ]。", e2:"G=[I|P] と対。すべての符号語で H·cᵀ=0 が成り立つ。"},
+
+ // ═══ 第2章 情報量（教科書 2.3・2.5）═══
+ {src:"2.3 エントロピーの最小値と最大値", q:"エントロピーの最小値はいくつか？", opts:["0","1","log n","∞"], c:0, e1:"0。", e2:"ある事象の確率が1（結果が決まっている）とき。最大は log n。"},
+ {src:"2.3 エントロピーの最小値と最大値", q:"エントロピーが最小（0）になるのはどんなとき？", opts:["ある事象の確率が1のとき","すべて等確率のとき","事象が無限個のとき","確率が未知のとき"], c:0, e1:"ある事象の確率が1で、他が0のとき。", e2:"結果が完全に決まっているので不確実さゼロ。逆に等確率のとき最大 log n。"},
+ {src:"2.3 エントロピーの最小値と最大値", q:"n個の事象がすべて等確率のとき、エントロピーの値は？", opts:["log n","n","1/n","0"], c:0, e1:"H = log n。", e2:"例：n=2 なら 1bit、n=4 なら 2bit、n=8 なら 3bit。"},
+ {src:"2.5 結合と条件付きの関係", q:"H(A,B) を正しく表しているのは？", opts:["H(A) + H(B|A)","H(A) + H(B|A) − 1","H(A) × H(B|A)","H(A) − H(B|A)"], c:0, e1:"連鎖則 H(A,B) = H(A) + H(B|A)。", e2:"H(B) + H(A|B) とも書ける。掛け算や引き算ではない。"},
+ {src:"2.5 結合と条件付きの関係", q:"H(A|B) と H(A) の大小関係は？", opts:["H(A|B) ≦ H(A)","H(A|B) ≧ H(A)","つねに等しい","比較できない"], c:0, e1:"H(A|B) ≦ H(A)。情報を得れば不確実さは減る。", e2:"等号は A と B が独立のとき（B を知っても A について何も分からない）。"},
+ {src:"2.5 結合と条件付きの関係", q:"H(A|B) = H(A) が成り立つのはどんなとき？", opts:["A と B が独立のとき","A と B が同じとき","H(B)=0 のとき","つねに成り立つ"], c:0, e1:"A と B が独立のとき。", e2:"B を知っても A の不確実さが減らない＝相互情報量 I(A;B)=0。"},
+
+ // ═══ 第3章 情報源（3.4・3.5・3.6）═══
+ {src:"3.4 随伴情報源", q:"マルコフ情報源の定常分布だけを取り出し、無記憶とみなした情報源を何という？", opts:["随伴情報源","n次拡大情報源","定常情報源","独立情報源"], c:0, e1:"随伴情報源。", e2:"依存性を捨てて無記憶とみなしたもの。エントロピーは元より大きくなる。"},
+ {src:"3.4 随伴情報源", q:"随伴情報源のエントロピーと元のマルコフ情報源のエントロピーの関係は？", opts:["随伴のほうが大きい（または等しい）","随伴のほうが小さい","つねに等しい","決まらない"], c:0, e1:"H(随伴) ≧ H(マルコフ)。", e2:"依存性を無視した分だけ不確実さを多く見積もるため。"},
+ {src:"3.5 英文の近似", q:"英文の近似で次数を上げていくと、エントロピーはどうなる？", opts:["小さくなる","大きくなる","変わらない","0になる"], c:0, e1:"実際の英文に近づき、エントロピーは小さくなる。", e2:"0次（等確率）が最大。次数を上げるほど予測しやすくなる。"},
+ {src:"3.6 一般的な情報源のエントロピー", q:"一般的な情報源のエントロピーはどう定義される？", opts:["n次拡大の1記号あたりの極限","1次拡大の合計","最大の情報量","符号長の平均"], c:0, e1:"H = lim(n→∞) H(Sⁿ)/n。", e2:"n次拡大の「1記号あたり」の極限で定義する。"},
+
+ // ═══ 第4章 情報源符号化（4.1・4.4・4.6・4.7・4.9）═══
+ {src:"4.1 符号", q:"異なる情報源記号に同じ符号語を割り当ててしまった符号を何という？", opts:["特異符号","瞬時符号","コンパクト符号","巡回符号"], c:0, e1:"特異符号。復号できないので使えない。", e2:"分類は 特異 → 非特異だが一意復号不可 → 一意に復号可能 → 瞬時 の順に良くなる。"},
+ {src:"4.2 瞬時に復号可能な条件", q:"瞬時符号について正しいのは？", opts:["必ず一意に復号可能である","一意に復号できないことがある","語頭条件を満たさない","符号長がすべて等しい"], c:0, e1:"瞬時符号なら必ず一意に復号可能。", e2:"逆は成り立たない（一意に復号できても瞬時とは限らない）。包含関係に注意。"},
+ {src:"4.3 クラフトの不等式", q:"クラフトの不等式の式は？", opts:["Σ 2^(−lᵢ) ≦ 1","Σ 2^(lᵢ) ≦ 1","Σ lᵢ ≦ 1","Σ Pᵢlᵢ ≦ 1"], c:0, e1:"Σ 2^(-lᵢ) ≦ 1。", e2:"この式を満たす符号長の組があれば瞬時符号が存在する。逆に瞬時符号なら必ず満たす。"},
+ {src:"4.4 マクミランの不等式", q:"「一意に復号可能な符号も Σ2^(−lᵢ)≦1 を満たす」ことを示すのは？", opts:["マクミランの不等式","クラフトの不等式","ハミング界","シャノン限界"], c:0, e1:"マクミランの不等式。", e2:"つまり一意復号可能な符号で実現できる符号長は瞬時符号でも実現できる。だから瞬時符号だけ考えれば十分。"},
+ {src:"4.6 符号の効率と冗長度", q:"符号の効率 η の定義は？", opts:["H / L","L / H","L − H","H × L"], c:0, e1:"η = H / L。1 に近いほどよい。", e2:"L が H に近いほど効率がよい。冗長度は 1-η。"},
+ {src:"4.6 符号の効率と冗長度", q:"冗長度の定義は？", opts:["1 − η","η − 1","1 / η","H − L"], c:0, e1:"1 - η =（L-H）/ L。", e2:"効率の裏返し。0 に近いほどむだがない。"},
+ {src:"4.7 コンパクト符号化", q:"平均符号長が最小になる符号を何という？", opts:["コンパクト符号","特異符号","巡回符号","パリティ検査符号"], c:0, e1:"コンパクト符号。", e2:"ハフマン符号がこれを実現する。"},
+ {src:"4.7 コンパクト符号化", q:"コンパクト符号をつくる代表的な方法は？", opts:["ハフマン符号","ハミング符号","巡回符号","パリティ検査符号"], c:0, e1:"ハフマン符号。", e2:"最小の2つを結合していく手順が最適性を保証する。ハミング符号は誤り訂正用で別物。"},
+ {src:"4.9 情報源符号化の例", q:"ハフマン符号で最初に結合するのは？", opts:["確率が最小の2つ","確率が最大の2つ","符号長が最大の2つ","任意の2つ"], c:0, e1:"確率が最小の2つ。", e2:"これを繰り返して木を作る。結果として高確率の記号ほど根に近く、符号語が短くなる。"},
+ {src:"4.9 情報源符号化の例", q:"ハフマン符号で、確率が大きい記号の符号語長は？", opts:["短くなる","長くなる","変わらない","0になる"], c:0, e1:"短くなる。", e2:"高確率の記号は最後まで結合されず根に近い位置に残るため。これで L が小さくなる。"},
+ {src:"4.8 情報源符号化定理", q:"n次拡大を使うと、1記号あたりの平均符号長はどうなる？", opts:["エントロピーに近づく","エントロピーより小さくなる","大きくなる","変わらない"], c:0, e1:"エントロピー H に近づく。", e2:"H ≦ Lₙ/n < H + 1/n。n を大きくすると 1/n→0。ただし H より小さくはならない。"},
+
+ // ═══ 第5章 通信路（5.1〜5.5）═══
+ {src:"5.1 通信路", q:"送信記号 aᵢ が受信記号 bⱼ になる確率を何という？", opts:["遷移確率","事前確率","結合確率","定常分布"], c:0, e1:"遷移確率 P(bⱼ|aᵢ)。", e2:"並べたものが通信路行列。各行の和は1。"},
+ {src:"5.1 通信路", q:"0→1 と 1→0 の誤り確率が等しい通信路を何という？", opts:["二元対称通信路（BSC）","無雑音通信路","無情報通信路","巡回通信路"], c:0, e1:"二元対称通信路（BSC）。", e2:"誤り確率 p で反転する。容量は C = 1 - H(p)。"},
+ {src:"5.2 事前・事後エントロピー", q:"受信する前の送信記号の不確実さを何という？", opts:["事前エントロピー","事後エントロピー","相互情報量","通信路容量"], c:0, e1:"事前エントロピー H(A)。", e2:"受信後に残るのが事後エントロピー H(A|B)。差が相互情報量。"},
+ {src:"5.2 事前・事後エントロピー", q:"受信した後に残る不確実さ H(A|B) を何という？", opts:["事後エントロピー","事前エントロピー","結合エントロピー","冗長度"], c:0, e1:"事後エントロピー。", e2:"H(A) - H(A|B) が実際に得られた情報量＝相互情報量。"},
+ {src:"5.3 相互情報量", q:"相互情報量 I(A;B) の定義は？", opts:["H(A) − H(A|B)","H(A) + H(A|B)","H(A|B) − H(A)","H(A) × H(B)"], c:0, e1:"I(A;B) = H(A) - H(A|B)。", e2:"H(B)-H(B|A) とも H(A)+H(B)-H(A,B) とも書ける（対称）。"},
+ {src:"5.3 相互情報量", q:"相互情報量が表しているのは？", opts:["受信によって実際に得られた情報量","送信記号の総数","符号語の長さ","誤りの個数"], c:0, e1:"受信によって実際に得られた情報量（減った不確実さ）。", e2:"I≧0、独立なら 0、無雑音なら H(A) に等しい。"},
+ {src:"5.4 特徴のある通信路", q:"無雑音通信路では相互情報量 I(A;B) はどうなる？", opts:["H(A) に等しい","0 になる","負になる","1 になる"], c:0, e1:"I(A;B) = H(A)。送ったものが全部伝わる。", e2:"誤りがないので受信後の不確実さ H(A|B)=0。"},
+ {src:"5.4 特徴のある通信路", q:"無情報通信路では相互情報量 I(A;B) はどうなる？", opts:["0 になる","H(A) に等しい","1 になる","無限大になる"], c:0, e1:"I(A;B) = 0。何も伝わらない。", e2:"出力が入力と無関係＝独立。H(A|B)=H(A) なので差が0。"},
+ {src:"5.5 通信路容量", q:"通信路容量 C の定義は？", opts:["相互情報量の最大値","エントロピーの最小値","平均符号長の最大値","誤り率の平均"], c:0, e1:"C = max I(A;B)（入力分布を変えたときの最大値）。", e2:"単位は bit/記号。R<C が通信路符号化定理の条件。"},
+ {src:"5.5 通信路容量", q:"通信路容量を求めるとき、何を変えて最大化するか？", opts:["入力の確率分布","符号長","遷移確率","受信記号の数"], c:0, e1:"入力の確率分布。", e2:"遷移確率は通信路が決めるもので変えられない。入力側で最良の使い方をしたときの上限が C。"},
+
+ // ═══ 第6章 通信路符号化（6.1・6.2・6.5）═══
+ {src:"6.1 受信シンボルの判定", q:"受信語に最も近い符号語へ復号する方法を何という？", opts:["最小距離復号","語頭復号","巡回復号","平衡復号"], c:0, e1:"最小距離復号。", e2:"BSC で誤り確率 p<1/2 のとき、最尤復号とこれが一致する。"},
+ {src:"6.2 通信路符号化", q:"通信路符号化で情報ビットに加えるビットを何という？", opts:["検査ビット","情報ビット","符号語ビット","状態ビット"], c:0, e1:"検査ビット（冗長ビット）。", e2:"k 個の情報ビットに n-k 個加えて符号長 n にする。"},
+ {src:"6.2 通信路符号化", q:"通信路符号化の目的は？", opts:["信頼性を高めること","効率を高めること","符号長を短くすること","確率を求めること"], c:0, e1:"信頼性を高めること（誤りに強くする）。", e2:"効率を高めるのは情報源符号化（第4章）。方向が逆なので混同しない。"},
+ {src:"6.5 通信路符号化定理", q:"情報伝送速度 R の定義は？", opts:["k / n","n / k","k × n","n − k"], c:0, e1:"R = k / n。", e2:"小さいほど冗長で誤りに強いが遅い。R<C が定理の条件。"},
+ {src:"6.4 誤り検出・訂正の原理", q:"dmin = 5 の符号は何ビットまで訂正できるか？", opts:["2ビット","1ビット","4ビット","5ビット"], c:0, e1:"t = ⌊(5-1)/2⌋ = 2ビット。", e2:"検出は dmin-1 = 4ビットまで。"},
+ {src:"6.4 誤り検出・訂正の原理", q:"dmin = 3 の符号の検出・訂正能力は？", opts:["検出2ビット・訂正1ビット","検出1ビット・訂正1ビット","検出3ビット・訂正2ビット","検出3ビット・訂正1ビット"], c:0, e1:"検出 3-1=2ビット、訂正 ⌊(3-1)/2⌋=1ビット。", e2:"ハミング符号(7,4) がちょうどこれ。"},
+
+ // ═══ 第7章 線形符号（7.1〜7.4）═══
+ {src:"7.1 線形符号", q:"線形符号の演算はどの体で行うか？", opts:["mod 2（排他的論理和）","mod 10","実数の四則","mod 7"], c:0, e1:"mod 2（排他的論理和）。", e2:"1+1=0 になる。行列計算もすべて mod 2 で行う。"},
+ {src:"7.1 線形符号", q:"すべての符号語 c について成り立つ式は？", opts:["H・cᵀ = 0","G・cᵀ = 0","H・cᵀ = 1","G = H"], c:0, e1:"H・cᵀ = 0。", e2:"検査行列の定義そのもの。G との関係は G=[I|P]、H=[Pᵀ|I]。"},
+ {src:"7.1 線形符号", q:"検査行列と受信語から計算し、誤り位置を示すものを何という？", opts:["シンドローム","ハミング距離","定常分布","冗長度"], c:0, e1:"シンドローム S = H・(受信語)ᵀ。", e2:"S=0 なら誤りなし。S≠0 なら S と一致する H の列が誤り位置。"},
+ {src:"7.1 線形符号", q:"シンドロームが 0 のとき何が分かるか？", opts:["誤りがない","必ず誤りがある","2ビット誤り","符号語でない"], c:0, e1:"誤りがない（符号語である）。", e2:"S≠0 なら誤りがあり、その値で位置を特定できる。"},
+ {src:"7.2 パリティ検査符号", q:"パリティ検査符号の最小距離は？", opts:["2","1","3","4"], c:0, e1:"dmin = 2。", e2:"検査ビット1個で1の個数の偶奇をそろえるだけなので距離は2どまり。"},
+ {src:"7.2 パリティ検査符号", q:"パリティ検査符号の能力は？", opts:["1ビット検出のみ（訂正不可）","1ビット訂正できる","2ビット訂正できる","何もできない"], c:0, e1:"1ビット検出のみ。訂正はできない。", e2:"訂正は t=⌊(2-1)/2⌋=0 だから。1ビット誤りは検出できるが位置は分からない。"},
+ {src:"7.3 ハミング符号", q:"ハミング符号 (7,4) の最小距離は？", opts:["3","2","4","7"], c:0, e1:"dmin = 3。", e2:"(n,k)=(2ᵐ-1, 2ᵐ-1-m) で m=3 のとき。"},
+ {src:"7.3 ハミング符号", q:"ハミング符号 (7,4) の能力は？", opts:["1ビット訂正・2ビット検出","2ビット訂正・3ビット検出","検出のみ","3ビット訂正"], c:0, e1:"dmin = 3。", e2:"(n,k)=(2ᵐ-1, 2ᵐ-1-m) で m=3 のとき。"},
+ {src:"7.4 巡回符号", q:"符号語を巡回シフトしても符号語になる符号を何という？", opts:["巡回符号","パリティ検査符号","特異符号","コンパクト符号"], c:0, e1:"巡回符号。", e2:"生成多項式 g(x) で構成する。CRC などに実用されている。"},
+ {src:"7.4 巡回符号", q:"巡回符号の構成に使うのは？", opts:["生成多項式","平衡方程式","符号木","遷移確率"], c:0, e1:"生成多項式 g(x)。", e2:"符号語多項式は g(x) の倍数になる。回路が簡単に作れる。"},
+
+ // ═══ 付録 ═══
+ {src:"付録A 確率論の基本事項", q:"事象 A と B が独立のとき P(A∩B) は？", opts:["P(A)P(B)","P(A)+P(B)","P(A)/P(B)","P(A|B)"], c:0, e1:"P(A)P(B)。", e2:"このとき P(A|B)=P(A) でもある＝B を知っても A の確率は変わらない。"},
+ {src:"付録A 確率論の基本事項", q:"条件付確率 P(A|B) の定義は？", opts:["P(A∩B)/P(B)","P(A∩B)/P(A)","P(A)P(B)","P(A)+P(B)"], c:0, e1:"P(A|B) = P(A∩B) / P(B)。", e2:"条件付きエントロピー H(A|B) の計算はこの確率を使う。"},
+ {src:"付録E 2を底とする対数", q:"log₂8 の値は？", opts:["3","2","4","8"], c:0, e1:"3（2³=8 だから）。", e2:"log2=1, log4=2, log8=3, log16=4。この4つは即答できるように。"},
+ {src:"付録E 2を底とする対数", q:"log₂(1/x) を変形すると？", opts:["−log₂x","1/log₂x","log₂x","2^x"], c:0, e1:"-log₂x。", e2:"エントロピー計算で毎回使う変形。log(a/b)=log a - log b も一緒に。"},
+ {src:"付録C 命題論理", q:"「AならばB」でBが成り立つために A があれば足りるとき、A は B の何か？", opts:["十分条件","必要条件","必要十分条件","対偶"], c:0, e1:"A は B の十分条件。", e2:"逆に B は A の必要条件。A→B が真のとき、対偶 ¬B→¬A も真。"},
+];
+
+/* ===== 状態 ===== */
+let mode='bunsho', order=[], idx=0, score=0, answered=false;
+let expMode='kantan';
+try{ const v=localStorage.getItem('joho_exp'); if(v) expMode=v; }catch(e){}
+function setExp(m){ expMode=m; try{localStorage.setItem('joho_exp',m)}catch(e){}
+  document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===expMode));
+  if(mode==='keisan'){ const sb=document.getElementById('solBody');
+    if(sb&&calcQ) sb.innerHTML=(expMode==='kantan'&&calcQ.brief)?calcQ.brief():calcQ.sol(); }
+  document.querySelectorAll('[data-e1]').forEach(el=>{
+    el.innerHTML = el.getAttribute(expMode==='kantan'?'data-e1':'data-e2'); });
+}
+function segHTML(){ return `<span class="seg">
+  <button data-m="kantan" class="${expMode==='kantan'?'on':''}" onclick="setExp('kantan')">かんたん</button>
+  <button data-m="kuwashii" class="${expMode==='kuwashii'?'on':''}" onclick="setExp('kuwashii')">くわしい</button></span>`; }
+function expOf(o){ const t=(expMode==='kantan')?o.e1:o.e2; return t||o.e1||''; }
+function pool(){ return mode==='bunsho'?BSETS:SENTAKU; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function buildOrder(){ order = (mode==='sentaku') ? selPool() : [...pool().keys()]; }
+function switchMode(m){
+  if(mode===m) return;
+  mode=m; idx=0; score=0; answered=false; optMap=null;
+  document.getElementById('tabA').classList.toggle('active',m==='bunsho');
+  document.getElementById('tabB').classList.toggle('active',m==='sentaku');
+  document.getElementById('tabC').classList.toggle('active',m==='keisan');
+  document.getElementById('scorewrap').style.display=(m==='sentaku')?'inline':'none';
+  const isK=(m==='keisan');
+  document.getElementById('btnShuf').textContent = isK?'🎲 新しい数値':'🔀 順番を打ち乱す';
+  document.getElementById('btnRe').style.display = isK?'none':'';
+  if(isK){ calcQ=null; newCalc(); return; }
+  buildOrder(); render();
+}
+function shuffleNow(){ if(mode==='keisan'){ newCalc(); return; } shuffle(order); idx=0; score=0; answered=false; optMap=null; render(); }
+function restart(){ idx=0; score=0; answered=false; optMap=null; render(); }
+function next(){ if(idx<order.length-1){idx++;answered=false;optMap=null;render();} else renderDone(); }
+function prev(){ if(idx>0){idx--;answered=false;optMap=null;render();} }
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function norm(s){return (s||'').trim().toLowerCase().replace(/[\s　]/g,'').replace(/[（）()／]/g,'/');}
+function updateBar(){
+  if(mode==='keisan')return;
+  const cu=document.getElementById('cur'); if(!cu)return;
+  cu.textContent=idx+1;
+  const tt=document.getElementById('total'); if(tt)tt.textContent=order.length;
+  const un=document.getElementById('unit'); if(un)un.textContent=(mode==='bunsho')?'練習問題':'問';
+  const sc=document.getElementById('score'); if(sc)sc.textContent=score;
+}
+function render(){
+  const sw=document.getElementById('segWrap'); if(sw) sw.innerHTML=segHTML();
+  if(mode==='keisan'){
+    document.getElementById('stage').innerHTML = viewKeisan();
+    document.querySelector('.bar .prog').innerHTML =
+      '毎回ちがう数値で出題されます　<span style="color:var(--accent2);font-weight:700">'+esc(calcQ.kind)+'</span>';
+    return;
+  }
+  updateBar();
+  document.getElementById('stage').innerHTML = (mode==='bunsho')?viewBunsho():viewSentaku();
+  if(mode==='bunsho'){ const el=document.getElementById('bi0'); if(el) el.focus(); }
+}
+
+/* --- 文章題（練習問題まるごと1セット） --- */
+let biMap=[];
+function viewBunsho(){
+  const st=BSETS[order[idx]];
+  biMap=[]; let k=0;
+  const body=st.lines.map(ln=>{
+    if(ln.plain) return `<div class="bline plainl">${esc(ln.plain)}</div>`;
+    let html=esc(ln.t);
+    (ln.a||[]).forEach(ans=>{
+      const w=Math.max(78,Math.min(210,ans.v.length*17+46));
+      html=html.replace('___',
+        `<input class="bi" id="bi${k}" data-k="${k}" style="width:${w}px" autocomplete="off"
+           onkeydown="if(event.key==='Enter')checkBunsho()">`);
+      biMap.push(ans); k++;
+    });
+    const no=ln.no?`<span class="lno">${esc(ln.no)}.</span>`:(ln.sub?'<span class="lno"></span>':'');
+    const rf=ln.ref?`<div class="refl">※ <b>${esc(ln.ref)}</b></div>`:'';
+    const wh=(ln.a||[]).map((ans,j)=>ans.e1?
+      `<div class="whyl" id="wy${k-(ln.a.length)+j}" data-e1="${esc(ans.e1)}" data-e2="${esc(ans.e2||ans.e1)}">${esc(expOf(ans))}</div>`:'').join('');
+    const ex=ln.ex?`<div class="exl" data-ex="1"><b>指し示す内容：</b>${esc(ln.ex)}</div>`:'';
+    return `<div class="bline ${ln.sub?'subl':''}">${no}<span class="btxt">${html}</span></div>${rf}${ex}${wh}`;
+  }).join('');
+  return `<div class="card">
+    <div class="qno">文章題 · 穴埋め（この練習問題ぜんぶ）</div>
+    <div class="setttl">${esc(st.src)}</div>
+    ${body}
+    <div class="feedback" id="fb"></div>
+    <div class="sc" id="sc"></div>
+    <div class="inrow">
+      <button class="btn btn-accent" style="flex:1" onclick="checkBunsho()">判定</button>
+      <button class="btn btn-line" style="flex:1" onclick="revealBunsho()">答えを見る</button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-line" onclick="prev()">← 前の練習問題</button>
+      <button class="btn btn-accent" onclick="next()">次の練習問題 →</button>
+    </div>
+  </div>`;
+}
+function checkBunsho(){
+  let ok=0,filled=0;
+  biMap.forEach((ans,i)=>{
+    const el=document.getElementById('bi'+i); if(!el)return;
+    const v=el.value.trim();
+    el.classList.remove('ok','ng');
+    if(!v)return;
+    filled++;
+    const oks=[ans.v,...(ans.alt||[])].map(norm);
+    const wy=document.getElementById('wy'+i);
+    if(oks.includes(norm(v))){el.classList.add('ok');ok++; if(wy)wy.classList.remove('show')}
+    else {el.classList.add('ng'); if(wy)wy.classList.add('show')}
+  });
+  const fb=document.getElementById('fb');
+  const sc=document.getElementById('sc');
+  if(!filled){fb.textContent='答えを入力してください';fb.className='feedback ng';sc.textContent='';return}
+  sc.textContent=`${biMap.length} 個中 ${ok} 個 正解`;
+  if(ok===biMap.length){fb.textContent='◯ 全問正解！';fb.className='feedback ok'}
+  else{fb.textContent='✕ ちがう空欄があります（赤い枠）';fb.className='feedback ng'}
+  openEx();
+}
+function openEx(){ document.querySelectorAll('.exl[data-ex]').forEach(e=>e.classList.add('show')); }
+function revealBunsho(){
+  biMap.forEach((ans,i)=>{
+    const el=document.getElementById('bi'+i); if(!el)return;
+    if(!el.value.trim()){el.value=ans.v;el.classList.remove('ng');el.classList.add('ok')}
+    const wy=document.getElementById('wy'+i); if(wy)wy.classList.add('show');
+  });
+  const fb=document.getElementById('fb');
+  fb.textContent='空欄に正解を入れました';fb.className='feedback ok';
+  openEx();
+}
+
+/* --- 選択題 --- */
+let optMap=null;   // 表示順 → 元のindex
+let selFilter="all";
+function setSelFilter(f){
+  selFilter=f; idx=0; score=0; answered=false; optMap=null; buildOrder(); render();
+}
+function selPool(){
+  if(selFilter==="all") return SENTAKU.map((q,i)=>i);
+  if(selFilter==="ren") return SENTAKU.map((q,i)=>i).filter(i=>SENTAKU[i].src.startsWith("練習")||SENTAKU[i].src.startsWith("課題"));
+  return SENTAKU.map((q,i)=>i).filter(i=>SENTAKU[i].src.startsWith(selFilter));
+}
+function viewSentaku(){
+  const q=SENTAKU[order[idx]];
+  if(!optMap || optMap.key!==order[idx]){
+    const ids=shuffle([...q.opts.keys()]);
+    optMap={key:order[idx], ids};
+  }
+  const opts=optMap.ids.map((oi,pos)=>
+    `<button class="opt" data-i="${oi}" onclick="pickSentaku(${oi})">${esc(q.opts[oi])}</button>`).join('');
+  const chips=[["all","すべて"],["ren","練習問題から"],["2.","第2章"],["3.","第3章"],["4.","第4章"],
+    ["5.","第5章"],["6.","第6章"],["7.","第7章"],["付録","付録"]]
+    .map(([v,l])=>`<button class="chip ${selFilter===v?'on':''}" onclick="setSelFilter('${v}')">${l}</button>`).join('');
+  return `<div class="chips">${chips}</div>
+   <div class="card">
+    <div class="qno">選択題 · 重要な定理・キーワード</div>
+    <div class="src">${esc(q.src)}</div>
+    <div class="qtext">${esc(q.q)}</div>
+    <div class="opts" id="opts">${opts}</div>
+    <div class="why" id="why" data-e1="${esc(q.e1||'')}" data-e2="${esc(q.e2||q.e1||'')}">
+      <span class="wq">解説</span>${esc(expOf(q))}</div>
+    <div class="nav">
+      <button class="btn btn-line" onclick="prev()">← 前へ</button>
+      <button class="btn btn-accent" onclick="next()">次へ →</button>
+    </div>
+  </div>`;
+}
+function pickSentaku(i){
+  if(answered) return;
+  answered=true;
+  const q=SENTAKU[order[idx]];
+  document.querySelectorAll('#opts .opt').forEach(b=>{
+    b.classList.add('disabled');
+    const bi=+b.dataset.i;
+    if(bi===q.c) b.classList.add('correct');
+    else if(bi===i) b.classList.add('wrong');
+  });
+  if(i===q.c) score++;
+  else { const w=document.getElementById('why'); if(w) w.classList.add('show'); }
+  updateBar();
+}
+
+/* --- 完了 --- */
+function renderDone(){
+  const total=order.length;
+  const stage=document.getElementById('stage');
+  if(mode==='sentaku'){
+    stage.innerHTML=`<div class="card done"><div class="big">${score} / ${total}</div>
+      <p>正解率 ${Math.round(score/total*100)}%</p>
+      <div class="rowbtns"><button class="btn btn-accent" onclick="restart()">もう一度</button>
+      <button class="btn btn-line" onclick="shuffleNow()">打ち乱してやり直す</button></div></div>`;
+  } else {
+    stage.innerHTML=`<div class="card done"><div class="big">お疲れさま！</div>
+      <p>文章題 全 ${total} 練習問題 終了</p>
+      <div class="rowbtns"><button class="btn btn-accent" onclick="restart()">もう一度</button>
+      <button class="btn btn-line" onclick="shuffleNow()">打ち乱してやり直す</button></div></div>`;
+  }
+}
+
+/* =========================================================
+   計算題モジュール（毎回 数値が変わる）
+   ========================================================= */
+function gg(a,b){a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t}return a||1}
+function F(n,d){d=(d===undefined)?1:d; if(d<0){n=-n;d=-d} const k=gg(n,d); return {n:n/k,d:d/k}}
+function Fadd(a,b){return F(a.n*b.d+b.n*a.d,a.d*b.d)}
+function Fmul(a,b){return F(a.n*b.n,a.d*b.d)}
+function Fz(a){return a.n===0}
+function Fs(a){return a.d===1?String(a.n):a.n+"/"+a.d}
+function Fv(a){return a.n/a.d}
+function S0(){return {c:F(0),L:{}}}
+function Sadd(x,y){const r={c:Fadd(x.c,y.c),L:Object.assign({},x.L)};
+  for(const p in y.L) r.L[p]=r.L[p]?Fadd(r.L[p],y.L[p]):y.L[p]; return r}
+function Smul(x,k){const r={c:Fmul(x.c,k),L:{}};for(const p in x.L)r.L[p]=Fmul(x.L[p],k);return r}
+function logInt(n){const r=S0();let m=n;
+  for(const p of [2,3,5,7,11,13]){while(m%p===0){m/=p;
+    if(p===2)r.c=Fadd(r.c,F(1)); else r.L[p]=r.L[p]?Fadd(r.L[p],F(1)):F(1);}}
+  return r}
+function Sstr(x){
+  const t=[];
+  if(!Fz(x.c))t.push({neg:x.c.n<0,s:Fs(F(Math.abs(x.c.n),x.c.d))});
+  for(const p of Object.keys(x.L).map(Number).sort((a,b)=>a-b)){
+    const co=x.L[p]; if(Fz(co))continue;
+    const ab=F(Math.abs(co.n),co.d);
+    t.push({neg:co.n<0,s:(ab.n===1&&ab.d===1)?("log"+p):("("+Fs(ab)+")log"+p)});
+  }
+  if(!t.length)return "0";
+  const fi=t.findIndex(v=>!v.neg); if(fi>0)t.unshift(t.splice(fi,1)[0]);
+  let out=(t[0].neg?"-":"")+t[0].s;
+  for(let i=1;i<t.length;i++)out+=(t[i].neg?" - ":" + ")+t[i].s;
+  return out;
+}
+function Sval(x){let v=Fv(x.c);for(const p in x.L)v+=Fv(x.L[p])*Math.log2(Number(p));return v}
+function entropyS(cnt){const N=cnt.reduce((a,b)=>a+b,0);let x=logInt(N);
+  for(const n of cnt)x=Sadd(x,Smul(logInt(n),F(-n,N)));return x}
+function infoS(n,N){return Sadd(logInt(N),Smul(logInt(n),F(-1)))}
+function evalExpr(s){
+  if(!s)return NaN;
+  s=String(s).replace(/[　\s]/g,'').replace(/[（]/g,'(').replace(/[）]/g,')')
+   .replace(/[×・*]/g,'*').replace(/[÷]/g,'/').replace(/bit|ビット/gi,'')
+   .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+   .replace(/log₂/g,'log').replace(/log_?2(?=[^0-9]|$)/g,'log');
+  if(/[^0-9+\-*/().logLOG]/.test(s))return NaN;
+  s=s.replace(/log(\d+)/gi,'L($1)');
+  s=s.replace(/(\d|\))\s*L\(/g,'$1*L(');
+  s=s.replace(/\)\s*\(/g,')*(').replace(/(\d)\s*\(/g,'$1*(');
+  try{const v=new Function('L','return ('+s+')')(x=>Math.log2(x)); return (typeof v==='number'&&isFinite(v))?v:NaN}catch(e){return NaN}
+}
+const RI=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+
+/* ---------- ③ 情報量とエントロピー ---------- */
+function genEntropy(){
+  const NICE=[[8,[1,2,3,4,5,6]],[10,[1,2,3,4,5,6]],[16,[1,2,3,4,5,6,8,9,10]],[12,[1,2,3,4,5,6,8,9]]];
+  let N,pool,cnt;
+  for(let g=0;g<300;g++){
+    [N,pool]=pick(NICE);
+    const k=RI(3,4); cnt=[]; let rest=N;
+    let ok=true;
+    for(let i=0;i<k-1;i++){
+      const cand=pool.filter(v=>v<=rest-(k-1-i));
+      if(!cand.length){ok=false;break}
+      const v=pick(cand); cnt.push(v); rest-=v;
+    }
+    if(!ok)continue;
+    cnt.push(rest);
+    if(cnt.some(v=>v<1)||!pool.includes(rest))continue;
+    const s=entropyS(cnt);
+    // log3 か log5 が残る「ちょうどよい」問題に限定
+    if(Object.keys(s.L).length===0)continue;
+    if(Object.keys(s.L).some(p=>Number(p)>7))continue;
+    break;
+  }
+  const N2=cnt.reduce((a,b)=>a+b,0);
+  const names=["s1","s2","s3","s4","s5"].slice(0,cnt.length);
+  const target=RI(0,cnt.length-1);
+  const Hs=entropyS(cnt), Is=infoS(cnt[target],N2);
+  const rows=cnt.map((v,i)=>`<tr><td>${names[i]}</td><td>${v}/${N2}</td></tr>`).join('');
+  return {
+    kind:"③ 情報量とエントロピー",
+    given:`<div class="given">無記憶情報源 S の確率分布：
+      <table><tr><th>記号</th><th>確率</th></tr>${rows}</table></div>`,
+    ask:`次を求めよ（log の底は 2、答えは log のままでよい）`,
+    fields:[
+      {label:`(1) 記号 ${names[target]} の情報量 I`, ans:Sval(Is), disp:Sstr(Is)+" (bit)", ph:"例: 3-log3"},
+      {label:`(2) エントロピー H(S)`, ans:Sval(Hs), disp:Sstr(Hs)+" (bit)", ph:"例: 5/2-(3/8)log3"}
+    ],
+    brief:()=>`<div class="stp">
+      <b>使う式</b>： I = -log P　／　H = -Σ P log P<br>
+      (1) I(${names[target]}) = -log(${cnt[target]}/${N2}) = <span class="fin">${Sstr(Is)}</span><br>
+      (2) H(S) = <span class="fin">${Sstr(Hs)}</span></div>`,
+    sol:()=>{
+      const st=cnt.map((v,i)=>`　I(${names[i]}) = -log(${v}/${N2}) = <b>${Sstr(infoS(v,N2))}</b>`).join('<br>');
+      const terms=cnt.map(v=>`-(${v}/${N2})log(${v}/${N2})`).join(' ');
+      return `<div class="stp">
+        <b>(1) 情報量</b> I = -log P<br>${st}<br><br>
+        <b>(2) エントロピー</b> H = -Σ P log P<br>
+        　H = ${terms}<br>
+        　　= log${N2} - (1/${N2})[ ${cnt.map(v=>v+"·log"+v).join(' + ')} ]<br>
+        　　= <span class="fin">${Sstr(Hs)} (bit)</span></div>`;
+    }
+  };
+}
+
+/* ---------- ② ハフマン符号 ---------- */
+function genHuffman(){
+  let vals;
+  for(let g=0;g<200;g++){
+    const k=pick([4,4,5]);
+    vals=[]; let rest=100;
+    for(let i=0;i<k-1;i++){const v=RI(5,Math.max(5,Math.floor(rest-(k-1-i)*5)-5));vals.push(v);rest-=v}
+    vals.push(rest);
+    if(vals.some(v=>v<5||v>60))continue;
+    if(new Set(vals).size<k-1)continue;
+    break;
+  }
+  const names=["s1","s2","s3","s4","s5"].slice(0,vals.length);
+  const items=names.map((s,i)=>({s,p:vals[i]/100}));
+  // ハフマン（手順記録つき）
+  let nodes=items.map(o=>({p:o.p,leaf:o.s,code:{}}));
+  nodes.forEach(n=>{n.set=[n.leaf]});
+  const steps=[]; let work=nodes.map(n=>({p:n.p,set:[n.leaf]}));
+  const codes={}; names.forEach(s=>codes[s]="");
+  while(work.length>1){
+    work.sort((a,b)=>a.p-b.p||a.set.join().localeCompare(b.set.join()));
+    const lo=work.shift(), hi=work.shift();
+    lo.set.forEach(s=>codes[s]="0"+codes[s]);
+    hi.set.forEach(s=>codes[s]="1"+codes[s]);
+    steps.push(`最小の2つ ${lo.set.join("+")}(${lo.p.toFixed(2)}) と ${hi.set.join("+")}(${hi.p.toFixed(2)}) を結合 → ${(lo.p+hi.p).toFixed(2)}`);
+    work.push({p:lo.p+hi.p,set:lo.set.concat(hi.set)});
+  }
+  const L=items.reduce((a,o)=>a+o.p*codes[o.s].length,0);
+  const rows=items.map(o=>`<tr><td>${o.s}</td><td>${o.p.toFixed(2)}</td></tr>`).join('');
+  const rows2=items.map(o=>`<tr><td>${o.s}</td><td>${o.p.toFixed(2)}</td><td><code>${codes[o.s]}</code></td><td>${codes[o.s].length}</td><td>${(o.p*codes[o.s].length).toFixed(2)}</td></tr>`).join('');
+  return {
+    kind:"② ハフマン符号",
+    given:`<div class="given">情報源 S の確率：
+      <table><tr><th>記号</th><th>確率</th></tr>${rows}</table></div>`,
+    ask:`ハフマン符号を作り、平均符号長 L を求めよ。（結合と並べ換えの手順も紙に書くこと）`,
+    fields:[{label:"平均符号長 L", ans:Number(L.toFixed(10)), disp:L.toFixed(2)+" bit", ph:"例: 1.85"}],
+    brief:()=>`<div class="stp"><b>使う式</b>： L = Σ Pᵢlᵢ（最小の2つを結合していく）<br>
+      符号長： ${items.map(o=>o.s+"="+codes[o.s].length).join("、")}<br>
+      L = <span class="fin">${L.toFixed(2)} bit</span></div>`,
+    sol:()=>`<div class="stp"><b>結合の手順</b><br>${steps.map((s,i)=>`　${i+1}. ${s}`).join('<br>')}<br><br>
+      <b>符号語と符号長</b>
+      <table style="width:100%;border-collapse:collapse;margin-top:6px">
+      <tr><th>記号</th><th>確率</th><th>符号語</th><th>長さ</th><th>P·l</th></tr>${rows2}</table>
+      <br>L = ${items.map(o=>o.p.toFixed(2)+"×"+codes[o.s].length).join(" + ")} = <span class="fin">${L.toFixed(2)} bit</span>
+      <br><span class="hint">※ 0/1 の割り当ては流儀により違ってよい。符号長の組が同じなら L は同じ。</span></div>`
+  };
+}
+
+/* ---------- ④ ハミング符号と訂正 ---------- */
+function hd(a,b){let d=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])d++;return d}
+function genHamming(){
+  const n=pick([5,6,7]);
+  let C,dmin,r,near;
+  for(let g=0;g<500;g++){
+    C=[Array(n).fill(0)];
+    for(let i=0;i<2;i++)C.push(Array.from({length:n},()=>RI(0,1)));
+    const ds=[hd(C[0],C[1]),hd(C[0],C[2]),hd(C[1],C[2])];
+    dmin=Math.min(...ds);
+    if(dmin<3||dmin>n-1)continue;
+    // 受信語：ある符号語を t ビット反転（一意に最近になるもの）
+    const base=RI(0,2); r=C[base].slice();
+    const t=Math.floor((dmin-1)/2);
+    const flips=[]; while(flips.length<Math.max(1,t)){const q=RI(0,n-1);if(!flips.includes(q))flips.push(q)}
+    flips.forEach(q=>r[q]=1-r[q]);
+    const dd=C.map(c=>hd(r,c)); const mn=Math.min(...dd);
+    if(dd.filter(x=>x===mn).length!==1)continue;
+    near=dd.indexOf(mn); break;
+  }
+  const bs=a=>"("+a.join(",")+")";
+  const d01=hd(C[0],C[1]),d02=hd(C[0],C[2]),d12=hd(C[1],C[2]);
+  const tD=dmin-1, tC=Math.floor((dmin-1)/2);
+  return {
+    kind:"④ ハミング符号と訂正",
+    given:`<div class="given">符号 C = {C1, C2, C3}<br>
+      　C1 = <code>${bs(C[0])}</code><br>　C2 = <code>${bs(C[1])}</code><br>　C3 = <code>${bs(C[2])}</code><br>
+      　受信語 b = <code>${bs(r)}</code></div>`,
+    ask:`次を求めよ`,
+    fields:[
+      {label:"(1) 最小距離 dmin", ans:dmin, disp:String(dmin), ph:"整数"},
+      {label:"(2) 誤り検出可能なビット数", ans:tD, disp:tD+" bit", ph:"整数"},
+      {label:"(3) 誤り訂正可能なビット数", ans:tC, disp:tC+" bit", ph:"整数"},
+      {label:"(4) 受信語 b はどれに復号されるか（1/2/3 で答える）", ans:near+1, disp:"C"+(near+1), ph:"1 か 2 か 3"}
+    ],
+    brief:()=>`<div class="stp">
+      <b>使う式</b>： 検出 dmin ≧ t'+1　／　訂正 dmin ≧ 2t+1　／　復号は最も近い符号語<br>
+      dmin = <span class="fin">${dmin}</span>、検出 <span class="fin">${tD}bit</span>、訂正 <span class="fin">${tC}bit</span>、復号先 <span class="fin">C${near+1}</span></div>`,
+    sol:()=>`<div class="stp">
+      <b>(1)</b> dH(C1,C2)=${d01}、dH(C1,C3)=${d02}、dH(C2,C3)=${d12} → dmin = <span class="fin">${dmin}</span><br><br>
+      <b>(2)</b> dmin ≧ t'+1 → ${dmin} ≧ t'+1 → t' ≦ ${tD}　∴ <span class="fin">${tD} bit</span><br><br>
+      <b>(3)</b> dmin ≧ 2t+1 → ${dmin} ≧ 2t+1 → t ≦ ${((dmin-1)/2).toFixed(1)}　∴ <span class="fin">${tC} bit</span><br><br>
+      <b>(4)</b> dH(b,C1)=${hd(r,C[0])}、dH(b,C2)=${hd(r,C[1])}、dH(b,C3)=${hd(r,C[2])}
+      → 最も近い <span class="fin">C${near+1}</span> に復号</div>`
+  };
+}
+
+/* ---------- ⑤ 線形符号 ---------- */
+function genLinear(){
+  const k=pick([2,2,3]), m=k===2?3:4, n=k+m;
+  let P;
+  for(let g=0;g<300;g++){
+    P=[]; // k×m : P[i][j] = 情報ビット i が検査ビット j に寄与するか
+    for(let i=0;i<k;i++)P.push(Array.from({length:m},()=>RI(0,1)));
+    const colOK=Array.from({length:m},(_,j)=>P.some(r=>r[j]===1));
+    const rowOK=P.every(r=>r.some(v=>v===1));
+    const cols=Array.from({length:m},(_,j)=>P.map(r=>r[j]).join(''));
+    if(colOK.every(Boolean)&&rowOK&&new Set(cols).size===m)break;
+  }
+  const iv=Array.from({length:k},()=>RI(0,1));
+  const par=j=>P.reduce((a,r,i)=>(a+r[j]*iv[i])%2,0);
+  const cw=iv.concat(Array.from({length:m},(_,j)=>par(j)));
+  const iN=Array.from({length:k},(_,i)=>"i"+(i+1));
+  const pN=Array.from({length:m},(_,j)=>"P"+(j+1));
+  const eqs=pN.map((p,j)=>{
+    const t=iN.filter((_,i)=>P[i][j]===1);
+    return `${p} = ${t.join(" + ")}`;
+  });
+  const G=Array.from({length:k},(_,i)=>
+    Array.from({length:k},(_,t)=>t===i?1:0).concat(P[i]));
+  const H=Array.from({length:m},(_,j)=>
+    Array.from({length:k},(_,i)=>P[i][j]).concat(Array.from({length:m},(_,t)=>t===j?1:0)));
+  const mat=M=>`<table style="width:auto;margin-top:4px">${M.map(r=>`<tr>${r.map(v=>`<td style="padding:3px 9px">${v}</td>`).join('')}</tr>`).join('')}</table>`;
+  return {
+    kind:"⑤ 線形符号",
+    given:`<div class="given">情報ビット ${k} 個、符号長 ${n}。符号語 = [${iN.join(", ")}, ${pN.join(", ")}]<br>
+      検査式：<br>　${eqs.join("<br>　")}<br><br>
+      情報ビット [${iv.join(", ")}] を符号化せよ。</div>`,
+    ask:`次を求めよ（すべて mod 2）`,
+    fields:[{label:`符号語（${n}桁、例: ${Array(n).fill(0).join("")}）`, ans:cw.join(''), str:true,
+             alt:[cw.join(','),cw.join(', '),"["+cw.join(',')+"]"], disp:"["+cw.join(", ")+"]", ph:cw.map(()=>"_").join("")}],
+    brief:()=>`<div class="stp">
+      <b>やること</b>： 情報ビットを検査式に代入（mod 2）して検査ビットを求め、後ろに並べる<br>
+      符号語 = <span class="fin">[${cw.join(", ")}]</span></div>`,
+    sol:()=>`<div class="stp">
+      <b>検査ビットを計算</b><br>
+      ${pN.map((p,j)=>{const t=iN.filter((_,i)=>P[i][j]===1);
+        const vs=iN.map((_,i)=>P[i][j]===1?iv[i]:null).filter(v=>v!==null);
+        return `　${p} = ${t.join(" + ")} = ${vs.join(" + ")} = ${par(j)}`;}).join("<br>")}
+      <br><br><b>符号語</b> = <span class="fin">[${cw.join(", ")}]</span><br><br>
+      <b>生成行列 G = [ I | P ]</b>${mat(G)}
+      <b>検査行列 H = [ Pᵀ | I ]</b>${mat(H)}
+      <span class="hint">※ H·(符号語)ᵀ = 0 で検算できる。</span></div>`
+  };
+}
+
+const GENS={ "3":genEntropy, "2":genHuffman, "4":genHamming, "5":genLinear };
+let calcType="all", calcQ=null, calcDone=false;
+function newCalc(){
+  const keys = calcType==="all" ? ["2","3","4","5"] : [calcType];
+  calcQ = GENS[pick(keys)]();
+  calcDone=false; render();
+}
+function setCalcType(t){ calcType=t; newCalc(); }
+function viewKeisan(){
+  if(!calcQ) calcQ=GENS[pick(["2","3","4","5"])]();
+  const q=calcQ;
+  const chips=[["all","すべて"],["2","② ハフマン"],["3","③ エントロピー"],["4","④ ハミング"],["5","⑤ 線形符号"]]
+    .map(([v,l])=>`<button class="chip ${calcType===v?'on':''}" onclick="setCalcType('${v}')">${l}</button>`).join('');
+  const flds=q.fields.map((f,i)=>`<div class="fld">
+      <label>${f.label}<span class="mk" id="mk${i}"></span></label>
+      <input id="cf${i}" type="text" placeholder="${f.ph||''}" autocomplete="off"
+        onkeydown="if(event.key==='Enter')checkCalc()">
+    </div>`).join('');
+  return `<div class="chips">${chips}</div>
+   <div class="card">
+    <div class="qno">計算題 · ${esc(q.kind)}</div>
+    <div class="qtext" style="font-size:17px">${q.ask}</div>
+    ${q.given}
+    ${flds}
+    <div class="feedback" id="fb"></div>
+    <div class="inrow" style="margin-top:14px">
+      <button class="btn btn-accent" style="flex:1" onclick="checkCalc()">判定</button>
+      <button class="btn btn-line" style="flex:1" onclick="showCalcSol()">解答・解説</button>
+    </div>
+    <div class="sol" id="sol"><h4>解答と手順</h4>
+      <div id="solBody">${expMode==='kantan'&&q.brief?q.brief():q.sol()}</div></div>
+    <div class="nav"><button class="btn btn-accent" style="flex:1" onclick="newCalc()">🎲 新しい数値で出題</button></div>
+   </div>`;
+}
+function checkCalc(){
+  const q=calcQ; let allok=true, any=false;
+  q.fields.forEach((f,i)=>{
+    const raw=document.getElementById('cf'+i).value.trim();
+    const mk=document.getElementById('mk'+i);
+    if(!raw){ mk.textContent=''; allok=false; return }
+    any=true; let ok;
+    if(f.str){
+      const nz=s=>String(s).replace(/[\s,\[\]　]/g,'');
+      ok = nz(raw)===nz(f.ans) || (f.alt||[]).some(a=>nz(raw)===nz(a));
+    } else {
+      const v=evalExpr(raw);
+      ok = isFinite(v) && Math.abs(v-f.ans)<1e-6;
+    }
+    mk.textContent = ok?'◯':'✕';
+    mk.style.color = ok?'var(--ok)':'var(--ng)';
+    if(!ok)allok=false;
+  });
+  const fb=document.getElementById('fb');
+  if(!any){ fb.textContent='答えを入力してください'; fb.className='feedback ng'; return }
+  if(allok){ fb.textContent='◯ 全問正解！'; fb.className='feedback ok'; }
+  else { fb.textContent='✕ ちがう項目があります（解答・解説で確認）'; fb.className='feedback ng'; }
+  showCalcSol();
+}
+function showCalcSol(){
+  const sb=document.getElementById('solBody');
+  if(sb) sb.innerHTML = (expMode==='kantan'&&calcQ.brief)?calcQ.brief():calcQ.sol();
+  document.getElementById('sol').classList.add('show');
+  calcQ.fields.forEach((f,i)=>{
+    const mk=document.getElementById('mk'+i);
+    if(!mk.textContent) mk.innerHTML=`<span style="color:var(--sub);font-weight:600;font-size:13px">→ ${f.disp}</span>`;
+  });
+}
+
+buildOrder(); render();
+</script>
+</body>
+</html>
