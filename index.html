@@ -333,7 +333,7 @@ const SENTAKU = [
  {src:"7.2 パリティ検査符号", q:"パリティ検査符号の最小距離は？", opts:["2","1","3","4"], c:0, e1:"dmin = 2。", e2:"検査ビット1個で1の個数の偶奇をそろえるだけなので距離は2どまり。"},
  {src:"7.2 パリティ検査符号", q:"パリティ検査符号の能力は？", opts:["1ビット検出のみ（訂正不可）","1ビット訂正できる","2ビット訂正できる","何もできない"], c:0, e1:"1ビット検出のみ。訂正はできない。", e2:"訂正は t=⌊(2-1)/2⌋=0 だから。1ビット誤りは検出できるが位置は分からない。"},
  {src:"7.3 ハミング符号", q:"ハミング符号 (7,4) の最小距離は？", opts:["3","2","4","7"], c:0, e1:"dmin = 3。", e2:"(n,k)=(2ᵐ-1, 2ᵐ-1-m) で m=3 のとき。"},
- {src:"7.3 ハミング符号", q:"ハミング符号 (7,4) の能力は？", opts:["1ビット訂正・2ビット検出","2ビット訂正・3ビット検出","検出のみ","3ビット訂正"], c:0, e1:"dmin = 3。", e2:"(n,k)=(2ᵐ-1, 2ᵐ-1-m) で m=3 のとき。"},
+ {src:"7.3 ハミング符号", q:"ハミング符号 (7,4) の能力は？", opts:["1ビット訂正・2ビット検出","2ビット訂正・3ビット検出","検出のみ","3ビット訂正"], c:0, e1:"1ビット訂正・2ビット検出。", e2:"dmin=3 から t=⌊(3-1)/2⌋=1、t'=3-1=2。H の列がすべて異なるのでシンドロームが誤り位置を直接指す。"},
  {src:"7.4 巡回符号", q:"符号語を巡回シフトしても符号語になる符号を何という？", opts:["巡回符号","パリティ検査符号","特異符号","コンパクト符号"], c:0, e1:"巡回符号。", e2:"生成多項式 g(x) で構成する。CRC などに実用されている。"},
  {src:"7.4 巡回符号", q:"巡回符号の構成に使うのは？", opts:["生成多項式","平衡方程式","符号木","遷移確率"], c:0, e1:"生成多項式 g(x)。", e2:"符号語多項式は g(x) の倍数になる。回路が簡単に作れる。"},
 
@@ -579,217 +579,160 @@ function entropyS(cnt){const N=cnt.reduce((a,b)=>a+b,0);let x=logInt(N);
   for(const n of cnt)x=Sadd(x,Smul(logInt(n),F(-n,N)));return x}
 function infoS(n,N){return Sadd(logInt(N),Smul(logInt(n),F(-1)))}
 function evalExpr(s){
-  if(!s)return NaN;
-  s=String(s).replace(/[　\s]/g,'').replace(/[（]/g,'(').replace(/[）]/g,')')
-   .replace(/[×・*]/g,'*').replace(/[÷]/g,'/').replace(/bit|ビット/gi,'')
-   .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
-   .replace(/log₂/g,'log').replace(/log_?2(?=[^0-9]|$)/g,'log');
-  if(/[^0-9+\-*/().logLOG]/.test(s))return NaN;
-  s=s.replace(/log(\d+)/gi,'L($1)');
-  s=s.replace(/(\d|\))\s*L\(/g,'$1*L(');
-  s=s.replace(/\)\s*\(/g,')*(').replace(/(\d)\s*\(/g,'$1*(');
-  try{const v=new Function('L','return ('+s+')')(x=>Math.log2(x)); return (typeof v==='number'&&isFinite(v))?v:NaN}catch(e){return NaN}
+ if(!s)return NaN;
+ s=String(s).replace(/[　\s]/g,'').replace(/[（]/g,'(').replace(/[）]/g,')')
+  .replace(/[×・*]/g,'*').replace(/[÷]/g,'/').replace(/bit|ビット/gi,'')
+  .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+  .replace(/log[₂]/g,'log').replace(/log_2/g,'log');
+ s=s.replace(/log\(\s*(\d+)\s*\)/gi,'L($1)');
+ s=s.replace(/log\s*(\d+)/gi,'L($1)');
+ if(/[^0-9+\-*/().L]/.test(s))return NaN;
+ s=s.replace(/(\d|\))\s*L\(/g,'$1*L(');
+ s=s.replace(/\)\s*\(/g,')*(').replace(/(\d)\s*\(/g,'$1*(');
+ try{const v=new Function('L','return ('+s+')')(x=>Math.log2(x));return (typeof v==='number'&&isFinite(v))?v:NaN}catch(e){return NaN}
 }
 const RI=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 
-/* ---------- ③ 情報量とエントロピー ---------- */
 function genEntropy(){
-  const NICE=[[8,[1,2,3,4,5,6]],[10,[1,2,3,4,5,6]],[16,[1,2,3,4,5,6,8,9,10]],[12,[1,2,3,4,5,6,8,9]]];
-  let N,pool,cnt;
-  for(let g=0;g<300;g++){
-    [N,pool]=pick(NICE);
-    const k=RI(3,4); cnt=[]; let rest=N;
-    let ok=true;
-    for(let i=0;i<k-1;i++){
-      const cand=pool.filter(v=>v<=rest-(k-1-i));
-      if(!cand.length){ok=false;break}
-      const v=pick(cand); cnt.push(v); rest-=v;
-    }
-    if(!ok)continue;
-    cnt.push(rest);
-    if(cnt.some(v=>v<1)||!pool.includes(rest))continue;
-    const s=entropyS(cnt);
-    // log3 か log5 が残る「ちょうどよい」問題に限定
-    if(Object.keys(s.L).length===0)continue;
-    if(Object.keys(s.L).some(p=>Number(p)>7))continue;
-    break;
-  }
-  const N2=cnt.reduce((a,b)=>a+b,0);
-  const names=["s1","s2","s3","s4","s5"].slice(0,cnt.length);
-  const target=RI(0,cnt.length-1);
-  const Hs=entropyS(cnt), Is=infoS(cnt[target],N2);
-  const rows=cnt.map((v,i)=>`<tr><td>${names[i]}</td><td>${v}/${N2}</td></tr>`).join('');
-  return {
-    kind:"③ 情報量とエントロピー",
-    given:`<div class="given">無記憶情報源 S の確率分布：
-      <table><tr><th>記号</th><th>確率</th></tr>${rows}</table></div>`,
-    ask:`次を求めよ（log の底は 2、答えは log のままでよい）`,
-    fields:[
-      {label:`(1) 記号 ${names[target]} の情報量 I`, ans:Sval(Is), disp:Sstr(Is)+" (bit)", ph:"例: 3-log3"},
-      {label:`(2) エントロピー H(S)`, ans:Sval(Hs), disp:Sstr(Hs)+" (bit)", ph:"例: 5/2-(3/8)log3"}
-    ],
-    brief:()=>`<div class="stp">
-      <b>使う式</b>： I = -log P　／　H = -Σ P log P<br>
-      (1) I(${names[target]}) = -log(${cnt[target]}/${N2}) = <span class="fin">${Sstr(Is)}</span><br>
-      (2) H(S) = <span class="fin">${Sstr(Hs)}</span></div>`,
-    sol:()=>{
-      const st=cnt.map((v,i)=>`　I(${names[i]}) = -log(${v}/${N2}) = <b>${Sstr(infoS(v,N2))}</b>`).join('<br>');
-      const terms=cnt.map(v=>`-(${v}/${N2})log(${v}/${N2})`).join(' ');
-      return `<div class="stp">
-        <b>(1) 情報量</b> I = -log P<br>${st}<br><br>
-        <b>(2) エントロピー</b> H = -Σ P log P<br>
-        　H = ${terms}<br>
-        　　= log${N2} - (1/${N2})[ ${cnt.map(v=>v+"·log"+v).join(' + ')} ]<br>
-        　　= <span class="fin">${Sstr(Hs)} (bit)</span></div>`;
-    }
-  };
-}
+ const NICE=[[8,[1,2,3,4,5,6]],[10,[1,2,3,4,5]],[16,[1,2,3,4,5,6,8]],[12,[1,2,3,4,6,8]]];
+ let N,pl,cnt;
+ for(let g=0;g<600;g++){
+  const nn=pick(NICE);N=nn[0];pl=nn[1];
+  const k=pick([3,3,4]);cnt=[];let rest=N;let ok=true;
+  for(let i=0;i<k-1;i++){
+   const cand=pl.filter(v=>v<=rest-(k-1-i));
+   if(!cand.length){ok=false;break}
+   const v=pick(cand);cnt.push(v);rest-=v}
+  if(!ok)continue;
+  cnt.push(rest);
+  if(cnt.some(v=>v<1)||!pl.includes(rest))continue;
+  const s=entropyS(cnt);
+  const ks=Object.keys(s.L).map(Number);
+  if(ks.length!==1)continue;
+  if(ks[0]>5)continue;
+  break}
+ const N2=cnt.reduce((a,b)=>a+b,0);
+ const names=["s1","s2","s3","s4","s5"].slice(0,cnt.length);
+ const target=RI(0,cnt.length-1);
+ const Hs=entropyS(cnt),Is=infoS(cnt[target],N2);
+ const rows=cnt.map((v,i)=>'<tr><td>'+names[i]+'</td><td>'+v+'/'+N2+'</td></tr>').join('');
+ return {kind:"③ 情報量とエントロピー",
+ given:'<div class="given">無記憶情報源 S の確率分布：<table><tr><th>記号</th><th>確率</th></tr>'+rows+'</table></div>',
+ ask:'次を求めよ（log の底は 2。答えは log のままでよい。例: 3-log3）',
+ fields:[{label:'(1) 記号 '+names[target]+' の情報量 I',ans:Sval(Is),disp:Sstr(Is)+" (bit)",ph:"例: 3-log3"},
+ {label:'(2) エントロピー H(S)',ans:Sval(Hs),disp:Sstr(Hs)+" (bit)",ph:"例: 2-(3/8)log3"}],
+ brief:()=>'<div class="stp"><b>使う式</b>： I = -log P　／　H = -Σ P log P<br>(1) I('+names[target]+') = -log('+cnt[target]+'/'+N2+') = <span class="fin">'+Sstr(Is)+'</span><br>(2) H(S) = <span class="fin">'+Sstr(Hs)+'</span></div>',
+ sol:()=>{
+ const st=cnt.map((v,i)=>'　I('+names[i]+') = -log('+v+'/'+N2+') = <b>'+Sstr(infoS(v,N2))+'</b>').join('<br>');
+ const terms=cnt.map(v=>'-('+v+'/'+N2+')log('+v+'/'+N2+')').join(' ');
+ return '<div class="stp"><b>(1) 情報量</b> I = -log P<br>'+st+'<br><br><b>(2) エントロピー</b> H = -Σ P log P<br>　H = '+terms+'<br>　　= log'+N2+' - (1/'+N2+')[ '+cnt.map(v=>v+'·log'+v).join(' + ')+' ]<br>　　= <span class="fin">'+Sstr(Hs)+' (bit)</span></div>'}}}
 
-/* ---------- ② ハフマン符号 ---------- */
+function huffTree(ps){
+ let w=ps.map((p,i)=>({p:p,set:[i]}));
+ const codes=ps.map(()=>"");const steps=[];const nm=i=>"s"+(i+1);
+ while(w.length>1){
+  w.sort((a,b)=>a.p-b.p||a.set[0]-b.set[0]);
+  if(w.length>2&&Math.abs(w[1].p-w[2].p)<1e-9)return null;
+  const lo=w.shift(),hi=w.shift();
+  lo.set.forEach(i=>codes[i]="0"+codes[i]);
+  hi.set.forEach(i=>codes[i]="1"+codes[i]);
+  steps.push('最小の2つ '+lo.set.map(nm).join("+")+'('+lo.p.toFixed(2)+') と '+hi.set.map(nm).join("+")+'('+hi.p.toFixed(2)+') を結合 → '+(lo.p+hi.p).toFixed(2));
+  w.push({p:lo.p+hi.p,set:lo.set.concat(hi.set)})}
+ return {codes:codes,steps:steps}}
+
 function genHuffman(){
-  let vals;
-  for(let g=0;g<200;g++){
-    const k=pick([4,4,5]);
-    vals=[]; let rest=100;
-    for(let i=0;i<k-1;i++){const v=RI(5,Math.max(5,Math.floor(rest-(k-1-i)*5)-5));vals.push(v);rest-=v}
-    vals.push(rest);
-    if(vals.some(v=>v<5||v>60))continue;
-    if(new Set(vals).size<k-1)continue;
-    break;
-  }
-  const names=["s1","s2","s3","s4","s5"].slice(0,vals.length);
-  const items=names.map((s,i)=>({s,p:vals[i]/100}));
-  // ハフマン（手順記録つき）
-  let nodes=items.map(o=>({p:o.p,leaf:o.s,code:{}}));
-  nodes.forEach(n=>{n.set=[n.leaf]});
-  const steps=[]; let work=nodes.map(n=>({p:n.p,set:[n.leaf]}));
-  const codes={}; names.forEach(s=>codes[s]="");
-  while(work.length>1){
-    work.sort((a,b)=>a.p-b.p||a.set.join().localeCompare(b.set.join()));
-    const lo=work.shift(), hi=work.shift();
-    lo.set.forEach(s=>codes[s]="0"+codes[s]);
-    hi.set.forEach(s=>codes[s]="1"+codes[s]);
-    steps.push(`最小の2つ ${lo.set.join("+")}(${lo.p.toFixed(2)}) と ${hi.set.join("+")}(${hi.p.toFixed(2)}) を結合 → ${(lo.p+hi.p).toFixed(2)}`);
-    work.push({p:lo.p+hi.p,set:lo.set.concat(hi.set)});
-  }
-  const L=items.reduce((a,o)=>a+o.p*codes[o.s].length,0);
-  const rows=items.map(o=>`<tr><td>${o.s}</td><td>${o.p.toFixed(2)}</td></tr>`).join('');
-  const rows2=items.map(o=>`<tr><td>${o.s}</td><td>${o.p.toFixed(2)}</td><td><code>${codes[o.s]}</code></td><td>${codes[o.s].length}</td><td>${(o.p*codes[o.s].length).toFixed(2)}</td></tr>`).join('');
-  return {
-    kind:"② ハフマン符号",
-    given:`<div class="given">情報源 S の確率：
-      <table><tr><th>記号</th><th>確率</th></tr>${rows}</table></div>`,
-    ask:`ハフマン符号を作り、平均符号長 L を求めよ。（結合と並べ換えの手順も紙に書くこと）`,
-    fields:[{label:"平均符号長 L", ans:Number(L.toFixed(10)), disp:L.toFixed(2)+" bit", ph:"例: 1.85"}],
-    brief:()=>`<div class="stp"><b>使う式</b>： L = Σ Pᵢlᵢ（最小の2つを結合していく）<br>
-      符号長： ${items.map(o=>o.s+"="+codes[o.s].length).join("、")}<br>
-      L = <span class="fin">${L.toFixed(2)} bit</span></div>`,
-    sol:()=>`<div class="stp"><b>結合の手順</b><br>${steps.map((s,i)=>`　${i+1}. ${s}`).join('<br>')}<br><br>
-      <b>符号語と符号長</b>
-      <table style="width:100%;border-collapse:collapse;margin-top:6px">
-      <tr><th>記号</th><th>確率</th><th>符号語</th><th>長さ</th><th>P·l</th></tr>${rows2}</table>
-      <br>L = ${items.map(o=>o.p.toFixed(2)+"×"+codes[o.s].length).join(" + ")} = <span class="fin">${L.toFixed(2)} bit</span>
-      <br><span class="hint">※ 0/1 の割り当ては流儀により違ってよい。符号長の組が同じなら L は同じ。</span></div>`
-  };
-}
+ let vals,tr;
+ for(let g=0;g<800;g++){
+  const k=pick([4,4,5]);
+  vals=[];let rest=100;let ok=true;
+  for(let i=0;i<k-1;i++){
+   const hi=rest-(k-1-i)*5;
+   if(hi<6){ok=false;break}
+   const v=RI(6,Math.min(55,hi));vals.push(v);rest-=v}
+  if(!ok)continue;
+  vals.push(rest);
+  if(vals.some(v=>v<5||v>60))continue;
+  if(new Set(vals).size!==vals.length)continue;
+  tr=huffTree(vals.map(v=>v/100));
+  if(!tr)continue;
+  break}
+ const names=["s1","s2","s3","s4","s5"].slice(0,vals.length);
+ const items=names.map((s,i)=>({s:s,p:vals[i]/100,code:tr.codes[i],len:tr.codes[i].length}));
+ const L=items.reduce((a,o)=>a+o.p*o.len,0);
+ const rows=items.map(o=>'<tr><td>'+o.s+'</td><td>'+o.p.toFixed(2)+'</td></tr>').join('');
+ const rows2=items.map(o=>'<tr><td>'+o.s+'</td><td>'+o.p.toFixed(2)+'</td><td><code>'+o.code+'</code></td><td>'+o.len+'</td><td>'+(o.p*o.len).toFixed(2)+'</td></tr>').join('');
+ const flds=items.map(o=>({label:'符号語 '+o.s+' の長さ（ビット数）',ans:o.len,disp:o.len+' bit（例 '+o.code+'）',ph:"整数"}));
+ flds.push({label:'平均符号長 L',ans:Number(L.toFixed(10)),disp:L.toFixed(2)+" bit",ph:"例: 1.85"});
+ return {kind:"② ハフマン符号",
+ given:'<div class="given">情報源 S の確率：<table><tr><th>記号</th><th>確率</th></tr>'+rows+'</table></div>',
+ ask:'ハフマン符号を作り、各記号の符号語の長さと平均符号長 L を求めよ。',
+ fields:flds,
+ brief:()=>'<div class="stp"><b>手順</b>： 最小の2つを結合 → 木を作る → 根から読む<br>符号長： '+items.map(o=>o.s+"="+o.len).join("、")+'<br>L = <span class="fin">'+L.toFixed(2)+' bit</span></div>',
+ sol:()=>'<div class="stp"><b>結合の手順</b><br>'+tr.steps.map((s,i)=>'　'+(i+1)+'. '+s).join('<br>')+'<br><br><b>符号語と符号長</b><table style="width:100%;border-collapse:collapse;margin-top:6px"><tr><th>記号</th><th>確率</th><th>符号語</th><th>長さ</th><th>P·l</th></tr>'+rows2+'</table><br>L = '+items.map(o=>o.p.toFixed(2)+"×"+o.len).join(" + ")+' = <span class="fin">'+L.toFixed(2)+' bit</span><br><span class="hint">※ 0/1 の割り当ては流儀により違ってよいが、この問題は結合の順番が一意なので符号長は決まる。</span></div>'}}
 
-/* ---------- ④ ハミング符号と訂正 ---------- */
 function hd(a,b){let d=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])d++;return d}
 function genHamming(){
-  const n=pick([5,6,7]);
-  let C,dmin,r,near;
-  for(let g=0;g<500;g++){
-    C=[Array(n).fill(0)];
-    for(let i=0;i<2;i++)C.push(Array.from({length:n},()=>RI(0,1)));
-    const ds=[hd(C[0],C[1]),hd(C[0],C[2]),hd(C[1],C[2])];
-    dmin=Math.min(...ds);
-    if(dmin<3||dmin>n-1)continue;
-    // 受信語：ある符号語を t ビット反転（一意に最近になるもの）
-    const base=RI(0,2); r=C[base].slice();
-    const t=Math.floor((dmin-1)/2);
-    const flips=[]; while(flips.length<Math.max(1,t)){const q=RI(0,n-1);if(!flips.includes(q))flips.push(q)}
-    flips.forEach(q=>r[q]=1-r[q]);
-    const dd=C.map(c=>hd(r,c)); const mn=Math.min(...dd);
-    if(dd.filter(x=>x===mn).length!==1)continue;
-    near=dd.indexOf(mn); break;
-  }
-  const bs=a=>"("+a.join(",")+")";
-  const d01=hd(C[0],C[1]),d02=hd(C[0],C[2]),d12=hd(C[1],C[2]);
-  const tD=dmin-1, tC=Math.floor((dmin-1)/2);
-  return {
-    kind:"④ ハミング符号と訂正",
-    given:`<div class="given">符号 C = {C1, C2, C3}<br>
-      　C1 = <code>${bs(C[0])}</code><br>　C2 = <code>${bs(C[1])}</code><br>　C3 = <code>${bs(C[2])}</code><br>
-      　受信語 b = <code>${bs(r)}</code></div>`,
-    ask:`次を求めよ`,
-    fields:[
-      {label:"(1) 最小距離 dmin", ans:dmin, disp:String(dmin), ph:"整数"},
-      {label:"(2) 誤り検出可能なビット数", ans:tD, disp:tD+" bit", ph:"整数"},
-      {label:"(3) 誤り訂正可能なビット数", ans:tC, disp:tC+" bit", ph:"整数"},
-      {label:"(4) 受信語 b はどれに復号されるか（1/2/3 で答える）", ans:near+1, disp:"C"+(near+1), ph:"1 か 2 か 3"}
-    ],
-    brief:()=>`<div class="stp">
-      <b>使う式</b>： 検出 dmin ≧ t'+1　／　訂正 dmin ≧ 2t+1　／　復号は最も近い符号語<br>
-      dmin = <span class="fin">${dmin}</span>、検出 <span class="fin">${tD}bit</span>、訂正 <span class="fin">${tC}bit</span>、復号先 <span class="fin">C${near+1}</span></div>`,
-    sol:()=>`<div class="stp">
-      <b>(1)</b> dH(C1,C2)=${d01}、dH(C1,C3)=${d02}、dH(C2,C3)=${d12} → dmin = <span class="fin">${dmin}</span><br><br>
-      <b>(2)</b> dmin ≧ t'+1 → ${dmin} ≧ t'+1 → t' ≦ ${tD}　∴ <span class="fin">${tD} bit</span><br><br>
-      <b>(3)</b> dmin ≧ 2t+1 → ${dmin} ≧ 2t+1 → t ≦ ${((dmin-1)/2).toFixed(1)}　∴ <span class="fin">${tC} bit</span><br><br>
-      <b>(4)</b> dH(b,C1)=${hd(r,C[0])}、dH(b,C2)=${hd(r,C[1])}、dH(b,C3)=${hd(r,C[2])}
-      → 最も近い <span class="fin">C${near+1}</span> に復号</div>`
-  };
-}
+ const n=pick([5,6,7]);
+ let C,dmin,r,near;
+ for(let g=0;g<500;g++){
+  C=[Array(n).fill(0)];
+  for(let i=0;i<2;i++)C.push(Array.from({length:n},()=>RI(0,1)));
+  const ds=[hd(C[0],C[1]),hd(C[0],C[2]),hd(C[1],C[2])];
+  dmin=Math.min.apply(null,ds);
+  if(dmin<3||dmin>n-1)continue;
+  const base=RI(0,2);r=C[base].slice();
+  const t=Math.floor((dmin-1)/2);
+  const flips=[];while(flips.length<Math.max(1,t)){const q=RI(0,n-1);if(flips.indexOf(q)<0)flips.push(q)}
+  flips.forEach(q=>r[q]=1-r[q]);
+  const dd=C.map(c=>hd(r,c));const mn=Math.min.apply(null,dd);
+  if(dd.filter(x=>x===mn).length!==1)continue;
+  near=dd.indexOf(mn);break}
+ const bs=a=>"("+a.join(",")+")";
+ const d01=hd(C[0],C[1]),d02=hd(C[0],C[2]),d12=hd(C[1],C[2]);
+ const tD=dmin-1,tC=Math.floor((dmin-1)/2);
+ return {kind:"④ ハミング符号と訂正",
+ given:'<div class="given">符号 C = {C1, C2, C3}<br>　C1 = <code>'+bs(C[0])+'</code><br>　C2 = <code>'+bs(C[1])+'</code><br>　C3 = <code>'+bs(C[2])+'</code><br>　受信語 b = <code>'+bs(r)+'</code></div>',
+ ask:'次を求めよ',
+ fields:[{label:"(1) dH(C1,C2)",ans:d01,disp:String(d01),ph:"整数"},
+ {label:"(2) dH(C1,C3)",ans:d02,disp:String(d02),ph:"整数"},
+ {label:"(3) dH(C2,C3)",ans:d12,disp:String(d12),ph:"整数"},
+ {label:"(4) 最小距離 dmin",ans:dmin,disp:String(dmin),ph:"整数"},
+ {label:"(5) 誤り検出可能なビット数",ans:tD,disp:tD+" bit",ph:"整数"},
+ {label:"(6) 誤り訂正可能なビット数",ans:tC,disp:tC+" bit",ph:"整数"},
+ {label:"(7) 受信語 b はどれに復号されるか（1/2/3）",ans:near+1,disp:"C"+(near+1),ph:"1 か 2 か 3"}],
+ brief:()=>'<div class="stp"><b>使う式</b>： 検出 dmin ≧ t\'+1　／　訂正 dmin ≧ 2t+1　／　復号は最も近い符号語<br>dH = '+d01+', '+d02+', '+d12+' → dmin = <span class="fin">'+dmin+'</span>、検出 <span class="fin">'+tD+'bit</span>、訂正 <span class="fin">'+tC+'bit</span>、復号先 <span class="fin">C'+(near+1)+'</span></div>',
+ sol:()=>'<div class="stp"><b>(1)(2)(3)</b> dH(C1,C2)='+d01+'、dH(C1,C3)='+d02+'、dH(C2,C3)='+d12+'<br><br><b>(4)</b> dmin = min('+d01+','+d02+','+d12+') = <span class="fin">'+dmin+'</span><br><br><b>(5)</b> dmin ≧ t\'+1 → '+dmin+' ≧ t\'+1 → t\' ≦ '+tD+'　∴ <span class="fin">'+tD+' bit</span><br><br><b>(6)</b> dmin ≧ 2t+1 → '+dmin+' ≧ 2t+1 → t ≦ '+((dmin-1)/2).toFixed(1)+'　∴ <span class="fin">'+tC+' bit</span><br><br><b>(7)</b> dH(b,C1)='+hd(r,C[0])+'、dH(b,C2)='+hd(r,C[1])+'、dH(b,C3)='+hd(r,C[2])+' → 最も近い <span class="fin">C'+(near+1)+'</span> に復号</div>'}}
 
-/* ---------- ⑤ 線形符号 ---------- */
 function genLinear(){
-  const k=pick([2,2,3]), m=k===2?3:4, n=k+m;
-  let P;
-  for(let g=0;g<300;g++){
-    P=[]; // k×m : P[i][j] = 情報ビット i が検査ビット j に寄与するか
-    for(let i=0;i<k;i++)P.push(Array.from({length:m},()=>RI(0,1)));
-    const colOK=Array.from({length:m},(_,j)=>P.some(r=>r[j]===1));
-    const rowOK=P.every(r=>r.some(v=>v===1));
-    const cols=Array.from({length:m},(_,j)=>P.map(r=>r[j]).join(''));
-    if(colOK.every(Boolean)&&rowOK&&new Set(cols).size===m)break;
-  }
-  const iv=Array.from({length:k},()=>RI(0,1));
-  const par=j=>P.reduce((a,r,i)=>(a+r[j]*iv[i])%2,0);
-  const cw=iv.concat(Array.from({length:m},(_,j)=>par(j)));
-  const iN=Array.from({length:k},(_,i)=>"i"+(i+1));
-  const pN=Array.from({length:m},(_,j)=>"P"+(j+1));
-  const eqs=pN.map((p,j)=>{
-    const t=iN.filter((_,i)=>P[i][j]===1);
-    return `${p} = ${t.join(" + ")}`;
-  });
-  const G=Array.from({length:k},(_,i)=>
-    Array.from({length:k},(_,t)=>t===i?1:0).concat(P[i]));
-  const H=Array.from({length:m},(_,j)=>
-    Array.from({length:k},(_,i)=>P[i][j]).concat(Array.from({length:m},(_,t)=>t===j?1:0)));
-  const mat=M=>`<table style="width:auto;margin-top:4px">${M.map(r=>`<tr>${r.map(v=>`<td style="padding:3px 9px">${v}</td>`).join('')}</tr>`).join('')}</table>`;
-  return {
-    kind:"⑤ 線形符号",
-    given:`<div class="given">情報ビット ${k} 個、符号長 ${n}。符号語 = [${iN.join(", ")}, ${pN.join(", ")}]<br>
-      検査式：<br>　${eqs.join("<br>　")}<br><br>
-      情報ビット [${iv.join(", ")}] を符号化せよ。</div>`,
-    ask:`次を求めよ（すべて mod 2）`,
-    fields:[{label:`符号語（${n}桁、例: ${Array(n).fill(0).join("")}）`, ans:cw.join(''), str:true,
-             alt:[cw.join(','),cw.join(', '),"["+cw.join(',')+"]"], disp:"["+cw.join(", ")+"]", ph:cw.map(()=>"_").join("")}],
-    brief:()=>`<div class="stp">
-      <b>やること</b>： 情報ビットを検査式に代入（mod 2）して検査ビットを求め、後ろに並べる<br>
-      符号語 = <span class="fin">[${cw.join(", ")}]</span></div>`,
-    sol:()=>`<div class="stp">
-      <b>検査ビットを計算</b><br>
-      ${pN.map((p,j)=>{const t=iN.filter((_,i)=>P[i][j]===1);
-        const vs=iN.map((_,i)=>P[i][j]===1?iv[i]:null).filter(v=>v!==null);
-        return `　${p} = ${t.join(" + ")} = ${vs.join(" + ")} = ${par(j)}`;}).join("<br>")}
-      <br><br><b>符号語</b> = <span class="fin">[${cw.join(", ")}]</span><br><br>
-      <b>生成行列 G = [ I | P ]</b>${mat(G)}
-      <b>検査行列 H = [ Pᵀ | I ]</b>${mat(H)}
-      <span class="hint">※ H·(符号語)ᵀ = 0 で検算できる。</span></div>`
-  };
-}
-
+ const k=pick([2,2,3]),m=k===2?3:4,n=k+m;
+ let P;
+ for(let g=0;g<300;g++){
+  P=[];
+  for(let i=0;i<k;i++)P.push(Array.from({length:m},()=>RI(0,1)));
+  const colOK=Array.from({length:m},(_,j)=>P.some(r=>r[j]===1));
+  const rowOK=P.every(r=>r.some(v=>v===1));
+  const cols=Array.from({length:m},(_,j)=>P.map(r=>r[j]).join(''));
+  if(colOK.every(Boolean)&&rowOK&&new Set(cols).size===m)break}
+ const iv=Array.from({length:k},()=>RI(0,1));
+ const par=j=>P.reduce((a,r,i)=>(a+r[j]*iv[i])%2,0);
+ const cw=iv.concat(Array.from({length:m},(_,j)=>par(j)));
+ const iN=Array.from({length:k},(_,i)=>"i"+(i+1));
+ const pN=Array.from({length:m},(_,j)=>"P"+(j+1));
+ const eqs=pN.map((p,j)=>p+' = '+iN.filter((_,i)=>P[i][j]===1).join(" + "));
+ const G=Array.from({length:k},(_,i)=>Array.from({length:k},(_,t)=>t===i?1:0).concat(P[i]));
+ const H=Array.from({length:m},(_,j)=>Array.from({length:k},(_,i)=>P[i][j]).concat(Array.from({length:m},(_,t)=>t===j?1:0)));
+ const mat=M=>'<table style="width:auto;margin-top:4px">'+M.map(r=>'<tr>'+r.map(v=>'<td style="padding:3px 9px">'+v+'</td>').join('')+'</tr>').join('')+'</table>';
+ const bitsF=(lab,arr)=>({label:lab,ans:arr.join(''),str:true,alt:[arr.join(','),arr.join(', '),arr.join(' '),"["+arr.join(',')+"]"],disp:"["+arr.join(", ")+"]",ph:arr.map(()=>"_").join("")});
+ const flds=[bitsF('(1) 情報ビット ['+iv.join(", ")+'] の符号語（'+n+'桁）',cw)];
+ G.forEach((row,i)=>flds.push(bitsF('(2) 生成行列 G の第'+(i+1)+'行（'+n+'桁）',row)));
+ H.forEach((row,j)=>flds.push(bitsF('(3) 検査行列 H の第'+(j+1)+'行（'+n+'桁）',row)));
+ return {kind:"⑤ 線形符号",
+ given:'<div class="given">情報ビット '+k+' 個、符号長 '+n+'。符号語 = ['+iN.join(", ")+', '+pN.join(", ")+']<br>検査式：<br>　'+eqs.join("<br>　")+'</div>',
+ ask:'次を求めよ（すべて mod 2。行は 10110 のように続けて入力）',
+ fields:flds,
+ brief:()=>'<div class="stp"><b>やること</b>： 検査式に代入して検査ビットを求める／G = [ I | P ]／H = [ Pᵀ | I ]<br>符号語 = <span class="fin">['+cw.join(", ")+']</span></div>',
+ sol:()=>'<div class="stp"><b>(1) 検査ビットを計算</b><br>'+pN.map((p,j)=>{const t=iN.filter((_,i)=>P[i][j]===1);const vs=[];iN.forEach((_,i)=>{if(P[i][j]===1)vs.push(iv[i])});return '　'+p+' = '+t.join(" + ")+' = '+vs.join(" + ")+' = '+par(j)}).join("<br>")+'<br>　符号語 = <span class="fin">['+cw.join(", ")+']</span><br><br><b>(2) 生成行列 G = [ I | P ]</b><br>各行 = その情報ビットだけを 1 にしたときの符号語'+mat(G)+'<br><b>(3) 検査行列 H = [ Pᵀ | I ]</b>'+mat(H)+'<span class="hint">※ H·(符号語)ᵀ = 0 で検算できる。</span></div>'}}
 const GENS={ "3":genEntropy, "2":genHuffman, "4":genHamming, "5":genLinear };
 let calcType="all", calcQ=null, calcDone=false;
 function newCalc(){
