@@ -580,10 +580,18 @@ function entropyS(cnt){const N=cnt.reduce((a,b)=>a+b,0);let x=logInt(N);
 function infoS(n,N){return Sadd(logInt(N),Smul(logInt(n),F(-1)))}
 function evalExpr(s){
  if(!s)return NaN;
- s=String(s).replace(/[　\s]/g,'').replace(/[（]/g,'(').replace(/[）]/g,')')
-  .replace(/[×・*]/g,'*').replace(/[÷]/g,'/').replace(/bit|ビット/gi,'')
-  .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
-  .replace(/log[₂]/g,'log').replace(/log_2/g,'log');
+ s=String(s)
+  .replace(/[Ａ-Ｚａ-ｚ０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+  .replace(/[\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFF0D\u30FC\u2043\uFE63]/g,'-')
+  .replace(/[\uFF0B\u02D6]/g,'+')
+  .replace(/[\uFF0F\u2044\u00F7]/g,'/')
+  .replace(/[\uFF0A\u00D7\u30FB\u22C5\u2219]/g,'*')
+  .replace(/[\uFF08]/g,'(').replace(/[\uFF09]/g,')')
+  .replace(/[\uFF3B]/g,'(').replace(/[\uFF3D]/g,')')
+  .replace(/[\uFF0E\u3002]/g,'.').replace(/[\uFF0C\u3001]/g,'')
+  .replace(/[　\s]/g,'')
+  .replace(/bit|ビット/gi,'')
+  .replace(/log[\u2082]/g,'log').replace(/log_2/g,'log');
  s=s.replace(/log\(\s*(\d+)\s*\)/gi,'L($1)');
  s=s.replace(/log\s*(\d+)/gi,'L($1)');
  if(/[^0-9+\-*/().L]/.test(s))return NaN;
@@ -635,10 +643,11 @@ function huffTree(ps){
   w.sort((a,b)=>a.p-b.p||a.set[0]-b.set[0]);
   if(w.length>2&&Math.abs(w[1].p-w[2].p)<1e-9)return null;
   const lo=w.shift(),hi=w.shift();
-  lo.set.forEach(i=>codes[i]="0"+codes[i]);
-  hi.set.forEach(i=>codes[i]="1"+codes[i]);
-  steps.push('最小の2つ '+lo.set.map(nm).join("+")+'('+lo.p.toFixed(2)+') と '+hi.set.map(nm).join("+")+'('+hi.p.toFixed(2)+') を結合 → '+(lo.p+hi.p).toFixed(2));
-  w.push({p:lo.p+hi.p,set:lo.set.concat(hi.set)})}
+  // 先生の流儀：確率が大きいほうを左（0）、小さいほうを右（1）
+  hi.set.forEach(i=>codes[i]="0"+codes[i]);
+  lo.set.forEach(i=>codes[i]="1"+codes[i]);
+  steps.push('最小の2つ '+lo.set.map(nm).join("+")+'('+lo.p.toFixed(2)+') と '+hi.set.map(nm).join("+")+'('+hi.p.toFixed(2)+') を結合 → '+(lo.p+hi.p).toFixed(2)+'　［左0＝'+hi.set.map(nm).join("+")+'、右1＝'+lo.set.map(nm).join("+")+'］');
+  w.push({p:lo.p+hi.p,set:hi.set.concat(lo.set)})}
  return {codes:codes,steps:steps}}
 
 function genHuffman(){
@@ -666,10 +675,10 @@ function genHuffman(){
  flds.push({label:'平均符号長 L',ans:Number(L.toFixed(10)),disp:L.toFixed(2)+" bit",ph:"例: 1.85"});
  return {kind:"② ハフマン符号",
  given:'<div class="given">情報源 S の確率：<table><tr><th>記号</th><th>確率</th></tr>'+rows+'</table></div>',
- ask:'ハフマン符号を作り、各記号の符号語の長さと平均符号長 L を求めよ。',
+ ask:'ハフマン符号を作り、各記号の符号語の長さと平均符号長 L を求めよ。（枝は 左＝0・右＝1、大きいほうを左に置く）',
  fields:flds,
- brief:()=>'<div class="stp"><b>手順</b>： 最小の2つを結合 → 木を作る → 根から読む<br>符号長： '+items.map(o=>o.s+"="+o.len).join("、")+'<br>L = <span class="fin">'+L.toFixed(2)+' bit</span></div>',
- sol:()=>'<div class="stp"><b>結合の手順</b><br>'+tr.steps.map((s,i)=>'　'+(i+1)+'. '+s).join('<br>')+'<br><br><b>符号語と符号長</b><table style="width:100%;border-collapse:collapse;margin-top:6px"><tr><th>記号</th><th>確率</th><th>符号語</th><th>長さ</th><th>P·l</th></tr>'+rows2+'</table><br>L = '+items.map(o=>o.p.toFixed(2)+"×"+o.len).join(" + ")+' = <span class="fin">'+L.toFixed(2)+' bit</span><br><span class="hint">※ 0/1 の割り当ては流儀により違ってよいが、この問題は結合の順番が一意なので符号長は決まる。</span></div>'}}
+ brief:()=>'<div class="stp"><b>手順</b>： 最小の2つを結合 → 木を作る（大きいほうを左）→ 根から読む（左0・右1）<br>符号長： '+items.map(o=>o.s+"="+o.len).join("、")+'<br>L = <span class="fin">'+L.toFixed(2)+' bit</span></div>',
+ sol:()=>'<div class="stp"><b>結合の手順</b><br>'+tr.steps.map((s,i)=>'　'+(i+1)+'. '+s).join('<br>')+'<br><br><b>符号語と符号長</b><table style="width:100%;border-collapse:collapse;margin-top:6px"><tr><th>記号</th><th>確率</th><th>符号語</th><th>長さ</th><th>P·l</th></tr>'+rows2+'</table><br>L = '+items.map(o=>o.p.toFixed(2)+"×"+o.len).join(" + ")+' = <span class="fin">'+L.toFixed(2)+' bit</span><br><span class="hint">※ 枝は「確率が大きいほうを左＝0、小さいほうを右＝1」で割り当てている（授業の流儀）。</span></div>'}}
 
 function hd(a,b){let d=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])d++;return d}
 function genHamming(){
