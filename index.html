@@ -124,7 +124,7 @@
 <div class="wrap">
   <header>
     <h1>情報理論 練習</h1>
-    <p>文章題（穴埋め）・選択題・計算題</p>
+    <p>文章題（穴埋め）・選択題・計算題　<span style="color:#8fa3b8;font-size:11px">v4</span></p>
   </header>
 
   <div class="tabs">
@@ -641,7 +641,9 @@ function huffTree(ps){
  const codes=ps.map(()=>"");const steps=[];const nm=i=>"s"+(i+1);
  while(w.length>1){
   w.sort((a,b)=>a.p-b.p||a.set[0]-b.set[0]);
-  if(w.length>2&&Math.abs(w[1].p-w[2].p)<1e-9)return null;
+  // 木も 0/1 の割り当ても一意になる場合だけ採用する
+  if(Math.abs(w[0].p-w[1].p)<1e-9)return null;           // 結合する2つが同点 → 左右が決まらない
+  if(w.length>2&&Math.abs(w[1].p-w[2].p)<1e-9)return null; // 2番目と3番目が同点 → 木が一意でない
   const lo=w.shift(),hi=w.shift();
   // 先生の流儀：確率が大きいほうを左（0）、小さいほうを右（1）
   hi.set.forEach(i=>codes[i]="0"+codes[i]);
