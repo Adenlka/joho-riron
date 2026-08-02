@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>試験対策 練習ハブ</title>
+<style>
+:root{
+ --bg:#f4f6f9; --fg:#1c2430; --muted:#66707f; --card:#fff; --line:#dde3ea;
+ --accent:#2f6fed; --ghost-bg:#eef2f8; --ghost-fg:#2f4a7a;
+ --tag-bg:#eef2f8; --tag-fg:#4a6a9a; --hot-bg:#ffeaea; --hot-fg:#b03030;
+ --shadow:rgba(0,0,0,.05); color-scheme:light;
+}
+html[data-theme="dark"]{
+ --bg:#11151b; --fg:#e4e9f0; --muted:#95a2b6; --card:#1a2028; --line:#2d3641;
+ --accent:#5590ff; --ghost-bg:#242c37; --ghost-fg:#a9bdd9;
+ --tag-bg:#242c37; --tag-fg:#9db4d4; --hot-bg:#3b2127; --hot-fg:#ff9d9d;
+ --shadow:rgba(0,0,0,.45); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Segoe UI",sans-serif;background:var(--bg);color:var(--fg);margin:0;padding:26px 14px 40px;line-height:1.7;transition:background .18s,color .18s}
+.wrap{max-width:620px;margin:0 auto}
+.top{display:flex;align-items:flex-start;gap:12px;margin-bottom:6px}
+h1{font-size:22px;margin:0;flex:1}
+button{font:inherit;border:none;border-radius:8px;padding:7px 13px;cursor:pointer;background:var(--ghost-bg);color:var(--ghost-fg);white-space:nowrap}
+.sub{color:var(--muted);font-size:13.5px;margin-bottom:24px}
+h2{font-size:14px;margin:28px 0 11px;color:var(--muted);font-weight:600}
+a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin-bottom:11px;text-decoration:none;color:inherit;box-shadow:0 1px 3px var(--shadow);transition:.14s}
+a.card:hover{border-color:var(--accent)}
+a.card b{display:block;font-size:16px;margin-bottom:3px;font-weight:600}
+a.card span{font-size:13px;color:var(--muted)}
+.n{display:inline-block;background:var(--tag-bg);color:var(--tag-fg);border-radius:20px;padding:1px 9px;font-size:11.5px;font-weight:600;margin-left:7px;vertical-align:2px}
+.n.hot{background:var(--hot-bg);color:var(--hot-fg)}
+.tip{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:13px 16px;font-size:13.5px;color:var(--muted);margin-top:30px}
+.tip b{color:var(--fg)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top">
+  <h1>試験対策 練習ハブ</h1>
+  <button id="themeBtn" onclick="toggleTheme()">🌙 ダーク</button>
+</div>
+<div class="sub">スマホでもそのまま使えます。シャッフルで何度でも。</div>
+
+<h2>情報理論</h2>
+<a class="card" href="joho.html">
+  <b>情報理論 練習</b>
+  <span>文章題（穴埋め）・選択題・計算題／毎回 数値が変わる</span>
+</a>
+
+<h2>ＩＴ戦略とマネジメントの基礎</h2>
+<a class="card" href="it-quiz.html">
+  <b>小テスト全13回 模擬テスト<span class="n hot">本番の8割</span></b>
+  <span>67問・図表7点つき／シャッフル対応</span>
+</a>
+<a class="card" href="it-pass.html">
+  <b>ITパスポート 過去問ドリル<span class="n">残り2割</span></b>
+  <span>90問（重複論点29問）／令和7年＋令和6年</span>
+</a>
+
+<h2>システムプログラミング入門</h2>
+<a class="card" href="sp-drill.html">
+  <b>実戦演習（記述・コード込み）</b>
+  <span>87問・自動採点130点分／記述・○×・選択・コード記述</span>
+</a>
+<a class="card" href="sp-quiz.html">
+  <b>模擬テスト（選択式）</b>
+  <span>53問</span>
+</a>
+
+<div class="tip">
+<b>使い方</b><br>
+・各ページ上部の「シャッフル」で出題順と選択肢順がランダムになります<br>
+・採点後、各問に解説が出ます<br>
+・このページをホーム画面に追加しておくとアプリのように開けます
+</div>
+</div>
+
+<script>
+function applyTheme(t){
+ document.documentElement.dataset.theme=t;
+ var b=document.getElementById('themeBtn');
+ if(b)b.textContent=(t==='dark'?'☀️ ライト':'🌙 ダーク');
+ try{localStorage.setItem('quizTheme',t)}catch(e){}
+}
+function toggleTheme(){applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark')}
+(function(){var t='dark';try{t=localStorage.getItem('quizTheme')||'dark'}catch(e){}applyTheme(t)})();
+</script>
+</body>
+</html>

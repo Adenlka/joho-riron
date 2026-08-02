@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>システムプログラミング入門 期末模拟测验</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Segoe UI",sans-serif;background:#f4f6f9;color:#1c2430;margin:0;padding:24px 12px;line-height:1.7}
+.wrap{max-width:860px;margin:0 auto}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:#667;font-size:14px;margin-bottom:20px}
+.bar{position:sticky;top:0;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:12px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:18px;z-index:5;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.bar b{font-size:18px}
+button{font:inherit;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;background:#2f6fed;color:#fff}
+button.ghost{background:#eef2f8;color:#2f4a7a}
+.q{background:#fff;border:1px solid #dde3ea;border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.tag{display:inline-block;font-size:11px;background:#eef2f8;color:#4a6a9a;border-radius:20px;padding:2px 10px;margin-bottom:8px}
+.qt{font-weight:600;margin-bottom:10px;white-space:pre-wrap}
+pre{background:#1e2430;color:#e8edf5;padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55;margin:8px 0}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opt{border:1px solid #dde3ea;border-radius:8px;padding:9px 13px;cursor:pointer;background:#fbfcfe;transition:.12s}
+.opt:hover{border-color:#2f6fed}
+.opt.sel{border-color:#2f6fed;background:#eaf1ff}
+.opt.ok{border-color:#1f9d55;background:#e8f7ee}
+.opt.no{border-color:#d64545;background:#fdeaea}
+.exp{margin-top:11px;padding:11px 14px;background:#f7f9fc;border-left:3px solid #2f6fed;border-radius:0 8px 8px 0;font-size:14px;display:none}
+.exp.show{display:block}
+.res{background:#fff;border:1px solid #dde3ea;border-radius:12px;padding:20px;margin-bottom:18px;display:none}
+.res.show{display:block}
+code{background:#eef2f8;padding:1px 5px;border-radius:4px;font-size:13px}
+
+button.on{outline:2px solid #2f6fed;outline-offset:-2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>システムプログラミング入門 — 期末模拟测验</h1>
+<div class="sub">范围：中間試験（6/8）之后 ｜ 53 题（★ 标记 = 你实际做错过的真题）｜ 建议 40 分钟内完成</div>
+
+<div class="bar">
+  <b id="score">0 / 30</b>
+  <span id="prog" style="color:#667">未作答</span>
+  <button id="shufBtn" onclick="doShuffle()">🔀 シャッフル</button>
+  <button id="origBtn" class="ghost on" onclick="noShuffle()">↩ 元の順番</button>
+  <span id="shufNote" style="color:#7b8798;font-size:12.5px"></span>
+  <button onclick="grade()">批改并看解析</button>
+  <button class="ghost" onclick="reset()">重做</button>
+</div>
+
+<div class="res" id="res"></div>
+<div id="quiz"></div>
+</div>
+
+<script>
+const Q=[
+{c:"Python 例外",t:"以下代码的输出顺序是？",code:"print('Red')\ntry:\n    numbers = range(2)\n    print('Blue')\n    print(numbers[2])\n    print('Yellow')\nexcept IndexError:\n    print('Pink')\nfinally:\n    print('Black')",o:["Red, Blue, Yellow, Black","Red, Blue, Pink, Black","Red, Blue, Pink, Yellow, Black","Red, Pink, Black"],a:1,e:"range(2) 只有下标 0 和 1，numbers[2] 抛 IndexError，所以 'Yellow' 被跳过，进 except 打印 Pink，最后 finally 打印 Black。（确认问题11 原题）"},
+{c:"Python 例外",t:"「例外が発生していない場合でも、必ずfinallyブロック内の処理は実行される」——○か×？",o:["○","×"],a:0,e:"○。finally 无论有无异常都执行，即使 try 里有 return 也会先执行 finally。"},
+{c:"Python 例外",t:"「例外が発生すると必ずexceptブロックが処理される」——○か×？",o:["○","×"],a:1,e:"×。只有异常类型与 except 匹配时才会执行；不匹配的话异常继续向上抛，程序中断。"},
+{c:"Python 例外",t:"存在しないメソッドを呼び出したときに発生する例外は？",o:["NameError","AttributeError","TypeError","KeyError"],a:1,e:"对象上没有该属性/方法 → AttributeError。NameError 是变量名本身没定义。"},
+{c:"Python 例外",t:"input() で入力の終端に達したときに発生する例外は？",o:["EOFError","IOError","StopIteration","ValueError"],a:0,e:"EOFError。用 `python prog.py < data.txt` 重定向读取时，靠捕获 EOFError 来结束循环。"},
+{c:"Python 例外",t:"以下の出力は？",code:"try:\n    d = {'a': 1}\n    print(d['b'])\nexcept KeyError:\n    print('KEY')\nexcept Exception:\n    print('EXC')\nelse:\n    print('ELSE')\nfinally:\n    print('FIN')",o:["KEY → FIN","KEY → ELSE → FIN","EXC → FIN","KEY → EXC → FIN"],a:0,e:"字典没有键 'b' → KeyError，第一个匹配的 except 执行后就不再看后面的。else 只在「没有异常」时执行，所以不执行。finally 一定执行。"},
+{c:"Python 例外",t:"int('3.5') を実行すると？",o:["3 が返る","TypeError","ValueError","3.5 が返る"],a:2,e:"ValueError（类型是对的 str，但值不能解释为整数）。int(3.5) 才会得到 3。"},
+{c:"Python 例外",t:"意図的に例外を発生させるキーワードは？",o:["throw","raise","except","assert"],a:1,e:"Python 用 raise。例：raise ValueError('メッセージ')"},
+
+{c:"ファイル入出力",t:"既存ファイルの内容を消さずに末尾へ書き足すモードは？",o:["'r'","'w'","'a'","'x'"],a:2,e:"'a' = append（追加）。'w' 会把已存在的文件清空，写访问日志时绝对不能用 'w'。"},
+{c:"ファイル入出力",t:"readlines() が返すリストの各要素について正しいのは？",o:["改行文字は取り除かれている","改行文字を含んでいる","1文字ずつ分割される","タブで分割される"],a:1,e:"各行末的 \\n 会保留 → 通常要 .strip() 处理。"},
+{c:"ファイル入出力",t:"with open(...) as f: を使う最大の利点は？",o:["読み込みが速くなる","ブロックを抜けると自動的に close() される","文字コードを自動判定する","ファイルが自動作成される"],a:1,e:"即使块内发生异常也会自动关闭文件。不用 with 就必须自己 f.close()。"},
+{c:"ファイル入出力",t:"以下の出力は？",code:"s = '1,2,,3'\nprint(len(s.split(',')))",o:["3","4","5","2"],a:1,e:"split(',') → ['1','2','','3'] で 4 要素。空文字列も1要素として数える。"},
+{c:"ファイル入出力",t:"文字列両端の空白や改行を取り除くメソッドは？",o:["trim()","strip()","clean()","cut()"],a:1,e:"strip()。引数を渡すと指定文字を除去（例：strip('\"') で両端の二重引用符を除去）。"},
+{c:"ファイル入出力",t:"text.replace('a','b') を実行したあと、元の text は？",o:["書き換わる","書き換わらない（新しい文字列が返る）","エラーになる","None になる"],a:1,e:"文字列是不可变对象。replace 返回新字符串，要用 new = text.replace(...) 接住。"},
+{c:"ファイル入出力",t:"f.write('abc') を3回実行すると、ファイルの内容は？",o:["abc\\nabc\\nabc\\n","abcabcabc","abc","エラー"],a:1,e:"write() 不会自动换行，需要自己写 '\\n'。"},
+
+{c:"Linux コマンド",t:"ファイル名を変更するコマンドは？",o:["rename","mv","cp","chname"],a:1,e:"mv は「移動」と「改名」を兼ねる。課題7-3：mv test testdata"},
+{c:"Linux コマンド",t:"ファイル内の重複を完全になくして表示するコマンドは？（課題9-1）",o:["uniq dup.txt","cat dup.txt | uniq","sort dup.txt | uniq","grep -v dup.txt"],a:2,e:"uniq 只能去掉「相邻」的重复行，所以必须先 sort。（sort -u 也可）"},
+{c:"Linux コマンド",t:"ファイル内の s と p を大文字に置き換えて表示するコマンドは？（課題9-2）",o:["cat replace.txt | tr 'sp' 'SP'","cat replace.txt | sed 's/sp/SP/'","cat replace.txt | grep 'SP'","cat replace.txt | cut -c sp"],a:0,e:"tr は文字単位の置換。tr 'sp' 'SP' で s→S, p→P。"},
+{c:"Linux コマンド",t:"/etc 内で「pro」で始まるものを抜き出し kadai13.txt に保存（課題9-3）。正しいのは？",o:["ls /etc | grep ^pro > ~/Syspro2026/kadai13.txt","ls -l /etc | grep pro > kadai13.txt","find /etc pro >> kadai13.txt","ls /etc | grep pro* | kadai13.txt"],a:0,e:"^pro は「行頭が pro」を意味する正規表現。> でファイルへリダイレクト。ls にオプションを付けない指定にも注意。"},
+{c:"ワイルドカード",t:"[!0-9]* が表すのは？",o:["数字を含まないファイル","数字で始まらないファイル","数字で終わるファイル","数字のみのファイル"],a:1,e:"[!...] は否定。先頭1文字が数字でないファイルすべて。「含まない」ではないのが引っかけポイント。"},
+{c:"ワイルドカード",t:"???* が表すのは？",o:["ちょうど3文字のファイル","3文字以上のファイル","3文字以下のファイル","拡張子が3文字のファイル"],a:1,e:"? はちょうど1文字、* は0文字以上。よって「3文字以上」。ちょうど3文字は ??? 。"},
+{c:"リダイレクト",t:"標準エラー出力をファイルへ書き出す記号は？",o:["1>","2>","&>>","<<"],a:1,e:"0=標準入力, 1=標準出力, 2=標準エラー出力。2> file、両方なら > file 2>&1。"},
+{c:"リダイレクト",t:"cat a.txt ___ b.txt で、b.txt の末尾に追記するには？",o:["<",">",">>","|"],a:2,e:"> は上書き、>> は追記。"},
+
+{c:"vi エディタ",t:"ファイル内すべての「cat」を「dog」に置換するコマンドは？",o:[":s/cat/dog/",":%s/cat/dog/g",":replace cat dog",":g/cat/dog"],a:1,e:"% = ファイル全体、g = 各行のすべて。g を付けないと各行の最初の1個だけ。"},
+{c:"vi エディタ",t:"保存せずに vi を終了するには？",o:[":wq",":q!",":w",":x"],a:1,e:":q! 保存せず強制終了。:wq は保存して終了。"},
+{c:"vi エディタ",t:"カーソル行をコピーして貼り付ける操作は？",o:["cc → v","yy → p","dd → u","x → p"],a:1,e:"yy でコピー（ヤンク）、p でペースト。dd はカット（削除）、u は取り消し。"},
+{c:"vi エディタ",t:"カーソルを行末へ移動するキーは？",o:["0","$","^",":$"],a:1,e:"$ は行末、0 は行頭。:$ はファイルの最終行へ。"},
+
+{c:"権限",t:"chmod 705 ~ を実行すると、その他のユーザ(other)の権限は？",o:["rwx","r-x","r--","--x"],a:1,e:"7=rwx(所有者), 0=---(グループ), 5=r-x(その他)。ディレクトリの x がないと中に入れないので、課題提出には x が必須。"},
+{c:"権限",t:"ディレクトリに対する x（実行）権限の意味は？",o:["中のファイルを実行できる","そのディレクトリに cd で入れる・通過できる","ファイルを作成できる","ls で一覧表示できる"],a:1,e:"目录的 x = 「通過権」。ls 一覧は r、作成/削除は w。x がないと中のファイルへ到達できない。"},
+{c:"プロセス",t:"プロセスを強制終了させるシグナル番号は？",o:["1","2","9","15"],a:2,e:"9 = SIGKILL（捕捉・無視できない強制終了）。15 = SIGTERM が kill のデフォルト。2 = SIGINT（Ctrl+C）。"},
+{c:"CGI",t:"CGI スクリプトで Content-type 行の直後に必ず必要なものは？",o:["<html> タグ","空行（print() だけの行）","charset 指定","exit()"],a:1,e:"HTTP ヘッダとボディの区切りとして空行が必須。これが無いと 500 Internal Server Error になる。"},
+
+{c:"★過去問 ミニテスト8",t:"カレントディレクトリが /home/hiu/student のとき、移動せずに /var/www/modules/test.txt の内容を「相対パス」で表示するコマンドは？",o:["cat ../var/www/modules/test.txt","cat ../../var/www/modules/test.txt","cat ../../../var/www/modules/test.txt","cat /var/www/modules/test.txt"],a:2,e:"student→hiu→home→/ と3階層上がるので ../../../ が必要。（前回❌の問題）"},
+{c:"★過去問 確認問題10",t:"「+」のついたジョブをフォアグラウンドジョブにするコマンドは？",o:["fg +","%%","jobs +","bg 1"],a:1,e:"%% = カレントジョブ（+付き）。%- = 前のカレントジョブ（-付き）、%n = ジョブ番号n。（前回❌）"},
+{c:"★過去問 確認問題10",t:"実行中のプロセスをダイナミック（動的）に確認するコマンドは？",o:["ps aux","top","jobs","kill -l"],a:1,e:"top はリアルタイムで更新され続ける。ps は実行した瞬間のスナップショット。（前回❌）"},
+{c:"★過去問 確認問題10",t:"ユーザがプロセスにシグナルを送信する方法として「正しくない」ものは？",o:["ps コマンドを実行する","kill コマンドを実行する","プログラムで kill() 関数を呼び出す","^C, ^Z などのキー入力"],a:0,e:"ps は見るだけでシグナルは送らない。（前回❌）"},
+{c:"★過去問 課題11-2",t:"PID が 12345 のプロセスを「安全な方法で」終了させるコマンドは？",o:["kill -9 12345","kill 12345","killall 12345","top -k 12345"],a:1,e:"デフォルトの SIGTERM(15) が「安全な方法」。-9 は SIGKILL で強制終了なので不可。（前回❌）"},
+{c:"★過去問 宿題Linux(6)",t:"[1] Running sleep 1800 & のジョブを強制終了するコマンドは？",o:["kill 1","kill %1","kill -1","jobs -k 1"],a:1,e:"ジョブ番号には % を付ける。PID を指定するなら % は不要。（前回❌）"},
+{c:"★過去問 宿題Linux(3)",t:"「アルファベットの小文字から始まり、数字で終わる5文字の文字列」を表す正規表現は？",o:["^[a-z][0-9]$","^[a-z]*[0-9]$","^[a-z]...[0-9]$","^[a-z].....[0-9]$"],a:2,e:"5文字 = 先頭1字 + 任意3字(...) + 末尾1字。^ と $ で長さを固定する。（前回❌）"},
+{c:"★過去問 宿題Linux(4)",t:"red / red / blue / red / blue というファイルに uniq を実行すると削除されるのは？",o:["red と blue","red のみ","blue のみ","何も削除されない"],a:1,e:"uniq は「隣接した」重複だけを消す。先頭の red red が隣接しているので2つ目の red だけ消える。（前回❌）"},
+{c:"★過去問 確認問題8",t:"question.txt の先頭7行を標準出力に出力するコマンドは？（スペース最小）",o:["head 7 question.txt","head -7 question.txt","head -n 7 question.txt","top -n 7 question.txt"],a:2,e:"正解は head -n 7 question.txt。（前回❌）"},
+{c:"★過去問 ミニテスト9",t:"test1.txt の内容を既存の tests.txt に「追記」するコマンドは？",o:["cat test1.txt > tests.txt","cat test1.txt >> tests.txt","cat test1.txt < tests.txt","cat test1.txt | tests.txt"],a:1,e:">> が追記、> は上書き。（前回❌）"},
+{c:"★過去問 確認問題12",t:"param = \"127.0.0.1:8080\" を addr[0], addr[1] で参照できるようにするコードは？",o:["addr = param.split()","addr = param.splt(\":\")","addr = param.split(\":\")","addr = param.replace(\":\")"],a:2,e:"split に区切り文字 \":\" を渡す。問題文が指定した変数名 addr を必ず使うこと。（前回 0/6 ❌）"},
+{c:"★過去問 確認問題10",t:"パーミッション 755 の説明として完全なものは？",o:["所有者に読み・書き・実行の権限がある","所有者=rwx、グループ=r-x、その他=r-x","所有者=rwx、他は権限なし","全員に読み・書き・実行の権限がある"],a:1,e:"記述問題では3つの区分すべてを書かないと満点にならない。（前回 2/6）"},
+{c:"★過去問 宿題Linux(6)",t:"Autorun.sh に「自分とその他のユーザ」の実行権限をアルファベット表記で付与するには？",o:["chmod uo+x Autorun.sh","chmod a+x Autorun.sh","chmod ug+x Autorun.sh","chmod o+x Autorun.sh"],a:0,e:"u=所有者, o=その他 なので uo+x。a は group も含んでしまう。（前回❌）"},
+{c:"★過去問 課題8",t:"「s で始まり、22〜25年入学の情報大生の8文字アカウント」だけを抽出する正規表現は？",o:["^s[0-9]*$","^s2[2-5][0-9][0-9][0-9][0-9][0-9]$","s2[2-5]","^s.......$"],a:1,e:"s + 2 + 入学年下1桁(2〜5) + 5桁の数字、全体を ^ $ で挟んで8文字に固定。ss2212063 や s22120632 を弾ける。"},
+{c:"★過去問 ミニテスト8",t:"OS（Operating System）の役割として適切な2つは？",o:["必要な機能の提供 / コンピュータ資源の管理","文書作成 / 表計算","カーネルの作成 / シェルの作成","ネットワーク接続 / 印刷"],a:0,e:"「必要な〈機能〉の提供」と「コンピュータ〈資源〉の管理」。（前回 部分点）"},
+{c:"★過去問 ミニテスト8",t:"Linux について正しく述べているものは？",o:["AT&Tとライセンス契約を結んでいない組織が開発したUNIX","Ken Thompson氏が作成した派生OS","1960年代にAT&Tのベル研究所で誕生した","Linuxはカーネルとユーザランドによって成り立つ"],a:3,e:"Linux = カーネル + ユーザランド。作者は Linus Torvalds、UNIX互換OS。"},
+{c:"★過去問 確認問題9",t:"vi で hello.txt という別ファイル名で新規保存して終了するコマンドは？",o:[":w hello.txt",":wq hello.txt",":saveas hello.txt",":q! hello.txt"],a:1,e:":w 別名 = 別名保存、:wq 別名 = 別名保存して終了。"},
+{c:"★過去問 確認問題8",t:"sort のオプション -k n / -r / -n の意味の組み合わせは？",o:["n列目をソート / 逆順 / 数値としてソート","逆順 / 数値 / n列目","数値 / n列目 / 逆順","n行目 / 反転 / 名前順"],a:0,e:"-k n = n列目、-r = reverse（逆順）、-n = numeric（数値順）。"},
+{c:"★過去問 課題11-1",t:"genbu2 で PID が 1 のプロセスは何か？",o:["init","systemd","bash","kernel"],a:1,e:"最近の Linux では PID 1 は systemd。"},
+{c:"ファイル入出力",t:"open() でファイルが存在しない場合に発生する例外は？（'r' モード）",o:["FileNotFoundError","IOError","OSError","ValueError"],a:0,e:"FileNotFoundError（OSError のサブクラス）。'w' や 'a' なら新規作成されるので発生しない。"},
+{c:"CGI",t:"genbu2 で CGI を実行可能にする講義指定のコマンドは？",o:["chmod 644 ファイル名","chmod a+rx ファイル名","chmod u+w ファイル名","chmod 600 ファイル名"],a:1,e:"講義スライド原文は chmod a+rx ファイル名（= 755相当）。~/public_html に置く。"},
+{c:"print()",t:"print('A','B','C', sep='-') の出力は？",o:["A B C","A-B-C","ABC","A,B,C"],a:1,e:"sep は複数データの区切り文字（デフォルトは半角スペース）。end は末尾文字（デフォルトは改行）。"},
+];
+
+let sel={},order=[],optMap={},shufOn=false;
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function shArr(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function buildOrder(){
+ order=Q.map((_,i)=>i); optMap={};
+ Q.forEach((q,i)=>optMap[i]=q.o.map((_,j)=>j));
+ if(shufOn){shArr(order);Q.forEach((q,i)=>shArr(optMap[i]))}
+}
+function clearAll(){
+ sel={};render();
+ document.getElementById('score').textContent=`0 / ${Q.length}`;
+ document.getElementById('prog').textContent='未作答';
+ document.getElementById('res').className='res';
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function doShuffle(){shufOn=true;buildOrder();clearAll();syncBtn()}
+function noShuffle(){shufOn=false;buildOrder();clearAll();syncBtn()}
+function syncBtn(){
+ const b=document.getElementById('shufBtn'),o=document.getElementById('origBtn');
+ if(!b)return;
+ b.textContent=shufOn?'🔀 もう一度シャッフル':'🔀 シャッフル';
+ b.className=shufOn?'':'ghost';
+ o.className=shufOn?'ghost':'ghost on';
+ document.getElementById('shufNote').textContent=shufOn?'（出題順・選択肢順をランダム化中）':'';
+}
+function render(){
+ document.getElementById('quiz').innerHTML=order.map((qi,pos)=>{const q=Q[qi];return `
+ <div class="q" id="q${qi}">
+   <div class="tag">${pos+1}. ${esc(q.c)}</div>
+   <div class="qt">${esc(q.t)}</div>
+   ${q.code?`<pre>${esc(q.code)}</pre>`:''}
+   <div class="opts">${optMap[qi].map(oi=>`<div class="opt" data-q="${qi}" data-o="${oi}" onclick="pick(${qi},${oi})">${esc(q.o[oi])}</div>`).join('')}</div>
+   <div class="exp" id="e${qi}"></div>
+ </div>`}).join('');
+}
+function pick(i,j){
+ sel[i]=j;
+ document.querySelectorAll(`[data-q="${i}"]`).forEach(el=>el.classList.toggle('sel',+el.dataset.o===j));
+ document.getElementById('prog').textContent=`已作答 ${Object.keys(sel).length} / ${Q.length}`;
+}
+function grade(){
+ let n=0;const wrong=[];
+ Q.forEach((q,i)=>{
+  const ok=sel[i]===q.a; if(ok)n++; else wrong.push(order.indexOf(i)+1);
+  document.querySelectorAll(`[data-q="${i}"]`).forEach(el=>{
+   const o=+el.dataset.o; el.classList.remove('sel');
+   if(o===q.a)el.classList.add('ok');
+   else if(o===sel[i])el.classList.add('no');
+  });
+  const e=document.getElementById('e'+i);
+  e.className='exp show';
+  e.innerHTML=`<b>${ok?'✅ 正解':'❌ 不正解'}</b>　正解：${esc(q.o[q.a])}<br>${esc(q.e)}`;
+ });
+ wrong.sort((a,b)=>a-b);
+ document.getElementById('score').textContent=`${n} / ${Q.length}`;
+ const pct=Math.round(n/Q.length*100);
+ const r=document.getElementById('res');r.className='res show';
+ r.innerHTML=`<h3 style="margin:0 0 8px">得分 ${n}/${Q.length}（${pct}%）</h3>
+  <p style="margin:0">${pct>=90?'状态很好，保持这个手感。':pct>=70?'基础扎实，把错题所在章节再过一遍。':'先把错题对应的笔记章节重读，再重做一次。'}</p>
+  ${wrong.length?`<p style="margin:8px 0 0;color:#a33">错题：第 ${wrong.join('、')} 题（画面上の番号）</p>`:''}`;
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function reset(){clearAll()}
+buildOrder();render();syncBtn();
+document.getElementById('score').textContent=`0 / ${Q.length}`;
+</script>
+</body>
+</html>

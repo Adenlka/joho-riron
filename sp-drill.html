@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>システムプログラミング入門 — 期末実戦演習（記述・コード込み）</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Segoe UI",sans-serif;background:#f4f6f9;color:#1c2430;margin:0;padding:20px 12px;line-height:1.7}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:21px;margin:0 0 4px}
+.sub{color:#667;font-size:14px;margin-bottom:16px}
+.bar{position:sticky;top:0;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:11px 15px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;z-index:9;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.bar b{font-size:17px}
+button{font:inherit;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;background:#2f6fed;color:#fff}
+button.ghost{background:#eef2f8;color:#2f4a7a}
+button.sm{padding:4px 11px;font-size:13px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.filters button{background:#fff;border:1px solid #dde3ea;color:#40506a;font-size:13px;padding:5px 12px}
+.filters button.on{background:#2f6fed;color:#fff;border-color:#2f6fed}
+.q{background:#fff;border:1px solid #dde3ea;border-radius:12px;padding:16px 18px;margin-bottom:13px}
+.head{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.tag{font-size:11px;background:#eef2f8;color:#4a6a9a;border-radius:20px;padding:2px 10px}
+.tag.t{background:#e7f0ff;color:#1e4fa8;font-weight:600}
+.tag.hot{background:#ffeaea;color:#b03030;font-weight:600}
+.qt{font-weight:600;margin-bottom:9px;white-space:pre-wrap}
+pre{background:#1e2430;color:#e8edf5;padding:11px 13px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55;margin:8px 0;white-space:pre}
+input[type=text]{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;padding:7px 10px;border:1px solid #c8d2e0;border-radius:7px;width:100%;background:#fbfcfe}
+input[type=text]:focus{outline:none;border-color:#2f6fed;background:#fff}
+input.ok{border-color:#1f9d55;background:#f0faf4}
+input.no{border-color:#d64545;background:#fdf1f1}
+textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;padding:9px 11px;border:1px solid #c8d2e0;border-radius:7px;width:100%;min-height:150px;background:#fbfcfe;line-height:1.5}
+textarea:focus{outline:none;border-color:#2f6fed;background:#fff}
+.flds{display:flex;flex-direction:column;gap:8px}
+.fld{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.fld .lb{font-size:13px;color:#55637a;min-width:150px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opts.row{flex-direction:row;gap:10px}
+.opt{border:1px solid #dde3ea;border-radius:8px;padding:8px 12px;cursor:pointer;background:#fbfcfe;transition:.12s}
+.opt:hover{border-color:#2f6fed}
+.opt.sel{border-color:#2f6fed;background:#eaf1ff}
+.opt.ok{border-color:#1f9d55;background:#e8f7ee}
+.opt.no{border-color:#d64545;background:#fdeaea}
+.opt.ox{min-width:64px;text-align:center;font-size:17px}
+.exp{margin-top:10px;padding:10px 13px;background:#f7f9fc;border-left:3px solid #2f6fed;border-radius:0 8px 8px 0;font-size:14px;display:none}
+.exp.show{display:block}
+.exp pre{margin:7px 0}
+.chk{margin:6px 0 0;padding-left:18px;font-size:13.5px}
+.chk li{margin:2px 0}
+.res{background:#fff;border:1px solid #dde3ea;border-radius:12px;padding:18px;margin-bottom:16px;display:none}
+.res.show{display:block}
+code{background:#eef2f8;padding:1px 5px;border-radius:4px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.hide{display:none!important}
+
+button.on{outline:2px solid #2f6fed;outline-offset:-2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>システムプログラミング入門 — 期末実戦演習</h1>
+<div class="sub">中間試験以降 ｜ 全 87 問（記述・穴埋め 58 ／ ○× 10 ／ 選択 11 ／ コード記述 8）＝ 自動採点 130 点分<br>
+上のボタンで<b>題型別・分野別に絞り込み</b>できます。<br>
+入力欄は全角/半角・前後の空白を自動で吸収します。連続スペースも1つとして扱います。<br>
+🔥 = 過去に実際に出題 ／ 🔴 = 前回間違えた問題</div>
+
+<div class="filters" id="filters"></div>
+
+<div class="bar">
+  <b id="score">0 / 0</b>
+  <span id="prog" style="color:#667">未採点</span>
+  <button id="shufBtn" class="ghost" onclick="doShuffle()">🔀 シャッフル</button>
+  <button id="origBtn" class="ghost on" onclick="noShuffle()">↩ 元の順番</button>
+  <span id="shufNote" style="color:#7b8798;font-size:12.5px"></span>
+  <button onclick="grade()">採点する</button>
+  <button class="ghost" onclick="reset_()">やり直す</button>
+  <button class="ghost" onclick="revealAll()">全部の答えを見る</button>
+</div>
+
+<div class="res" id="res"></div>
+<div id="quiz"></div>
+</div>
+
+<script>
+/* type: fill(記述/穴埋め) / ox(○×) / choice(選択) / code(コード記述) */
+const Q=[
+// ============ Linux コマンド 記述 ============
+{ty:'fill',c:'Linuxコマンド',hot:1,q:'次の操作を行うコマンド名を答えなさい。（オプションは含まない）',f:[
+ {lb:'ファイルの一覧を表示',a:['ls']},{lb:'ディレクトリの移動',a:['cd']},{lb:'現在のディレクトリを表示',a:['pwd']},
+ {lb:'ファイルのコピー',a:['cp']},{lb:'ファイルの移動・改名',a:['mv']},{lb:'ファイルの削除',a:['rm']},
+ {lb:'ファイルの内容を表示',a:['cat']},{lb:'ディレクトリの作成',a:['mkdir']},{lb:'ディレクトリの削除',a:['rmdir']},
+ {lb:'マニュアルの確認',a:['man']}],
+ e:'ミニテスト９ 問1 の12個のうち前半。cd は change directory、pwd は print working directory。'},
+
+{ty:'fill',c:'Linuxコマンド',hot:1,q:'次の操作を行うコマンド名を答えなさい。（オプションは含まない）',f:[
+ {lb:'並べかえ',a:['sort']},{lb:'重複行の消去',a:['uniq']},{lb:'文字の置き換え',a:['tr']},{lb:'ファイルの比較',a:['diff']},
+ {lb:'指定文字列を含む行を抽出',a:['grep']},{lb:'空ファイル作成／時刻更新',a:['touch']}],
+ e:'ミニテスト９・確認問題８で出題。tr は translate、uniq は隣接した重複のみ消す点に注意。'},
+
+{ty:'fill',c:'Linuxコマンド',q:'src-file ファイルをコピーして dst-file ファイルを作成するコマンドを入力しなさい。',
+ f:[{a:['cp src-file dst-file']}],e:'cp コピー元 コピー先。'},
+
+{ty:'fill',c:'Linuxコマンド',q:'中にファイルが存在している test ディレクトリを削除するコマンドを入力しなさい。',
+ f:[{a:['rm -r test','rm -rf test','rm -fr test','rm -R test']}],e:'rmdir は「空の」ディレクトリしか削除できない。中身があるときは rm -r。'},
+
+{ty:'fill',c:'Linuxコマンド',hot:1,q:'/media/cdrom/ の中身を最新更新日順に並べて表示するコマンドを入力しなさい。',
+ f:[{a:['ls -lt /media/cdrom/','ls -tl /media/cdrom/','ls -lt /media/cdrom','ls -tl /media/cdrom']}],
+ e:'-t が時刻順（新しい順）、-l が詳細形式。宿題Linux標準教科書(2) 問2。'},
+
+{ty:'fill',c:'Linuxコマンド',hot:1,q:'カレントディレクトリにあるファイルを、詳細形式かつ隠しファイルを含めて表示するコマンドを入力しなさい。',
+ f:[{a:['ls -al','ls -la','ls -a -l','ls -l -a']}],e:'-a = all（. で始まる隠しファイルも）、-l = long。ミニテスト８ 問6。'},
+
+{ty:'fill',c:'Linuxコマンド',q:'パス /etc の中のファイルで、ファイル名の一部に「resolv」という文字列が含まれるファイルを検索するコマンドを、1つのコマンドで完結するように入力しなさい。',
+ f:[{a:['find /etc -name "*resolv*"',"find /etc -name '*resolv*'",'find /etc -name *resolv*']}],
+ e:'find パス -name "パターン"。宿題Linux標準教科書(2) 問5。'},
+
+{ty:'fill',c:'相対パス',hot:1,red:1,q:'カレントディレクトリが /home/hiu/student であるとき、ディレクトリを移動せずに /var/www/modules/test.txt の内容を表示したい。\n「相対パス」で指定するコマンドを入力しなさい。',
+ f:[{a:['cat ../../../var/www/modules/test.txt']}],
+ e:'student → hiu → home → / と3階層上がる必要があるので ../../../ 。ミニテスト８ 問7（前回不正解）。'},
+
+{ty:'fill',c:'相対パス',q:'カレントディレクトリが /home/hiu/student であるとき、そこにある test.txt を /etc/www 以下に移動したい。\n移動元は相対パス、移動先は絶対パスで指定するコマンドを入力しなさい。',
+ f:[{a:['mv test.txt /etc/www','mv ./test.txt /etc/www','mv test.txt /etc/www/']}],e:'ミニテスト８ 問8。'},
+
+{ty:'fill',c:'Linuxコマンド',q:'カレントディレクトリにある hoge.txt の名前を piyo.txt に変更するコマンドを入力しなさい。',
+ f:[{a:['mv hoge.txt piyo.txt']}],e:'Linux に rename という基本コマンドはない。改名は mv。'},
+
+// ============ パイプ・リダイレクト ============
+{ty:'fill',c:'パイプ',hot:1,q:'ファイル「question.txt」に含まれる「g」「w」を「G」「W」に置き換えて表示するコマンドを記述しなさい。\n※回答にパイプを使用し、スペースは必要最小限とすること。',
+ f:[{a:['cat question.txt | tr gw GW']}],e:'tr は「文字単位」の置換。tr 変換前 変換後。確認問題８ 問3。'},
+
+{ty:'fill',c:'パイプ',hot:1,q:'ファイルの中身が AAABBBAAACCCCCCDDD となっている sample.txt から、完全に重複を削除して表示したい。\n※コマンドは必要最小限にすること。',
+ f:[{a:['sort sample.txt | uniq','sort -u sample.txt','cat sample.txt | sort | uniq']}],
+ e:'uniq は「隣接した」重複しか消せないので、必ず先に sort する。ミニテスト９ 問7。'},
+
+{ty:'fill',c:'パイプ',q:'wget でダウンロードした dup.txt の重複を完全になくした状態で表示するコマンドを記述しなさい。（必ずパイプを用いること）',
+ f:[{a:['sort dup.txt | uniq','cat dup.txt | sort | uniq']}],e:'課題9-1。'},
+
+{ty:'fill',c:'パイプ',q:'replace.txt の中の "s" と "p" を大文字に置き換えて表示するコマンドを記述しなさい。',
+ f:[{a:["cat replace.txt | tr 'sp' 'SP'",'cat replace.txt | tr sp SP','tr sp SP < replace.txt',"tr 'sp' 'SP' < replace.txt"]}],e:'課題9-2。'},
+
+{ty:'fill',c:'リダイレクト',hot:1,q:'ls -l を実行した結果を ls-result ファイルに書き込むコマンドを記述しなさい。（スペースは必要最小限）',
+ f:[{a:['ls -l > ls-result']}],e:'> は上書き。宿題Linux標準教科書(4) 問4。'},
+
+{ty:'fill',c:'リダイレクト',hot:1,red:1,q:'cat コマンドとリダイレクト演算子を使用して、test1.txt の内容を既存の tests.txt ファイルに「追記」するコマンドを記述しなさい。',
+ f:[{a:['cat test1.txt >> tests.txt']}],e:'> は上書き（既存内容が消える）、>> が追記。ミニテスト９ 問4（前回不正解）。'},
+
+{ty:'fill',c:'リダイレクト',q:'genbu2 上で /etc 内のファイル・ディレクトリの一覧から "pro" で始まるものを抜き出し、~/Syspro2026/kadai13.txt に保存するコマンドを1行で記述しなさい。（ls にオプションは加えないこと）',
+ f:[{a:['ls /etc | grep ^pro > ~/Syspro2026/kadai13.txt','ls /etc | grep "^pro" > ~/Syspro2026/kadai13.txt',"ls /etc | grep '^pro' > ~/Syspro2026/kadai13.txt"]}],
+ e:'^pro は「行頭が pro」の正規表現。課題9-3。'},
+
+{ty:'fill',c:'リダイレクト',q:'リダイレクトの記号と番号を答えなさい。',f:[
+ {lb:'標準出力を上書き保存',a:['>']},{lb:'標準出力を追記',a:['>>']},{lb:'標準エラー出力を保存',a:['2>']},
+ {lb:'標準入力の番号',a:['0']},{lb:'標準出力の番号',a:['1']},{lb:'標準エラー出力の番号',a:['2']}],
+ e:'0=標準入力 / 1=標準出力 / 2=標準エラー出力。宿題Linux標準教科書(3) 問1。'},
+
+{ty:'fill',c:'テキスト処理',hot:1,red:1,q:'ファイル「question.txt」の先頭7行を標準出力に出力するコマンドを記述しなさい。（スペースは必要最小限）',
+ f:[{a:['head -n 7 question.txt','head -7 question.txt']}],e:'確認問題８ 問4（前回不正解）。'},
+
+{ty:'fill',c:'テキスト処理',q:'ファイル ls-etc の終わり8行を表示するコマンドを記述しなさい。（スペースは必要最小限）',
+ f:[{a:['tail -n 8 ls-etc','tail -8 ls-etc']}],e:'宿題Linux標準教科書(4) 問10。'},
+
+{ty:'fill',c:'テキスト処理',q:'chkconfig --list の実行結果から iptables だけを絞り込んで表示するコマンドを grep を使って記述しなさい。',
+ f:[{a:['chkconfig --list | grep iptables']}],e:'宿題Linux標準教科書(4) 問5。'},
+
+// ============ 正規表現 ============
+{ty:'fill',c:'正規表現',hot:1,red:1,q:'アルファベットの小文字から始まり、数字で終わる「5文字」の文字列を表す正規表現を記述しなさい。（空白は最小限）',
+ f:[{a:['^[a-z]...[0-9]$']}],e:'5文字 = 先頭[a-z] + 任意3文字(...) + 末尾[0-9]。^ と $ で長さを固定する。宿題Linux標準教科書(3) 問3（前回不正解）。'},
+
+{ty:'fill',c:'正規表現',q:'2文字目が数字以外で、4文字目・5文字目が xy である文字列を表す正規表現を記述しなさい。',
+ f:[{a:['^.[^0-9].xy','.[^0-9].xy']}],e:'[^0-9] は「数字以外の1文字」。宿題Linux標準教科書(3) 問4。'},
+
+{ty:'fill',c:'正規表現',q:'grep を利用し、行頭が a または b で始まる行を抽出する正規表現部分を記述しなさい。（grep -e の後ろ）',
+ f:[{a:['^[ab]']}],e:'[ ] は「その中の任意の1文字」。( ) や { } ではない。宿題Linux標準教科書(4) 問1。'},
+
+{ty:'fill',c:'正規表現',q:'/usr/bin から「a で始まる3文字」のファイルを検索したい。grep -e の後ろに書く正規表現を記述しなさい。',
+ f:[{a:['^a..$']}],e:'^a + 任意2文字 + $ で「ちょうど3文字」。宿題Linux標準教科書(4) 問2。'},
+
+{ty:'fill',c:'正規表現',q:'正規表現の記号を答えなさい。',f:[
+ {lb:'行頭を表す記号',a:['^']},{lb:'行末を表す記号',a:['$']},{lb:'任意の1文字',a:['.']},
+ {lb:'その中の任意の一字',a:['[]','[ ]']}],e:'ミニテスト９ 問2。'},
+
+{ty:'fill',c:'正規表現',q:'次のデータから「今年までに入学した情報大の学生アカウント」だけを抽出する正規表現を半角英数字で記述しなさい。\nデータ: s2212063 / s2312066 / s2412065 / s2512061 / s2612063 / s221206a / ss2212063 / s22120632 / helloworld\n抽出例: s2212063 s2312066 s2412065 s2512061',
+ f:[{a:['^s2[2-5][0-9][0-9][0-9][0-9][0-9]$','^s2[2-5][0-9]{5}$']}],
+ e:'①s で始まる ②入学年が22〜25 ③全部で8文字 ④末尾は数字。^ $ で挟まないと ss2212063 や s22120632 も通ってしまう。課題8 問5。'},
+
+// ============ vi ============
+{ty:'fill',c:'viエディタ',hot:1,q:'vi の操作に対応するコマンドを答えなさい。（: は省く）',f:[
+ {lb:'ファイルを保存',a:['w']},{lb:'保存して終了',a:['wq']},{lb:'保存せず強制的に終了',a:['q!']}],
+ e:'ミニテスト９ 問8。: を付けて :w / :wq / :q! と使う。'},
+
+{ty:'fill',c:'viエディタ',hot:1,q:'vi のコマンドモードで、カーソルのある行を含めて5行をバッファにコピーするコマンドを記述しなさい。',
+ f:[{a:['5yy']}],e:'yy = ヤンク（コピー）。5dd はカット（削除）。確認問題９ 問1。'},
+
+{ty:'fill',c:'viエディタ',q:'vi で編集後、hello.txt という別ファイル名で新規保存して終了するコマンドを答えなさい。',
+ f:[{a:[':wq hello.txt','wq hello.txt']}],e:':w 別名 で別名保存、:wq 別名 で別名保存して終了。確認問題９ 問3。'},
+
+{ty:'fill',c:'viエディタ',q:'vi で文章内の HIU という語句を検索してカーソルを移動するコマンドを答えなさい。',
+ f:[{a:['/HIU']}],e:'/ は後方（末尾方向）検索、? は前方（先頭方向）検索。n で次候補。'},
+
+{ty:'fill',c:'viエディタ',q:'vi で編集中のファイルを強制的に保存して終了するコマンドを答えなさい。',
+ f:[{a:[':wq!','wq!']}],e:'宿題Linux標準教科書(5) 問2。'},
+
+{ty:'fill',c:'viエディタ',q:'vi で文章の70行目にカーソルを移動するコマンドを答えなさい。',
+ f:[{a:[':70','70']}],e:'確認問題９ 問6。'},
+
+{ty:'fill',c:'viエディタ',hot:1,q:'vi のコマンドモードで、ファイル全体の「システムプログラミング」を「シスプロ」に置換するコマンドを記述しなさい。',
+ f:[{a:[':%s/システムプログラミング/シスプロ/g','%s/システムプログラミング/シスプロ/g']}],
+ e:'% = ファイル全体、g = 各行のすべて。g を付けないと各行の最初の1個だけ。確認問題９ 問7。'},
+
+{ty:'fill',c:'viエディタ',q:'vi のカーソル移動キーを答えなさい。',f:[
+ {lb:'上に移動',a:['k']},{lb:'下に移動',a:['j']},{lb:'左に移動',a:['h']},{lb:'右に移動',a:['l']},
+ {lb:'インサートモードから抜ける',a:['Esc','esc','ESC','エスケープ']}],e:'宿題Linux標準教科書(5)。'},
+
+// ============ パーミッション ============
+{ty:'fill',c:'パーミッション',hot:1,q:'アクセス権限の変換をしなさい。',f:[
+ {lb:'rwx r-x r-x を8進数で',a:['755']},{lb:'644 を英字表記で',a:['rw-r--r--','rw- r-- r--']},
+ {lb:'rw- r-- --- を8進数で',a:['640']},{lb:'700 を英字表記で',a:['rwx------','rwx --- ---']}],
+ e:'r=4 w=2 x=1。ミニテスト１０ 問2・問3。'},
+
+{ty:'fill',c:'パーミッション',q:'~/Syspro2026 に作成した www ディレクトリに対し、グループに書き込み権限を追加するコマンドを記述しなさい。（相対パス）',
+ f:[{a:['chmod g+w www']}],e:'課題11-1 問1。'},
+
+{ty:'fill',c:'パーミッション',hot:1,q:'private.txt に対し、所有者には読み取りと書き込み、グループには読み取りのみ、その他には一切の権限を与えないコマンドを記述しなさい。',
+ f:[{a:['chmod 640 private.txt']}],e:'6=rw- / 4=r-- / 0=---。課題11-2 問8。'},
+
+{ty:'fill',c:'パーミッション',q:'script.sh の所有者にだけ実行権限を追加するコマンドを記述しなさい。（それ以外の権限は変更しないこと）',
+ f:[{a:['chmod u+x script.sh']}],e:'数字で指定すると他の権限も上書きしてしまうので記号で指定する。課題11-2 問9。'},
+
+{ty:'fill',c:'パーミッション',hot:1,red:1,q:'-rw----r-- の Autorun.sh に対し、「自分とその他のユーザ」に実行権限を付与したい。\nアルファベットを用いた方法で chmod の引数部分を記述しなさい。（chmod ___ Autorun.sh）',
+ f:[{a:['uo+x','ou+x','u+x,o+x','o+x,u+x']}],e:'u=所有者、g=グループ、o=その他、a=全員。a+x にするとグループにも付いてしまう。宿題Linux標準教科書(6) 問1（前回不正解）。'},
+
+{ty:'fill',c:'パーミッション',q:'public ディレクトリを、所有者のみがすべての権限を持ち、グループやその他は何もできない状態にするコマンドを8進数表記・相対パスで記述しなさい。',
+ f:[{a:['chmod 700 public']}],e:'宿題Linux標準教科書(6) 問2。'},
+
+{ty:'fill',c:'パーミッション',hot:1,q:'カレントディレクトリの syspro ディレクトリと、その中のファイルすべてのアクセス権を 755 にするコマンドを記述しなさい。',
+ f:[{a:['chmod -R 755 syspro']}],e:'-R = 再帰的（Recursive）。小文字の -r ではない。確認問題１０ 問3。'},
+
+{ty:'fill',c:'パーミッション',q:'課題提出のために設定すべき権限を答えなさい。（8進数）',f:[
+ {lb:'ホームディレクトリ /home/s25xxxxx',a:['705','755']},
+ {lb:'提出ディレクトリ ~/Syspro2026',a:['705','755']},
+ {lb:'提出ファイル kadai12.py',a:['644','604']}],
+ e:'その他のユーザに「読み込みと実行」の権限が必要。ディレクトリは x がないと通過できず、中のファイルに到達できない。'},
+
+// ============ プロセス・ジョブ ============
+{ty:'fill',c:'プロセス',hot:1,q:'次の操作を行うコマンド名を答えなさい。（オプションは含まない）',f:[
+ {lb:'現在のプロセス情報の表示',a:['ps']},{lb:'リアルタイムのプロセス情報の表示',a:['top']},
+ {lb:'プロセスの終了',a:['kill']},{lb:'シェルの終了',a:['exit']},{lb:'バックグラウンドジョブ情報の表示',a:['jobs']}],
+ e:'ミニテスト１０ 問4。「ダイナミック(動的)に確認」＝ top。'},
+
+{ty:'fill',c:'プロセス',hot:1,q:'バックグラウンドプロセスを含めた、すべてのプロセスを表示するコマンドを記述しなさい。',
+ f:[{a:['ps ax','ps -ax','ps aux','ps -e','ps -ef']}],e:'課題11-2 問1（模範解答は ps ax）。'},
+
+{ty:'fill',c:'プロセス',q:'すべてのプロセスの中から nginx という文字列を含むプロセスだけを絞り込んで表示するコマンドを記述しなさい。',
+ f:[{a:['ps ax | grep nginx','ps aux | grep nginx','ps -ef | grep nginx']}],e:'課題11-2 問2。'},
+
+{ty:'fill',c:'プロセス',hot:1,red:1,q:'プロセスIDが12345のプロセスを「安全な方法で」終了させるコマンドを記述しなさい。',
+ f:[{a:['kill 12345','kill -15 12345','kill -TERM 12345','kill -SIGTERM 12345']}],
+ e:'デフォルトの SIGTERM(15) が安全な終了。-9(SIGKILL) は強制終了なので「安全な方法」ではない。課題11-2 問3（前回不正解）。'},
+
+{ty:'fill',c:'ジョブ制御',hot:1,red:1,q:'jobs の結果が次のとき、[1] のジョブを強制終了するコマンドを半角英数で答えなさい。\n[1]  Running  sleep 1800 &\n[2]- Running  sleep 3600 &\n[3]+ Running  sleep 7200 &',
+ f:[{a:['kill %1']}],e:'ジョブ番号には % を付ける。PID を指定するときは % 不要。宿題Linux標準教科書(6) 問4（前回不正解）。'},
+
+{ty:'fill',c:'ジョブ制御',q:'新たに sleep 1000 をバックグラウンドジョブで実行するコマンドを半角英数で答えなさい。',
+ f:[{a:['sleep 1000&','sleep 1000 &']}],e:'コマンドの末尾に & を付ける。宿題Linux標準教科書(6) 問5。'},
+
+{ty:'fill',c:'ジョブ制御',hot:1,red:1,q:'「+」のついたジョブをフォアグラウンドジョブにするコマンドを答えなさい。',
+ f:[{a:['%%','fg %%','fg','%+']}],e:'%% = カレントジョブ（+付き）、%- = 前のカレントジョブ（-付き）、%n = ジョブ番号n。確認問題１０ 問9（前回不正解）。'},
+
+{ty:'fill',c:'プロセス',q:'genbu2 で動作しているプロセスで、PID が 1 のものは何か答えなさい。',
+ f:[{a:['systemd']}],e:'最近の Linux では PID 1 は systemd（昔は init）。課題11-1 問2。'},
+
+// ============ ○× ============
+{ty:'ox',c:'例外処理',hot:1,q:'except ブロックは複数記載することはできない。',a:1,
+ e:'× — 複数書ける。上から順に評価され、最初にマッチしたものだけが実行される。確認問題１１ 問2。'},
+{ty:'ox',c:'例外処理',hot:1,q:'raise 文を使うことで意図的に例外を発生させることができる。',a:0,
+ e:'○ — raise ValueError("メッセージ") のように書く。'},
+{ty:'ox',c:'例外処理',hot:1,q:'例外が発生していない場合でも、必ず finally ブロック内の処理は実行される。',a:0,
+ e:'○ — finally は例外の有無にかかわらず必ず最後に実行される。ファイルクローズなどの後片付けに使う。'},
+{ty:'ox',c:'例外処理',hot:1,q:'except で as 変数名 を利用すると、例外の詳細な情報を取得できる。',a:0,
+ e:'○ — except ValueError as e: の e にエラーメッセージが格納される。'},
+{ty:'ox',c:'例外処理',hot:1,q:'例外が発生すると必ず except ブロックが処理される。',a:1,
+ e:'× — 例外の型が except で指定した型と一致しないと実行されず、プログラムは中断する。'},
+{ty:'ox',c:'ファイル入出力',q:"open() のモード 'w' でファイルを開くと、既存ファイルの内容は保持されたまま末尾から書き込まれる。",a:1,
+ e:'× — \'w\' は既存ファイルを警告なしに空にする。追記は \'a\'。'},
+{ty:'ox',c:'ファイル入出力',q:'with 文を使うと、ブロック内で例外が発生しても確実にファイルが閉じられる。',a:0,
+ e:'○ — close() 漏れを防げるのが with の最大の利点。'},
+{ty:'ox',c:'ファイル入出力',q:'readlines() で読み込んだリストの各要素には、行末の改行文字が含まれない。',a:1,
+ e:'× — 改行文字は含まれたまま。strip() で除去する必要がある。'},
+{ty:'ox',c:'テキスト処理',q:'uniq コマンドは、ファイル内のすべての重複行を削除できる。',a:1,
+ e:'× — 隣接した重複行しか削除できない。完全に消すには sort と組み合わせる。'},
+{ty:'ox',c:'パーミッション',q:'ディレクトリに x（実行）権限がないと、その中のファイルに読み取り権限があっても到達できない。',a:0,
+ e:'○ — ディレクトリの x は「通過権」。課題12 が0点になった原因もこれ。'},
+
+// ============ 選択 ============
+{ty:'choice',c:'例外処理',hot:1,q:'以下のソースコードを実行した結果として表示されるものを選びなさい。',
+ code:"print('Red')\ntry:\n    numbers = range(2)\n    print('Blue')\n    print(numbers[2])\n    print('Yellow')\nexcept IndexError:\n    print('Pink')\nfinally:\n    print('Black')",
+ o:['Red, Blue, Yellow, Black','Red, Blue, Pink, Black','Red, Blue, Pink, Yellow, Black','Red, Pink, Black'],a:1,
+ e:'range(2) の添字は 0,1 のみ。numbers[2] で IndexError → Yellow はスキップ → except で Pink → finally で Black。確認問題１１ 問1。'},
+
+{ty:'choice',c:'テキスト処理',q:'次の内容のファイルに uniq を実行したとき、削除される行を選びなさい。\nAAA / BBB / BBB / CCC / BBB / AAA / AAA',
+ o:['BBB のみ','AAA のみ','BBB と AAA','CCC と BBB'],a:2,
+ e:'隣接している 2つ目の BBB と、2つ目・3つ目の AAA が削除される。離れた BBB は残る。確認問題８ 問6。'},
+
+{ty:'choice',c:'テキスト処理',q:'red / red / blue / red / blue というファイルに uniq を実行したとき、削除されるものはどれか。',
+ o:['red と blue','red のみ','blue のみ','何も削除されない'],a:1,
+ e:'先頭の red red だけが隣接しているので、2つ目の red だけが消える。宿題Linux標準教科書(4) 問7（前回不正解）。'},
+
+{ty:'choice',c:'テキスト処理',q:'diff test1 test2 を実行したところ、何も表示されずコマンド待ち状態となった。考えられる要因として最も適切なものはどれか。',
+ o:['2つのファイルに違いがなかったため','オプションを付け忘れているため','2つのファイルに違いがあったため','diff だけでは結果が表示されないため'],a:0,
+ e:'diff は差分がなければ何も出力しない。'},
+
+{ty:'choice',c:'sort',q:'sort のオプションの説明の組合せとして正しいものはどれか。',
+ o:['-k n=n列目をソート / -r=逆順 / -n=数値としてソート','-k n=逆順 / -r=数値 / -n=n列目','-k n=数値 / -r=n列目 / -n=逆順','-k n=n行目 / -r=反転 / -n=名前順'],a:0,
+ e:'確認問題８ 問2。'},
+
+{ty:'choice',c:'プロセス',hot:1,red:1,q:'ユーザがプロセスにシグナルを送信する方法として「正しくない」ものはどれか。',
+ o:['ps コマンドを実行する','kill コマンドを実行する','プログラムで kill() 関数を呼び出す','^C, ^Z などのキー入力'],a:0,
+ e:'ps はプロセスを表示するだけでシグナルは送らない。確認問題１０ 問6（前回不正解）。'},
+
+{ty:'choice',c:'パーミッション',q:'a.txt の現在のパーミッションは rw-r--r-- である。これを rwxrw-rw- に変更するコマンドはどれか。',
+ o:['chmod 766 a.txt','chmod u+x,g+w a.txt','chmod u=x,go=w a.txt','chmod u-r,go+w a.txt'],a:0,
+ e:'rwx=7 rw-=6 rw-=6。確認問題１０ 問1。'},
+
+{ty:'choice',c:'パーミッション',q:'test.txt のパーミッションが 600 である。これを 555 に変更するコマンドはどれか。',
+ o:['chmod u+x,u-w,go=rx test.txt','chmod u-w,go+rx test.txt','chmod u-w,u+x,go+rw test.txt','chmod ugo+rx,u-x test.txt'],a:0,
+ e:'600(rw-------) → 555(r-xr-xr-x)。所有者は w を外し x を付け、group/other は rx に設定。確認問題１０ 問4。'},
+
+{ty:'choice',c:'CGI',q:'CGI スクリプトで Content-type 行の直後に必ず必要なものはどれか。',
+ o:['<html> タグ','空行（print() だけの行）','charset 指定','exit()'],a:1,
+ e:'HTTP ヘッダとボディの区切りとして空行が必須。無いと 500 Internal Server Error。'},
+
+{ty:'choice',c:'ワイルドカード',q:'[!0-9]* が表すものはどれか。',
+ o:['数字を含まないファイル','数字で始まらないファイル','数字で終わるファイル','数字のみのファイル'],a:1,
+ e:'[!...] は否定。先頭1文字が数字でないファイル。「含まない」ではない点が引っかけ。'},
+
+{ty:'choice',c:'ワイルドカード',q:'???* が表すものはどれか。',
+ o:['ちょうど3文字のファイル','3文字以上のファイル','3文字以下のファイル','拡張子が3文字のファイル'],a:1,
+ e:'? はちょうど1文字、* は0文字以上。よって3文字以上。ちょうど3文字は ??? 。'},
+
+// ============ Python 穴埋め ============
+{ty:'fill',c:'Python穴埋め',hot:1,q:'整数以外の値が入力されたときに例外処理で「入力エラー」と表示したい。空欄を埋めなさい。',
+ code:"n = input('数字を入力してください->')\n【1】:\n    print('入力された値は%d です' % n)\n【2】 TypeError:\n    print('入力エラー')",
+ f:[{lb:'【1】',a:['try']},{lb:'【2】',a:['except']}],e:'ミニテスト１１ 問1。'},
+
+{ty:'fill',c:'Python穴埋め',hot:1,q:'ファイル入力のコードが正しく動作するよう、空欄を埋めなさい。',
+ code:"f = 【1】('file.txt', 'r')\n# ここにファイルに対する処理\nf.【2】()",
+ f:[{lb:'【1】',a:['open']},{lb:'【2】',a:['close']}],e:'確認問題１２ 問1。'},
+
+{ty:'fill',c:'Python穴埋め',hot:1,q:'開始・終了時に必須の処理を必ず実行する形で、ファイル入力のコードを完成させなさい。',
+ code:"【1】 【2】('file.txt', 'r') as f:\n    # ここにファイルに対する処理",
+ f:[{lb:'【1】',a:['with']},{lb:'【2】',a:['open']}],e:'確認問題１２ 問2。with を使えば close() が自動化される。'},
+
+{ty:'fill',c:'Python穴埋め',hot:1,q:'open() のモードの意味を答えなさい。（r / w / a / x のいずれか）',f:[
+ {lb:'読み込み許可',a:['r',"'r'"]},{lb:'書き出し許可',a:['w',"'w'"]},{lb:'追記許可',a:['a',"'a'"]},{lb:'排他的生成',a:['x',"'x'"]}],
+ e:'確認問題１２ 問3。'},
+
+{ty:'fill',c:'Python例外',q:'次の状況で発生する例外の名前を答えなさい。',f:[
+ {lb:'0 で割った',a:['ZeroDivisionError']},{lb:'リストの範囲外を参照した',a:['IndexError']},
+ {lb:'辞書に無いキーを参照した',a:['KeyError']},{lb:'int("abc") を実行した',a:['ValueError']},
+ {lb:'存在しないメソッドを呼んだ',a:['AttributeError']},{lb:'input() が入力の終端に達した',a:['EOFError']},
+ {lb:'開こうとしたファイルが無い',a:['FileNotFoundError']}],
+ e:'AttributeError と EOFError は課題で実際に使った。'},
+
+{ty:'fill',c:'Python',hot:1,red:1,q:'変数 param に "127.0.0.1:8080" が入っているとき、addr[0] に "127.0.0.1"、addr[1] に "8080" が入るようにする1行を記述しなさい。',
+ f:[{a:['addr = param.split(":")',"addr = param.split(':')"]}],
+ e:'split に区切り文字 ":" を渡す。問題文が指定した変数名 addr を必ず使うこと。確認問題１２ 問4（前回 0/6）。'},
+
+{ty:'fill',c:'Python',q:'次の文字列処理の結果を答えなさい。',f:[
+ {lb:"len('1,2,,3'.split(','))",a:['4']},
+ {lb:"'  ab \\n'.strip()  の結果（引用符なし）",a:['ab']},
+ {lb:"f'{3.14159:.1f}'  の結果",a:['3.1']}],
+ e:'split は空文字列も1要素として数える。strip は両端の空白と改行を除去。'},
+
+// ============ コード記述 ============
+{ty:'code',c:'コード記述',hot:1,q:'あらかじめ定義された Utility クラスを使用して、以下の実行結果になるようにコードを記述しなさい。\n\n手順：\n1. Utility クラスからインスタンスを生成して変数に格納する\n2. try 内で function1 と function3 を実行する\n3. 同じく try 内で、存在しないメソッドを実行する\n4. except でエラーをキャッチして「存在しないメソッドが呼び出されました」と表示する\n5. finally で「処理が終了しました」と表示する\n\n実行結果：\nfunction1\nfunction3\n存在しないメソッドが呼び出されました\n処理が終了しました',
+ code:"class Utility:\n    def function1(self): print('function1')\n    def function2(self): print('function2')\n    def function3(self): print('function3')",
+ m:"utility_instance = Utility()\ntry:\n    utility_instance.function1()\n    utility_instance.function3()\n    utility_instance.function18()   # 存在しないメソッド\nexcept AttributeError:\n    print(\"存在しないメソッドが呼び出されました\")\nfinally:\n    print(\"処理が終了しました\")",
+ pt:['インスタンスを変数に代入している','try の中で function1() と function3() を呼んでいる','存在しないメソッドを try の中で呼んでいる','except AttributeError: になっている','finally で「処理が終了しました」を表示している'],
+ e:'確認問題１１ 問3。存在しないメソッド呼び出しは AttributeError。'},
+
+{ty:'code',c:'コード記述',hot:1,q:'リダイレクトで渡されるファイル（1行目が市町村名、2行目以降が12ヶ月分の気温）を読み込み、平均気温を表示するプログラムを書きなさい。\n\n出力例： 〇〇の平均気温はxx.x度です（小数第一位まで）\n\n条件：\n・input() によるコンソール出力（プロンプト）は不要\n・input を12個並べてはいけない\n・データ数が12でないときは ValueError を発生させて警告を表示する\n実行： python kadai13-1.py < city1_ave.txt',
+ m:"city_name = input()\ntemp = []\nwhile True:\n    try:\n        line = input()\n        if line != \"\":\n            temp.append(float(line))\n    except EOFError:\n        break\ntry:\n    if len(temp) != 12:\n        raise ValueError(\"【警告】データの個数に過不足があります。\")\n    average_temp = sum(temp) / len(temp)\n    print(f\"{city_name}の平均気温は{average_temp:.1f}度です\")\nexcept ValueError as e:\n    print(e)",
+ pt:['1行目を input() で市町村名として受け取っている','while True + try/except EOFError でループを終了している','float() で数値に変換している','len が12でないとき raise ValueError している','f-string の :.1f で小数第一位まで出力している'],
+ e:'課題13-1（4/4）。リダイレクト入力の終端は EOFError で判定する。'},
+
+{ty:'code',c:'コード記述',hot:1,q:'ファイル city2_ave.txt（1行目が "市町村名"、2行目以降が "月","気温" のCSV形式）を open で読み込み、各月の気温と平均気温を表示するプログラムを書きなさい。\n\n出力例：\n1月：-3.6度\n（以降12月まで）\n〇〇の平均気温はxx.x度です\n\n注意：空白や改行、引用符を strip で取り除くこと。',
+ m:"path = \"city2_ave.txt\"\ndata = []\nwith open(path, \"r\", encoding=\"UTF-8\") as f:\n    for i in f:\n        data.append(i)\ntry:\n    if len(data) != 13:\n        raise ValueError(\"【警告】データの個数に過不足があります。\")\n    total = 0\n    city_name = data[0].strip().strip('\"')\n    for i in range(1, 13):\n        month, temp = data[i].split(\",\")\n        month = month.strip().strip('\"')\n        temp  = temp.strip().strip('\"')\n        print(f\"{month}：{float(temp):.1f}度\")\n        total += float(temp)\n    average_temp = total / (len(data) - 1)\n    print(f\"{city_name}の平均気温は{average_temp:.1f}度です\")\nexcept ValueError as e:\n    print(e)",
+ pt:['with open(...) as f: で開いている','for i in f: で1行ずつ読んでいる','split(",") で月と気温に分けている','strip() で改行と引用符を除去している','平均は 12 で割っている（1行目の市町村名を含めない）'],
+ e:'課題13-2（4/4）。'},
+
+{ty:'code',c:'コード記述',hot:1,q:'入力した郵便番号に対応する住所を表示するプログラムを書きなさい。\n\n要件：\n・pcSearch(郵便番号) 関数 … 返り値は住所データ（List）\n・addrDisplay(住所データ) 関数 … 返り値なし\n・存在しない郵便番号の処理は省略可\n・モジュールの使用は禁止\n・ファイルは KEN_ALL.CSV（CSV形式、" と , を含む）\n\n実行例：\n郵便番号：0690832\n都道府県：北海道\n住所：江別市西野幌',
+ m:"path = \"KEN_ALL.CSV\"\n\ndef pcSearch(code):\n    with open(path, \"r\", encoding=\"UTF-8\") as f:\n        for i in f:\n            if code in i:\n                data = [s.strip().strip('\"') for s in i.split(',')]\n                return data\n\ndef addrDisplay(addr_data):\n    if addr_data:\n        print(f\"都道府県：{addr_data[6]}\")\n        print(f\"住所：{addr_data[7]}{addr_data[8]}\")\n\npostcode = input(\"郵便番号：\")\naddr = pcSearch(postcode)\naddrDisplay(addr)",
+ pt:['pcSearch と addrDisplay の2つの関数を定義している','ファイルを1行ずつ読み、郵便番号を含む行を探している','split(",") と strip(\'"\') でCSVを分解している','都道府県=[6]、市区町村=[7]、町域=[8] を使っている','input("郵便番号：") でプロンプトを出している'],
+ e:'課題14（5/5）。csv モジュールを使う版が発展課題14-2。'},
+
+{ty:'code',c:'コード記述',q:'あらかじめ用意されたリスト fileName をそのまま出力し、ファイル名を入力させて、そのファイルの中身を表示するプログラムを書きなさい。（例外処理は不要）\n\n出力例：\n[\'miniTest1.txt\', \'miniTest2.txt\', \'miniTest3.txt\']\n読み込むファイル名を入力してください->miniTest1.txt\n○買い物メモ\nたまねぎ\n…',
+ m:"fileName = [\"miniTest1.txt\", \"miniTest2.txt\", \"miniTest3.txt\"]\nprint(fileName)\nname = input(\"読み込むファイル名を入力してください->\")\nwith open(name, \"r\") as f:\n    for row in f:\n        print(row)",
+ pt:['リストをそのまま print() している','input() でファイル名を受け取り変数に代入している','with open(name, "r") as f: を使っている','for row in f: で1行ずつ表示している'],
+ e:'ミニテスト１１ 問2（教師の模範解答）。'},
+
+{ty:'code',c:'コード記述',hot:1,q:'genbu2 上で「Hello World!」と表示するだけの CGI スクリプトを書きなさい。（ファイル名 sample1.cgi）',
+ m:"#!/usr/bin/python\n\nprint(\"Content-type: text/html; charset=utf-8\")\nprint()\nprint(\"<!DOCTYPE html>\")\nprint(\"<html>\")\nprint(\"<body>\")\nprint(\"Hello World!\")\nprint(\"</body>\")\nprint(\"</html>\")",
+ pt:['1行目が #!/usr/bin/python','Content-type: text/html; charset=utf-8 を出力している','その直後に print() で空行を出している','HTML タグを print で出力している','（実行時）~/public_html に置き chmod a+rx してある'],
+ e:'講義スライド原文。空行を忘れると 500 エラーになる。'},
+
+{ty:'code',c:'コード記述',q:'HTML フォームから POST された値を受け取り、URLデコードして表示する CGI スクリプトを書きなさい。',
+ m:"#!/usr/bin/python\n\nimport urllib.parse\n\nprint(\"Content-type: text/html; charset=utf-8\")\nprint()\nprint(\"<!DOCTYPE html>\")\nprint(\"<html>\")\nprint(\"<head><meta charset='utf-8'></head>\")\nprint(\"<body>\")\na = input()\na = urllib.parse.unquote(a)\nprint(\"QUERY_STRING: \" + a)\nprint(\"</body>\")\nprint(\"</html>\")",
+ pt:['import urllib.parse している','POST データを input() で受け取っている','urllib.parse.unquote() でデコードしている','Content-type と空行を出している'],
+ e:'sample2.cgi 原文。受け取る文字列は name=Mike&OS=win の形式なので、split("&") と split("=") で分解する。'},
+
+{ty:'code',c:'コード記述',q:'CGI で、アクセスしてきたユーザの IP アドレスとブラウザ情報を、現在時刻とともに access.log に「追記」するコードを書きなさい。',
+ m:"#!/usr/bin/python\n\nimport os\nfrom datetime import datetime\n\nprint(\"Content-type: text/html; charset=utf-8\")\nprint()\n\nremote = os.environ.get(\"REMOTE_ADDR\", \"unknown\")\nagent  = os.environ.get(\"HTTP_USER_AGENT\", \"unknown\")\n\nnow = datetime.now()\nformatted = now.strftime(\"%Y年%m月%d日 %H時%M分%S秒\")\n\nwith open(\"access.log\", \"a\", encoding=\"utf-8\") as f:\n    f.write(f\"{formatted},{remote},{agent}\\n\")\n\nprint(\"記録しました\")",
+ pt:['import os と from datetime import datetime をしている','os.environ で REMOTE_ADDR / HTTP_USER_AGENT を取得している','strftime で時刻を整形している','open のモードが "a"（追記）になっている','f.write に \\n を付けている'],
+ e:'課題16 の第1部。モードを "w" にすると毎回ログが消えるので注意。'},
+];
+
+let sel={},txt={},revealed={},order=[],optMap={},shufOn=false;
+const cats=[...new Set(Q.map(q=>q.c))];
+let filter='すべて';
+
+function nrm(s){
+ return (s||'').replace(/[Ａ-Ｚａ-ｚ０-９！-／：-＠［-｀｛-～]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+  .replace(/　/g,' ').replace(/[“”]/g,'"').replace(/[‘’]/g,"'")
+  .trim().replace(/\s+/g,' ');
+}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function shArr(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function buildOrder(){
+ order=Q.map((_,i)=>i); optMap={};
+ Q.forEach((q,i)=>{optMap[i]=(q.o||[]).map((_,j)=>j)});
+ if(shufOn){shArr(order);Q.forEach((q,i)=>{if(q.ty==='choice')shArr(optMap[i])})}
+}
+function doShuffle(){shufOn=true;buildOrder();reset_();syncBtn()}
+function noShuffle(){shufOn=false;buildOrder();reset_();syncBtn()}
+function syncBtn(){
+ const b=document.getElementById('shufBtn'),o=document.getElementById('origBtn');
+ if(!b)return;
+ b.textContent=shufOn?'🔀 もう一度シャッフル':'🔀 シャッフル';
+ b.className=shufOn?'':'ghost';
+ o.className=shufOn?'ghost':'ghost on';
+ document.getElementById('shufNote').textContent=shufOn?'（出題順＋選択肢順をランダム化中）':'';
+}
+function typeLabel(t){return {fill:'記述・穴埋め',ox:'○×',choice:'選択',code:'コード記述'}[t]}
+
+function render(){
+ document.getElementById('filters').innerHTML =
+   ['すべて','記述・穴埋め','コード記述','○×','選択',...cats].map(c=>
+   `<button class="${filter===c?'on':''}" onclick="setFilter('${c}')">${c}</button>`).join('');
+
+ document.getElementById('quiz').innerHTML=order.map((i,pos)=>{
+  const q=Q[i];
+  let body='';
+  if(q.ty==='fill'){
+   body=`<div class="flds">${q.f.map((f,j)=>
+     `<div class="fld">${f.lb?`<span class="lb">${esc(f.lb)}</span>`:''}
+      <input type="text" id="i${i}_${j}" oninput="mark(${i})" autocomplete="off" spellcheck="false"
+      style="${f.lb?'flex:1;min-width:200px':''}"></div>`).join('')}</div>`;
+  } else if(q.ty==='ox'){
+   body=`<div class="opts row">${['○','×'].map((o,j)=>
+     `<div class="opt ox" data-q="${i}" data-o="${j}" onclick="pick(${i},${j})">${o}</div>`).join('')}</div>`;
+  } else if(q.ty==='choice'){
+   body=`<div class="opts">${optMap[i].map(j=>
+     `<div class="opt" data-q="${i}" data-o="${j}" onclick="pick(${i},${j})">${esc(q.o[j])}</div>`).join('')}</div>`;
+  } else {
+   body=`<textarea id="t${i}" spellcheck="false" placeholder="ここにコードを書いてから「採点する」または下のボタンで模範解答と見比べてください"></textarea>
+    <div style="margin-top:7px"><button class="ghost sm" onclick="showModel(${i})">模範解答を見る</button></div>`;
+  }
+  return `<div class="q" data-cat="${esc(q.c)}" data-type="${typeLabel(q.ty)}" id="q${i}">
+   <div class="head">
+     <span class="tag t">${typeLabel(q.ty)}</span>
+     <span class="tag${q.hot||q.red?' hot':''}">${pos+1}. ${esc(q.c)}${q.red?' 🔴':(q.hot?' 🔥':'')}</span>
+   </div>
+   <div class="qt">${esc(q.q)}</div>
+   ${q.code?`<pre>${esc(q.code)}</pre>`:''}
+   ${body}
+   <div class="exp" id="e${i}"></div>
+  </div>`;
+ }).join('');
+ applyFilter();
+}
+function setFilter(c){filter=c;render()}
+function applyFilter(){
+ document.querySelectorAll('.q').forEach(el=>{
+  const ok = filter==='すべて' || el.dataset.cat===filter || el.dataset.type===filter;
+  el.classList.toggle('hide',!ok);
+ });
+}
+function pick(i,j){
+ sel[i]=j;
+ document.querySelectorAll(`[data-q="${i}"]`).forEach(el=>el.classList.toggle('sel',+el.dataset.o===j));
+ upd();
+}
+function mark(){upd()}
+function upd(){
+ let done=0;
+ Q.forEach((q,i)=>{
+  if(q.ty==='fill'){ if(q.f.some((f,j)=>(document.getElementById('i'+i+'_'+j)||{}).value)) done++ }
+  else if(q.ty==='code'){ if((document.getElementById('t'+i)||{}).value) done++ }
+  else if(sel[i]!==undefined) done++;
+ });
+ document.getElementById('prog').textContent=`入力済み ${done} / ${Q.length}`;
+}
+function showModel(i){
+ const q=Q[i],e=document.getElementById('e'+i);
+ e.className='exp show';
+ e.innerHTML=`<b>模範解答</b><pre>${esc(q.m)}</pre>
+  <b>採点ポイント（自己チェック）</b><ul class="chk">${q.pt.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>
+  <div style="margin-top:6px">${esc(q.e)}</div>`;
+ revealed[i]=1;
+}
+function grade(){
+ let got=0,total=0;const wrong=[];
+ Q.forEach((q,i)=>{
+  const e=document.getElementById('e'+i);
+  if(q.ty==='fill'){
+   let allOk=true;
+   q.f.forEach((f,j)=>{
+    total++;
+    const el=document.getElementById('i'+i+'_'+j);
+    const v=nrm(el.value);
+    const ok=f.a.some(a=>nrm(a)===v);
+    el.classList.toggle('ok',ok); el.classList.toggle('no',!ok);
+    if(ok)got++; else allOk=false;
+   });
+   if(!allOk)wrong.push(order.indexOf(i)+1);
+   e.className='exp show';
+   e.innerHTML=`<b>正解</b><br>${q.f.map((f,j)=>`${f.lb?esc(f.lb)+'：':''}<code>${esc(f.a[0])}</code>${f.a.length>1?`　<span style="color:#667;font-size:12.5px">（他に可: ${f.a.slice(1).map(x=>'<code>'+esc(x)+'</code>').join(' , ')}）</span>`:''}`).join('<br>')}
+    <div style="margin-top:6px">${esc(q.e)}</div>`;
+  } else if(q.ty==='code'){
+   total++;
+   e.className='exp show';
+   const written=(document.getElementById('t'+i)||{}).value||'';
+   e.innerHTML=`<b>模範解答</b><pre>${esc(q.m)}</pre>
+    <b>採点ポイント（自己チェック — 満たせていれば1点）</b><ul class="chk">${q.pt.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>
+    <div style="margin-top:6px">${esc(q.e)}</div>
+    ${written?'':'<div style="margin-top:6px;color:#a33">※ 未記入です。手を動かして書いてから見直してください。</div>'}`;
+  } else {
+   total++;
+   const ok=sel[i]===q.a; if(ok)got++; else wrong.push(order.indexOf(i)+1);
+   document.querySelectorAll(`[data-q="${i}"]`).forEach(el=>{
+    const o=+el.dataset.o; el.classList.remove('sel');
+    if(o===q.a)el.classList.add('ok'); else if(o===sel[i])el.classList.add('no');
+   });
+   e.className='exp show';
+   const ansTxt = q.ty==='ox' ? ['○','×'][q.a] : q.o[q.a];
+   e.innerHTML=`<b>${ok?'✅ 正解':'❌ 不正解'}</b>　正解：${esc(ansTxt)}<br>${esc(q.e)}`;
+  }
+ });
+ const codeN=Q.filter(q=>q.ty==='code').length;
+ const auto=total-codeN;
+ document.getElementById('score').textContent=`${got} / ${auto}`;
+ const pct=Math.round(got/auto*100);
+ const r=document.getElementById('res');r.className='res show';
+ r.innerHTML=`<h3 style="margin:0 0 8px">自動採点 ${got} / ${auto}（${pct}%）＋ コード記述 ${codeN}問は自己採点</h3>
+  <p style="margin:0">${pct>=90?'仕上がっています。あとはコード記述を実際に手で書けるか確認を。':pct>=70?'あと一息。間違えた問題のカテゴリだけ絞り込んで回してください。':'《期末试验复习笔记》の該当章を読んでから、もう一度どうぞ。'}</p>
+  ${wrong.length?`<p style="margin:8px 0 0;color:#a33">間違えた問題：${wrong.sort((a,b)=>a-b).join('、')}（画面上の番号）</p>`:''}`;
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function revealAll(){Q.forEach((q,i)=>{if(q.ty==='code')showModel(i)});grade()}
+function reset_(){sel={};revealed={};render();document.getElementById('res').className='res';document.getElementById('score').textContent='0 / 0';document.getElementById('prog').textContent='未採点';window.scrollTo({top:0,behavior:'smooth'})}
+buildOrder();render();upd();syncBtn();
+</script>
+</body>
+</html>
