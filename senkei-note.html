@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>線形代数 II 復習ノート（第9〜15回）</title>
+<script>(function(){var KEY='quizTheme';function get(){try{return localStorage.getItem(KEY);}catch(e){return null;}}function set(v){try{localStorage.setItem(KEY,v);}catch(e){}}function cur(){var s=get();return s?s:'dark';}function apply(t){document.documentElement.setAttribute('data-theme',t);var b=document.getElementById('themeBtn');if(b){b.textContent=(t==='dark'?'ライトモード':'ダークモード');}}apply(cur());document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('themeBtn');apply(cur());if(b){b.addEventListener('click',function(){var t=(document.documentElement.getAttribute('data-theme')==='dark')?'light':'dark';set(t);apply(t);});}});})();</script>
+<script>
+  MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js" id="MathJax-script" async></script>
+<style>
+  :root{--bg:#fff;--ink:#1a2233;--muted:#5b6b82;--line:#e2e8f0;--blue:#2563eb;--blue-bg:#eef3fe;
+    --green:#0f9d6b;--green-bg:#e9f8f1;--amber:#b45309;--amber-bg:#fdf3e3;--purple:#7c3aed;--purple-bg:#f2ecfd;--red:#dc2626;--red-bg:#fdeceb;}
+  *{box-sizing:border-box}
+  body{font-family:"Noto Sans CJK JP","Yu Gothic",sans-serif;color:var(--ink);background:var(--bg);margin:0;line-height:1.85;font-size:16px;}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
+  header.hero{background:linear-gradient(135deg,#0f766e,#0891b2);color:#fff;border-radius:16px;padding:34px 32px;margin-bottom:28px;}
+  header.hero h1{margin:0 0 8px;font-size:27px;}
+  header.hero p{margin:0;opacity:.92;font-size:15px;}
+  nav.toc{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:34px;column-count:2;column-gap:28px;}
+  nav.toc h2{margin:0 0 10px;font-size:15px;color:var(--muted);column-span:all;}
+  nav.toc a{display:block;color:var(--blue);text-decoration:none;padding:3px 0;font-size:14px;}
+  section{margin-bottom:40px;scroll-margin-top:20px;}
+  h2.sec{font-size:21px;border-left:6px solid #0891b2;padding:4px 0 4px 14px;margin:0 0 8px;}
+  .kai{display:inline-block;font-size:12px;font-weight:700;color:#0e7490;background:#e0f2fe;padding:2px 10px;border-radius:6px;margin-bottom:14px;}
+  h3{font-size:17px;color:#111827;margin:22px 0 8px;border-bottom:2px solid var(--line);padding-bottom:4px;}
+  .box{border-radius:10px;padding:14px 18px;margin:14px 0;}
+  .def{background:var(--blue-bg);border-left:4px solid var(--blue);}
+  .thm{background:var(--purple-bg);border-left:4px solid var(--purple);}
+  .ex{background:var(--green-bg);border-left:4px solid var(--green);}
+  .warn{background:var(--amber-bg);border-left:4px solid var(--amber);}
+  .tip{background:var(--red-bg);border-left:4px solid var(--red);}
+  .box .lbl{font-weight:700;font-size:13px;display:inline-block;margin-bottom:4px;}
+  .def .lbl{color:var(--blue);}.thm .lbl{color:var(--purple);}.ex .lbl{color:var(--green);}.warn .lbl{color:var(--amber);}.tip .lbl{color:var(--red);}
+  p{margin:8px 0;}ul,ol{margin:8px 0 8px 4px;padding-left:22px;}li{margin:4px 0;}
+  .step{margin:6px 0;}
+  .keyword{color:var(--blue);font-weight:700;}
+  code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:14px;}
+  footer{color:var(--muted);font-size:13px;text-align:center;margin-top:40px;}
+  @media print{header.hero{background:#0f766e !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.box,nav.toc{-webkit-print-color-adjust:exact;print-color-adjust:exact;}section{page-break-inside:avoid;}}
+
+.theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.theme-toggle:hover{border-color:var(--blue);}
+@media print{.theme-toggle{display:none;}}
+[data-theme="dark"]{--bg:#0f172a;--card:#1e293b;--ink:#e6eaf2;--muted:#94a3b8;--line:#334155;--blue:#60a5fa;--blue-d:#93c5fd;--green:#34d399;--purple:#a78bfa;--amber:#fbbf24;--red:#f87171;--blue-bg:rgba(96,165,250,.14);--green-bg:rgba(52,211,153,.13);--purple-bg:rgba(167,139,250,.16);--amber-bg:rgba(251,191,36,.15);--red-bg:rgba(248,113,113,.14);}
+[data-theme="dark"] body{background:var(--bg);color:var(--ink);}
+[data-theme="dark"] .theme-toggle{background:#1e293b;color:#e6eaf2;}
+[data-theme="dark"] nav.toc{background:#1e293b;border-color:#334155;}
+[data-theme="dark"] nav.toc h2{color:#94a3b8;}
+[data-theme="dark"] nav.toc a{color:#7db3fb;}
+[data-theme="dark"] h3{color:#f1f5f9;border-color:#334155;}
+[data-theme="dark"] code{background:#334155;color:#e6eaf2;}
+[data-theme="dark"] .cats button{background:#1e293b;color:#e6eaf2;border-color:#334155;}
+[data-theme="dark"] .card{background:#1e293b;border-color:#334155;}
+[data-theme="dark"] .solution{background:#0f172a;border-color:#334155;}
+[data-theme="dark"] .field input{background:#0f172a;color:#e6eaf2;border-color:#334155;}
+[data-theme="dark"] .field label{color:#94a3b8;}
+[data-theme="dark"] .btn-ghost{background:#334155;color:#e6eaf2;}
+[data-theme="dark"] .badge{background:rgba(56,189,248,.16);color:#7dd3fc;}
+[data-theme="dark"] .hint{color:#94a3b8;}
+[data-theme="dark"] mjx-container{color:var(--ink);}
+
+</style>
+</head>
+<body>
+<button id="themeBtn" class="theme-toggle" type="button">ダークモード</button>
+<div class="wrap">
+<header class="hero">
+  <h1>線形代数 II 復習ノート（第9〜15回）</h1>
+  <p>試験範囲：第9回〜最終回。線形写像・表現行列・基底の変換・直交変換・固有値・対角化を、講義の回ごとに整理した試験対策ノート。</p>
+</header>
+
+<nav class="toc">
+  <h2>目次（試験範囲＝第9〜15回）</h2>
+  <a href="#pre">前提知識ミニまとめ（内積・正規直交基底・直交行列）</a>
+  <a href="#s9">第9回　線形写像と行列</a>
+  <a href="#s10a">第9・10回　表現行列（標準基底／基底に関する）</a>
+  <a href="#s10b">第10回　基底の変換行列と成分</a>
+  <a href="#s10c">第10回　基底変換と表現行列 $B=P^{-1}AP$</a>
+  <a href="#s11a">第11回　直交変換と直交行列</a>
+  <a href="#s11b">第11回　回転・鏡映の表現行列</a>
+  <a href="#s12">第12回　合成変換</a>
+  <a href="#s13">第13回　固有値・固有ベクトル</a>
+  <a href="#s14a">第14回　行列の対角化</a>
+  <a href="#s14b">第14回　対称行列の直交対角化</a>
+  <a href="#s15">第15回　行列の $n$ 乗</a>
+  <a href="#check">試験対策チェックリスト</a>
+</nav>
+
+<section id="pre">
+<h2 class="sec">前提知識ミニまとめ</h2>
+<span class="kai">第11回で使う</span>
+<p>第11回の直交変換で必要になる、内積と正規直交基底・直交行列だけを確認しておく（内積・外積・平面の方程式そのものは前期範囲なので本ノートでは扱わない）。</p>
+<div class="box def"><span class="lbl">内積・長さ・直交</span>
+<p>$\boldsymbol a\cdot\boldsymbol b=a_1b_1+a_2b_2+\cdots=|\boldsymbol a||\boldsymbol b|\cos\theta$、長さ $|\boldsymbol a|=\sqrt{\boldsymbol a\cdot\boldsymbol a}$。$\boldsymbol a\cdot\boldsymbol b=0\iff$ 直交。</p></div>
+<div class="box def"><span class="lbl">正規直交基底・直交行列</span>
+<p>基底が $\boldsymbol b_i\cdot\boldsymbol b_j=\delta_{ij}$（長さ 1・互いに直交）を満たすとき<span class="keyword">正規直交基底</span>。これを列に並べた行列 $P$ は<span class="keyword">直交行列</span>で $P^{\mathsf T}P=E$、すなわち $P^{-1}=P^{\mathsf T}$（逆行列は転置するだけ）。</p></div>
+</section>
+
+<section id="s9">
+<h2 class="sec">第9回　線形写像と行列</h2>
+<span class="kai">第9回</span>
+<div class="box def"><span class="lbl">線形写像の定義</span>
+<p>写像 $T:V\to V'$ が次を満たすとき<span class="keyword">線形写像</span>：
+$$\text{(i)}\ T(\boldsymbol a+\boldsymbol b)=T(\boldsymbol a)+T(\boldsymbol b),\qquad \text{(ii)}\ T(k\boldsymbol a)=kT(\boldsymbol a).$$</p></div>
+<div class="box ex"><span class="lbl">例</span>
+<p>$T(x)=kx$ は線形。$T(x)=kx+l\ (l\neq0)$ は<b>線形でない</b>（原点 $\boldsymbol 0$ が $\boldsymbol 0$ に移らない）。判定は「和とスカラー倍を保つか」。</p></div>
+<div class="box thm"><span class="lbl">行列で定まる線形写像</span>
+<p>$m\times n$ 行列 $A$ に対し $T_A(\boldsymbol x)=A\boldsymbol x$ は線形写像。逆に $\mathbb{R}^n$ の線形変換はすべてある行列で表せる（＝行列とちょうど対応する）。</p></div>
+</section>
+
+<section id="s10a">
+<h2 class="sec">表現行列（標準基底／基底に関する）</h2>
+<span class="kai">第9・10回</span>
+<div class="box def"><span class="lbl">基底に関する表現行列</span>
+<p>線形変換 $T$ と基底 $\{\boldsymbol b_i\}$ について、像を基底の 1 次結合で表した係数を並べた行列 $A=[a_{ij}]$ を<span class="keyword">表現行列</span>という：
+$$[\,T(\boldsymbol b_1)\ \cdots\ T(\boldsymbol b_n)\,]=[\,\boldsymbol b_1\ \cdots\ \boldsymbol b_n\,]\,A.$$
+このとき像の成分は $\boldsymbol y=A\boldsymbol x$（＝表現行列 × 成分）で求まる。</p></div>
+<div class="box tip"><span class="lbl">標準基底なら定義行列そのもの</span>
+<p>標準基底 $\boldsymbol e_1,\dots,\boldsymbol e_n$ に関する $T_A$ の表現行列は<b>定義行列 $A$ そのもの</b>。$T_A(\boldsymbol e_j)$ は $A$ の第 $j$ 列。</p></div>
+<div class="box ex"><span class="lbl">例</span>
+<p>$A=\begin{pmatrix}-2&-2&1\\3&-1&-4\\0&2&-3\end{pmatrix}$ で定まる $T_A$ の標準基底に関する表現行列は $A$。各 $T_A(\boldsymbol e_j)$ は $A$ の列。</p></div>
+</section>
+
+<section id="s10b">
+<h2 class="sec">基底の変換行列と成分</h2>
+<span class="kai">第10回</span>
+<div class="box def"><span class="lbl">変換行列</span>
+<p>基底 $\{\boldsymbol b_i\}$ から $\{\boldsymbol b_i'\}$ への<span class="keyword">変換行列</span> $P$ は $[\,\boldsymbol b_1'\ \cdots\,]=[\,\boldsymbol b_1\ \cdots\,]P$ を満たす行列。$\boldsymbol b_j'=\sum_i p_{ij}\boldsymbol b_i$ の係数を<b>列</b>に並べたもの。</p></div>
+<div class="box thm"><span class="lbl">成分の変換</span>
+<p>同じベクトルの旧基底での成分 $\boldsymbol k$ と新基底での成分 $\boldsymbol k'$ は
+$$\boldsymbol k'=P^{-1}\boldsymbol k.$$
+（基底は $P$ で移り、成分は逆向き $P^{-1}$ で移る。）</p></div>
+<div class="box ex"><span class="lbl">例</span>
+<p>$\boldsymbol b_1'=-3\boldsymbol b_1+4\boldsymbol b_2,\ \boldsymbol b_2'=6\boldsymbol b_1-9\boldsymbol b_2$ なら $P=\begin{pmatrix}-3&6\\4&-9\end{pmatrix}$、$|P|=3$、$P^{-1}=\begin{pmatrix}-3&-2\\-\tfrac43&-1\end{pmatrix}$。</p>
+<p class="step">$\boldsymbol a=21\boldsymbol b_1-33\boldsymbol b_2$ の新基底成分は $P^{-1}\begin{pmatrix}21\\-33\end{pmatrix}=\begin{pmatrix}3\\5\end{pmatrix}$、すなわち $\boldsymbol a=3\boldsymbol b_1'+5\boldsymbol b_2'$。</p></div>
+</section>
+
+<section id="s10c">
+<h2 class="sec">基底変換と表現行列 $B=P^{-1}AP$</h2>
+<span class="kai">第10回（最重要）</span>
+<div class="box thm"><span class="lbl">定理</span>
+<p>$A$ を基底 $\{\boldsymbol b_i\}$、$B$ を基底 $\{\boldsymbol b_i'\}$ に関する $T$ の表現行列とし、変換行列を $P$ とすると
+$$B=P^{-1}AP.$$
+特に「標準基底の表現行列 $A$」→「基底 $\{\boldsymbol b_i\}$ の表現行列 $B$」は、標準基底からの変換行列 $P=[\,\boldsymbol b_1\ \cdots\ \boldsymbol b_n\,]$ を使って $B=P^{-1}AP$。</p></div>
+<div class="box ex"><span class="lbl">例（講義10 例4 の型）</span>
+<p>$A=\begin{pmatrix}-1&1&-2\\-2&1&-1\\2&-1&3\end{pmatrix}$、基底を列に並べた $P=[\,\boldsymbol b_1\ \boldsymbol b_2\ \boldsymbol b_3\,]$ に対し $B=P^{-1}AP=\begin{pmatrix}0&0&0\\0&1&0\\0&0&2\end{pmatrix}$（対角行列）。</p>
+<p class="step">像の計算：$\boldsymbol a=x_1\boldsymbol b_1+\cdots$ の像 $T_A(\boldsymbol a)$ の成分は $B\boldsymbol x$。基底での成分に対角行列を掛けるだけ。</p></div>
+<div class="box tip"><span class="lbl">対角化への橋渡し</span>
+<p>「$B=P^{-1}AP$ を対角行列にする基底 $P$ を選ぶ」ことが<b>対角化</b>（第14回）。その基底が<b>固有ベクトル</b>。</p></div>
+</section>
+
+<section id="s11a">
+<h2 class="sec">直交変換と直交行列</h2>
+<span class="kai">第11回</span>
+<div class="box def"><span class="lbl">直交変換</span>
+<p>内積を保つ線形変換、すなわち任意の $\boldsymbol a,\boldsymbol b$ で $T(\boldsymbol a)\cdot T(\boldsymbol b)=\boldsymbol a\cdot\boldsymbol b$ を満たすもの。</p></div>
+<div class="box thm"><span class="lbl">直交変換の性質</span>
+<ol>
+  <li>長さを保つ：$|T(\boldsymbol a)|=|\boldsymbol a|$。</li>
+  <li>なす角を保つ（直交は直交に移る）。</li>
+  <li>正規直交基底の像も正規直交基底。</li>
+  <li>正規直交基底に関する表現行列は<b>直交行列</b>（$P^{-1}=P^{\mathsf T}$）。逆も成立。</li>
+</ol>
+<p>原点を固定する回転・対称移動（鏡映）は直交変換。</p></div>
+<div class="box ex"><span class="lbl">例（試験5 の型：正規直交基底どうしの変換）</span>
+<p>標準基底から $\{\boldsymbol u_i\},\{\boldsymbol w_i\}$ への変換行列を $P,Q$ とすると、$\{\boldsymbol u_i\}$ から $\{\boldsymbol w_i\}$ への変換行列は $X=P^{-1}Q$。$P,Q$ が直交行列なので $X^{\mathsf T}X=Q^{\mathsf T}(P^{-1})^{\mathsf T}P^{-1}Q=Q^{\mathsf T}PP^{-1}Q=Q^{\mathsf T}Q=E$、ゆえに $X$ も直交行列。</p></div>
+</section>
+
+<section id="s11b">
+<h2 class="sec">回転・鏡映の表現行列</h2>
+<span class="kai">第11回</span>
+<h3>回転</h3>
+<p>原点を中心に角 $\theta$ 回転する変換の表現行列 $R_\theta=\begin{pmatrix}\cos\theta&-\sin\theta\\ \sin\theta&\cos\theta\end{pmatrix}$。</p>
+<div class="box ex"><span class="lbl">点 $A$ を中心とした回転</span>
+<p>① $\overrightarrow{AP}$ を求め、② $R_\theta\,\overrightarrow{AP}$ を計算、③ $A$ を足す：$Q=A+R_\theta\,\overrightarrow{AP}$。</p></div>
+<h3>鏡映（直線に関する対称移動）</h3>
+<p>$x$ 軸となす角 $\theta$ の直線に関する対称移動は $\begin{pmatrix}\cos2\theta&\sin2\theta\\ \sin2\theta&-\cos2\theta\end{pmatrix}$。傾き $m$ のときは $\dfrac{1}{m^2+1}\begin{pmatrix}1-m^2&2m\\ 2m&m^2-1\end{pmatrix}$。</p>
+<div class="box warn"><span class="lbl">回転か鏡映かの見分け</span>
+<p>行列式 $=+1$ なら回転、$=-1$ なら鏡映。回転は右上が $-\sin$、鏡映は右下が $-\cos$。</p></div>
+</section>
+
+<section id="s12">
+<h2 class="sec">合成変換</h2>
+<span class="kai">第12回</span>
+<div class="box thm"><span class="lbl">合成変換の表現行列</span>
+<p>$T$（表現行列 $A$）と $U$（表現行列 $B$）の合成 $U\circ T$ の表現行列は<b>積 $BA$</b>（後からやる $U$ が左）。</p></div>
+<div class="box ex"><span class="lbl">例</span>
+<ul>
+  <li>回転の合成 $T_\beta\circ T_\alpha=T_{\alpha+\beta}$。行列の積から三角関数の加法定理 $\cos(\alpha+\beta)=\cos\alpha\cos\beta-\sin\alpha\sin\beta$ 等が導ける。</li>
+  <li>2 つの鏡映 $R_\beta\circ R_\alpha$ は回転角 $2(\beta-\alpha)$ の回転。</li>
+</ul></div>
+</section>
+
+<section id="s13">
+<h2 class="sec">固有値・固有ベクトル</h2>
+<span class="kai">第13回</span>
+<div class="box def"><span class="lbl">定義</span>
+<p>$n$ 次正方行列 $A$ に対し $A\boldsymbol u=\lambda\boldsymbol u\ (\boldsymbol u\neq\boldsymbol 0)$ を満たす $\lambda$ を<span class="keyword">固有値</span>、$\boldsymbol u$ を<span class="keyword">固有ベクトル</span>という。</p></div>
+<div class="box thm"><span class="lbl">求め方（2ステップ）</span>
+<ol>
+  <li><b>固有方程式</b> $|A-\lambda E|=0$ を解いて固有値 $\lambda$ を求める。</li>
+  <li>各 $\lambda$ で $(A-\lambda E)\boldsymbol x=\boldsymbol 0$ を解いて固有ベクトルを求める。解空間 $W_\lambda$ を<span class="keyword">固有空間</span>という。</li>
+</ol></div>
+<div class="box ex"><span class="lbl">例</span>
+<p>$A=\begin{pmatrix}0&1\\-2&3\end{pmatrix}$。$|A-tE|=t^2-3t+2=(t-1)(t-2)=0\Rightarrow\lambda=1,2$。</p>
+<p class="step">$\lambda=1$：$\boldsymbol x=c\begin{pmatrix}1\\1\end{pmatrix}$。$\lambda=2$：$\boldsymbol x=c\begin{pmatrix}1\\2\end{pmatrix}$。</p></div>
+<div class="box tip"><span class="lbl">要点</span><p>相異なる固有値に対する固有ベクトルは 1 次独立。</p></div>
+</section>
+
+<section id="s14a">
+<h2 class="sec">行列の対角化</h2>
+<span class="kai">第14回</span>
+<div class="box def"><span class="lbl">対角化</span>
+<p>正則行列 $P$ で $P^{-1}AP$ を対角行列にすること。「表現行列が対角になる基底（＝固有ベクトルの基底）を選ぶ」ことと同値。</p></div>
+<div class="box thm"><span class="lbl">手順</span>
+<ol>
+  <li>固有値・固有ベクトルを求める。</li>
+  <li>固有ベクトルを<b>列に並べて</b> $P=[\,\boldsymbol u_1\ \cdots\ \boldsymbol u_n\,]$。</li>
+  <li>$P^{-1}AP=\operatorname{diag}(\lambda_1,\dots,\lambda_n)$（列に対応する固有値の順）。</li>
+</ol></div>
+<div class="box ex"><span class="lbl">例</span>
+<p>$A=\begin{pmatrix}5&-\sqrt3\\-\sqrt3&7\end{pmatrix}$。$t^2-12t+32=(t-4)(t-8)=0\Rightarrow\lambda=4,8$。$P=\begin{pmatrix}\sqrt3&-\sqrt3\\1&3\end{pmatrix}$ で $P^{-1}AP=\begin{pmatrix}4&0\\0&8\end{pmatrix}$。</p></div>
+<div class="box warn"><span class="lbl">対角化可能条件（定理6.2.1）</span>
+<p>$A$ が対角化可能 $\iff \sum_i \dim(W_{\lambda_i})=n$（固有空間の次元の和が $n$）。固有ベクトルで基底が作れないと対角化できない。</p></div>
+</section>
+
+<section id="s14b">
+<h2 class="sec">対称行列の直交対角化</h2>
+<span class="kai">第14回</span>
+<p>対称行列 $A$（$A^{\mathsf T}=A$）は<b>直交行列 $P$</b> で対角化できる：$P^{-1}AP=P^{\mathsf T}AP=$ 対角行列。固有ベクトルを正規化（長さ 1）して並べれば $P$ は直交行列。異なる固有値の固有ベクトルは自動的に直交する。対称行列は必ず対角化可能。</p>
+</section>
+
+<section id="s15">
+<h2 class="sec">行列の $n$ 乗</h2>
+<span class="kai">第15回</span>
+<div class="box thm"><span class="lbl">対角化を使った $A^n$</span>
+<p>$P^{-1}AP=B=\operatorname{diag}(\lambda_1,\dots,\lambda_n)$ なら $A=PBP^{-1}$ で
+$$A^n=PB^nP^{-1},\qquad B^n=\operatorname{diag}(\lambda_1^{\,n},\dots,\lambda_n^{\,n}).$$
+対角行列の $n$ 乗は各対角成分を $n$ 乗するだけ。</p></div>
+<div class="box ex"><span class="lbl">例</span>
+<p>$A=\begin{pmatrix}0&1\\2&3\end{pmatrix}$、$P=\begin{pmatrix}1&1/2\\1&1\end{pmatrix}$ で $P^{-1}AP=\begin{pmatrix}1&0\\0&2\end{pmatrix}$。よって
+$A^n=P\begin{pmatrix}1&0\\0&2^n\end{pmatrix}P^{-1}=\begin{pmatrix}2-2^n&-1+2^n\\2-2^{n+1}&-1+2^{n+1}\end{pmatrix}$。</p></div>
+</section>
+
+<section id="check">
+<h2 class="sec">試験対策チェックリスト</h2>
+<div class="box tip"><span class="lbl">回ごとの必須事項</span>
+<ul>
+  <li><b>第9回</b>：線形写像の定義（和・スカラー倍を保つ）で線形性を判定できる。</li>
+  <li><b>第9・10回</b>：$[T(\boldsymbol b_j)]=[\boldsymbol b_i]A$ から表現行列を書ける。標準基底なら定義行列。</li>
+  <li><b>第10回</b>：変換行列 $P$（係数を列に）と $P^{-1}$、成分は $\boldsymbol k'=P^{-1}\boldsymbol k$。</li>
+  <li><b>第10回</b>：$B=P^{-1}AP$ を計算できる（最頻出）。</li>
+  <li><b>第11回</b>：直交変換の性質、直交行列 $P^{-1}=P^{\mathsf T}$、回転・鏡映の表現行列、点の回転 $Q=A+R_\theta\overrightarrow{AP}$。</li>
+  <li><b>第12回</b>：合成 $U\circ T$ の表現行列は $BA$。</li>
+  <li><b>第13回</b>：固有方程式 $|A-\lambda E|=0$ →固有値、$(A-\lambda E)\boldsymbol x=\boldsymbol 0$ →固有ベクトル。</li>
+  <li><b>第14回</b>：$P$（固有ベクトルを列に）で $P^{-1}AP=$ 対角、対角化可能条件、対称行列の直交対角化。</li>
+  <li><b>第15回</b>：$A^n=PB^nP^{-1}$。</li>
+</ul></div>
+</section>
+
+<footer>線形代数 II 復習ノート（第9〜15回）｜ 試験範囲対応版</footer>
+</div>
+</body>
+</html>

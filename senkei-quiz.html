@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>線形代数 II 練習問題（第9〜15回）</title>
+<script>(function(){var KEY='quizTheme';function get(){try{return localStorage.getItem(KEY);}catch(e){return null;}}function set(v){try{localStorage.setItem(KEY,v);}catch(e){}}function cur(){var s=get();return s?s:'dark';}function apply(t){document.documentElement.setAttribute('data-theme',t);var b=document.getElementById('themeBtn');if(b){b.textContent=(t==='dark'?'ライトモード':'ダークモード');}}apply(cur());document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('themeBtn');apply(cur());if(b){b.addEventListener('click',function(){var t=(document.documentElement.getAttribute('data-theme')==='dark')?'light':'dark';set(t);apply(t);});}});})();</script>
+<script>
+  MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js" id="MathJax-script" async></script>
+<style>
+  :root{--bg:#f4f7fb;--card:#fff;--ink:#1a2233;--muted:#5b6b82;--line:#e2e8f0;--blue:#2563eb;--blue-d:#1e40af;--green:#0f9d6b;--green-bg:#e9f8f1;--red:#dc2626;--red-bg:#fdeceb;}
+  *{box-sizing:border-box}
+  body{font-family:"Noto Sans CJK JP","Yu Gothic",sans-serif;color:var(--ink);background:var(--bg);margin:0;line-height:1.8;}
+  .wrap{max-width:860px;margin:0 auto;padding:26px 18px 80px;}
+  header.hero{background:linear-gradient(135deg,#0f766e,#0891b2);color:#fff;border-radius:16px;padding:26px 28px;margin-bottom:22px;}
+  header.hero h1{margin:0 0 6px;font-size:23px;}
+  header.hero p{margin:0;opacity:.92;font-size:14px;}
+  .cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .cats button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer;font-size:13px;transition:.15s;}
+  .cats button:hover{border-color:#0891b2;color:#0891b2;}
+  .cats button.active{background:#0891b2;color:#fff;border-color:#0891b2;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;box-shadow:0 1px 3px rgba(30,50,90,.06);margin-bottom:18px;}
+  .badge{display:inline-block;font-size:12px;font-weight:700;color:#0e7490;background:#e0f2fe;padding:3px 10px;border-radius:6px;margin-bottom:10px;}
+  .q{font-size:16px;margin:6px 0 14px;}
+  .fields{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;margin:12px 0;}
+  .field{display:flex;align-items:center;gap:6px;font-size:15px;}
+  .field label{color:var(--muted);font-size:14px;}
+  .field input{width:74px;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;font-size:15px;text-align:center;font-family:inherit;}
+  .field input:focus{outline:none;border-color:#0891b2;}
+  .field input.ok{border-color:var(--green);background:var(--green-bg);}
+  .field input.ng{border-color:var(--red);background:var(--red-bg);}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  .btn{border:none;border-radius:9px;padding:10px 18px;font-size:14px;cursor:pointer;font-weight:600;}
+  .btn-primary{background:#0891b2;color:#fff;}.btn-primary:hover{background:#0e7490;}
+  .btn-ghost{background:#eef2f7;color:var(--ink);}.btn-ghost:hover{background:#e2e8f0;}
+  .verdict{margin-top:14px;font-weight:700;font-size:15px;display:none;}
+  .verdict.show{display:block;}.verdict.correct{color:var(--green);}.verdict.wrong{color:var(--red);}
+  .solution{display:none;margin-top:16px;padding:16px 18px;background:#f8fafc;border:1px solid var(--line);border-left:4px solid var(--green);border-radius:10px;font-size:15px;}
+  .solution.show{display:block;}
+  .solution h4{margin:0 0 8px;color:var(--green);font-size:15px;}
+  .solution .step{margin:6px 0;}
+  .hint{color:var(--muted);font-size:13px;margin-top:6px;}
+  footer{color:var(--muted);font-size:13px;text-align:center;margin-top:30px;}
+
+.theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.theme-toggle:hover{border-color:var(--blue);}
+@media print{.theme-toggle{display:none;}}
+[data-theme="dark"]{--bg:#0f172a;--card:#1e293b;--ink:#e6eaf2;--muted:#94a3b8;--line:#334155;--blue:#60a5fa;--blue-d:#93c5fd;--green:#34d399;--purple:#a78bfa;--amber:#fbbf24;--red:#f87171;--blue-bg:rgba(96,165,250,.14);--green-bg:rgba(52,211,153,.13);--purple-bg:rgba(167,139,250,.16);--amber-bg:rgba(251,191,36,.15);--red-bg:rgba(248,113,113,.14);}
+[data-theme="dark"] body{background:var(--bg);color:var(--ink);}
+[data-theme="dark"] .theme-toggle{background:#1e293b;color:#e6eaf2;}
+[data-theme="dark"] nav.toc{background:#1e293b;border-color:#334155;}
+[data-theme="dark"] nav.toc h2{color:#94a3b8;}
+[data-theme="dark"] nav.toc a{color:#7db3fb;}
+[data-theme="dark"] h3{color:#f1f5f9;border-color:#334155;}
+[data-theme="dark"] code{background:#334155;color:#e6eaf2;}
+[data-theme="dark"] .cats button{background:#1e293b;color:#e6eaf2;border-color:#334155;}
+[data-theme="dark"] .card{background:#1e293b;border-color:#334155;}
+[data-theme="dark"] .solution{background:#0f172a;border-color:#334155;}
+[data-theme="dark"] .field input{background:#0f172a;color:#e6eaf2;border-color:#334155;}
+[data-theme="dark"] .field label{color:#94a3b8;}
+[data-theme="dark"] .btn-ghost{background:#334155;color:#e6eaf2;}
+[data-theme="dark"] .badge{background:rgba(56,189,248,.16);color:#7dd3fc;}
+[data-theme="dark"] .hint{color:#94a3b8;}
+[data-theme="dark"] mjx-container{color:var(--ink);}
+
+</style>
+</head>
+<body>
+<button id="themeBtn" class="theme-toggle" type="button">ダークモード</button>
+<div class="wrap">
+<header class="hero">
+  <h1>線形代数 II 練習問題（第9〜15回）</h1>
+  <p>試験範囲＝第9〜15回に対応。ボタンを押すたびに数値が変わり、「答え合わせ」で正誤と<b>完全な解答・途中式</b>が出ます。</p>
+</header>
+<div class="cats" id="cats"></div>
+<div class="card" id="card">
+  <span class="badge" id="badge">問題</span>
+  <div class="q" id="question"></div>
+  <div class="fields" id="fields"></div>
+  <div class="hint" id="hint"></div>
+  <div class="actions">
+    <button class="btn btn-primary" id="checkBtn">答え合わせ</button>
+    <button class="btn btn-ghost" id="solBtn">解答を見る</button>
+    <button class="btn btn-ghost" id="newBtn">新しい問題</button>
+  </div>
+  <div class="verdict" id="verdict"></div>
+  <div class="solution" id="solution"></div>
+</div>
+<footer>第9〜15回 練習ジェネレーター ｜ 表現行列・基底変換・成分・回転・合成変換・固有値・対角化・行列のn乗</footer>
+</div>
+<script>
+"use strict";
+const S=String.raw;
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function rinz(a,b){let x=0;while(x===0)x=ri(a,b);return x;}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;}
+function det2(M){return M[0][0]*M[1][1]-M[0][1]*M[1][0];}
+function matmul2(A,B){return [
+  [A[0][0]*B[0][0]+A[0][1]*B[1][0],A[0][0]*B[0][1]+A[0][1]*B[1][1]],
+  [A[1][0]*B[0][0]+A[1][1]*B[1][0],A[1][0]*B[0][1]+A[1][1]*B[1][1]]];}
+function matvec2(M,v){return [M[0][0]*v[0]+M[0][1]*v[1],M[1][0]*v[0]+M[1][1]*v[1]];}
+function inv2(M){const d=det2(M);return [[M[1][1]/d,-M[0][1]/d],[-M[1][0]/d,M[0][0]/d]];}
+function isZeroVec(v){return v.every(x=>Math.abs(x)<1e-9);}
+function proportional(e,u,tol=1e-6){if(isZeroVec(u))return false;for(let i=0;i<e.length;i++)for(let j=0;j<e.length;j++){if(Math.abs(e[i]*u[j]-e[j]*u[i])>tol*(1+Math.abs(e[i]*u[j])+Math.abs(e[j]*u[i])))return false;}return true;}
+function fracTex(num,den){if(den<0){num=-num;den=-den;}const g=gcd(num,den);num/=g;den/=g;if(den===1)return String(num);return (num<0?'-':'')+S`\frac{`+Math.abs(num)+'}{'+den+'}';}
+function firstTerm(c,sym){return (c<0?'-':'')+Math.abs(c)+sym;}
+function plusTerm(c,sym){return (c<0?'-':'+')+Math.abs(c)+sym;}
+function lc(c1,c2,s1,s2){return firstTerm(c1,s1)+plusTerm(c2,s2);}
+function vecTex(v){return S`\begin{pmatrix}`+v.map(x=>Number.isInteger(x)?x:(+x.toFixed(3))).join(S`\\ `)+S`\end{pmatrix}`;}
+function matTex(M){return S`\begin{pmatrix}`+M.map(r=>r.map(x=>Number.isInteger(x)?x:(+x.toFixed(3))).join(' & ')).join(S`\\ `)+S`\end{pmatrix}`;}
+function randUnimodular(maxabs=4){let M;for(let t=0;t<200;t++){M=[[1,0],[0,1]];const k=ri(2,3);for(let i=0;i<k;i++){const s=rinz(-2,2);const E=Math.random()<0.5?[[1,s],[0,1]]:[[1,0],[s,1]];M=matmul2(M,E);}if(Math.random()<0.5)M=[[-M[0][0],-M[0][1]],[M[1][0],M[1][1]]];if(M.flat().every(x=>Math.abs(x)<=maxabs)&&!M.flat().every((x,i)=>[1,0,0,1][i]===x))return M;}return [[1,1],[0,1]];}
+function eigenMatrix(){let M,l1,l2,A;for(let t=0;t<300;t++){M=randUnimodular(4);l1=rinz(-3,4);l2=rinz(-3,4);if(l1===l2)continue;if(l1>l2){[l1,l2]=[l2,l1];M=[[M[0][1],M[0][0]],[M[1][1],M[1][0]]];}const D=[[l1,0],[0,l2]],Mi=inv2(M);A=matmul2(matmul2(M,D),Mi).map(r=>r.map(x=>Math.round(x)));if(A.flat().every(x=>Math.abs(x)<=12))return {A,l1,l2,M};}return {A:[[0,1],[-2,3]],l1:1,l2:2,M:[[1,1],[1,2]]};}
+
+const GEN={};
+
+// 第10回：表現行列 B=P⁻¹AP
+GEN.repmat={name:'表現行列 B=P⁻¹AP',build(){
+  let A,P,B;
+  do{ A=[[rinz(-3,4),rinz(-3,4)],[rinz(-3,4),rinz(-3,4)]]; P=randUnimodular(4); const Pi=inv2(P);
+      B=matmul2(matmul2(Pi,A),P).map(r=>r.map(x=>Math.round(x)));
+  }while(B.flat().some(x=>Math.abs(x)>20));
+  const Pi=inv2(P);
+  return {
+    q:S`標準基底に関する表現行列が $A=${matTex(A)}$ の線形変換 $T_A$ について、基底 $\mathbf b_1=${vecTex([P[0][0],P[1][0]])},\ \mathbf b_2=${vecTex([P[0][1],P[1][1]])}$ に関する表現行列 $B=P^{-1}AP$ を求めよ。`,
+    fields:[{id:'a',label:'B₁₁'},{id:'b',label:'B₁₂'},{id:'c',label:'B₂₁'},{id:'d',label:'B₂₂'}],
+    hint:'P は基底を列に並べた行列。B=P⁻¹AP。',
+    check(v){return [v.a===B[0][0],v.b===B[0][1],v.c===B[1][0],v.d===B[1][1]];},
+    solution:S`<h4>解答</h4>`+
+      S`<div class="step">$P=[\mathbf b_1\ \mathbf b_2]=${matTex(P)},\ |P|=${det2(P)},\ P^{-1}=${matTex(Pi)}.$</div>`+
+      S`<div class="step">$B=P^{-1}AP=${matTex(Pi)}${matTex(A)}${matTex(P)}=${matTex(B)}.$</div>`
+  };
+}};
+
+// 第10回：基底の変換行列 P・P⁻¹
+GEN.change={name:'基底の変換行列',build(){
+  let P;do{P=[[rinz(-3,4),rinz(-3,4)],[rinz(-3,4),rinz(-3,4)]];}while(det2(P)===0||Math.abs(det2(P))>4);
+  const d=det2(P),Pi=inv2(P);
+  return {
+    q:S`$\mathbb{R}^2$ の基底 $\mathbf b_1,\mathbf b_2$ と $\mathbf b_1',\mathbf b_2'$ が`+
+      S`$$\mathbf b_1'=`+lc(P[0][0],P[1][0],S`\mathbf b_1`,S`\mathbf b_2`)+S`,\quad \mathbf b_2'=`+lc(P[0][1],P[1][1],S`\mathbf b_1`,S`\mathbf b_2`)+S`$$`+
+      S`のとき、変換行列 $P$ と $P^{-1}$ を求めよ。`,
+    fields:[{id:'p11',label:'P₁₁'},{id:'p12',label:'P₁₂'},{id:'p21',label:'P₂₁'},{id:'p22',label:'P₂₂'},
+            {id:'q11',label:'P⁻¹₁₁'},{id:'q12',label:'P⁻¹₁₂'},{id:'q21',label:'P⁻¹₂₁'},{id:'q22',label:'P⁻¹₂₂'}],
+    hint:'係数を列に並べたものが P。P⁻¹ は小数でも可。',
+    check(v){return [v.p11===P[0][0],v.p12===P[0][1],v.p21===P[1][0],v.p22===P[1][1],
+      Math.abs(v.q11-Pi[0][0])<0.01,Math.abs(v.q12-Pi[0][1])<0.01,Math.abs(v.q21-Pi[1][0])<0.01,Math.abs(v.q22-Pi[1][1])<0.01];},
+    solution:S`<h4>解答</h4>`+
+      S`<div class="step">係数を列に並べて $P=${matTex(P)},\ |P|=${d}.$</div>`+
+      S`<div class="step">$P^{-1}=\frac{1}{${d}}\begin{pmatrix}${P[1][1]}&${-P[0][1]}\\ ${-P[1][0]}&${P[0][0]}\end{pmatrix}=\begin{pmatrix}${fracTex(P[1][1],d)}&${fracTex(-P[0][1],d)}\\ ${fracTex(-P[1][0],d)}&${fracTex(P[0][0],d)}\end{pmatrix}.$</div>`
+  };
+}};
+
+// 第10回：成分表示の変換
+GEN.comp={name:'成分表示の変換',build(){
+  const P=randUnimodular(4),Pi=inv2(P),k=[rinz(-9,9),rinz(-9,9)],kp=matvec2(Pi,k).map(x=>Math.round(x));
+  return {
+    q:S`基底 $\mathbf b_1,\mathbf b_2$ と $\mathbf b_1',\mathbf b_2'$ が`+
+      S`$$\mathbf b_1'=`+lc(P[0][0],P[1][0],S`\mathbf b_1`,S`\mathbf b_2`)+S`,\quad \mathbf b_2'=`+lc(P[0][1],P[1][1],S`\mathbf b_1`,S`\mathbf b_2`)+S`$$`+
+      S`のとき、$\mathbf a=`+lc(k[0],k[1],S`\mathbf b_1`,S`\mathbf b_2`)+S`$ の基底 $\mathbf b_1',\mathbf b_2'$ に関する成分 $(k_1',k_2')$ を求めよ。`,
+    fields:[{id:'k1',label:"k₁'"},{id:'k2',label:"k₂'"}],
+    hint:"成分は P⁻¹ で変換：(k₁',k₂')ᵀ = P⁻¹(k₁,k₂)ᵀ。",
+    check(v){return [v.k1===kp[0],v.k2===kp[1]];},
+    solution:S`<h4>解答</h4>`+
+      S`<div class="step">$P=${matTex(P)},\ P^{-1}=${matTex(Pi)}.$</div>`+
+      S`<div class="step">$\begin{pmatrix}k_1'\\ k_2'\end{pmatrix}=P^{-1}\begin{pmatrix}${k[0]}\\ ${k[1]}\end{pmatrix}=${vecTex(kp)}.$ よって $\mathbf a=`+lc(kp[0],kp[1],S`\mathbf b_1'`,S`\mathbf b_2'`)+S`.$</div>`
+  };
+}};
+
+// 第11回：回転移動
+GEN.rot={name:'回転移動',build(){
+  const deg=pick([90,180,270]),rad=deg*Math.PI/180;
+  const R=[[Math.round(Math.cos(rad)),Math.round(-Math.sin(rad))],[Math.round(Math.sin(rad)),Math.round(Math.cos(rad))]];
+  const A=[ri(-3,3),ri(-3,3)],P=[ri(-4,4),ri(-4,4)],AP=[P[0]-A[0],P[1]-A[1]],rp=matvec2(R,AP),Q=[A[0]+rp[0],A[1]+rp[1]];
+  return {
+    q:S`点 $P(${P[0]},${P[1]})$ を、点 $A(${A[0]},${A[1]})$ を中心に $${deg}^\circ$ 回転させた点 $Q$ の座標を求めよ。`,
+    fields:[{id:'x',label:'Qx'},{id:'y',label:'Qy'}],
+    hint:'Q = A + R_θ·(P−A)。R_{90°}=(0,−1;1,0)。',
+    check(v){return [v.x===Q[0],v.y===Q[1]];},
+    solution:S`<h4>解答</h4>`+
+      S`<div class="step">$\overrightarrow{AP}=(${AP[0]},${AP[1]}),\ R_{${deg}^\circ}=${matTex(R)}.$</div>`+
+      S`<div class="step">$R_{${deg}^\circ}\overrightarrow{AP}=${vecTex(rp)},\ Q=A+R_{${deg}^\circ}\overrightarrow{AP}=(${Q[0]},${Q[1]}).$</div>`
+  };
+}};
+
+// 第12回：合成変換 BA
+GEN.compose={name:'合成変換 U∘T',build(){
+  const A=[[rinz(-3,3),rinz(-3,3)],[rinz(-3,3),rinz(-3,3)]],B=[[rinz(-3,3),rinz(-3,3)],[rinz(-3,3),rinz(-3,3)]];
+  const C=matmul2(B,A);
+  return {
+    q:S`線形変換 $T$ の表現行列が $A=${matTex(A)}$、$U$ の表現行列が $B=${matTex(B)}$ のとき、合成変換 $U\circ T$ の表現行列を求めよ。`,
+    fields:[{id:'a',label:'(1,1)'},{id:'b',label:'(1,2)'},{id:'c',label:'(2,1)'},{id:'d',label:'(2,2)'}],
+    hint:'U∘T の表現行列は積 BA（後にやる U が左）。',
+    check(v){return [v.a===C[0][0],v.b===C[0][1],v.c===C[1][0],v.d===C[1][1]];},
+    solution:S`<h4>解答</h4>`+
+      S`<div class="step">合成 $U\circ T$ の表現行列は $BA$（順序注意）。</div>`+
+      S`<div class="step">$BA=${matTex(B)}${matTex(A)}=${matTex(C)}.$</div>`
+  };
+}};
+
+// 第13回：固有値・固有ベクトル
+GEN.eigen={name:'固有値・固有ベクトル',build(){
+  const {A,l1,l2,M}=eigenMatrix();const v1=[M[0][0],M[1][0]],tr=A[0][0]+A[1][1],de=det2(A);
+  return {
+    q:S`行列 $A=${matTex(A)}$ の固有値を小さい順に $\lambda_1<\lambda_2$ とし、$\lambda_1$ に対する固有ベクトルの成分を求めよ。`,
+    fields:[{id:'l1',label:'λ₁'},{id:'l2',label:'λ₂'},{id:'x',label:'固有ベクトル x'},{id:'y',label:'固有ベクトル y'}],
+    hint:'固有方程式 |A−tE|=0。固有ベクトルは定数倍の自由あり。',
+    check(v){const vo=proportional(v1,[v.x,v.y]);return [v.l1===l1,v.l2===l2,vo,vo];},
+    solution:S`<h4>解答</h4>`+
+      S`<div class="step">固有方程式：$|A-tE|=t^2-(${tr})t+(${de})=0.$</div>`+
+      S`<div class="step">$(t-(${l1}))(t-(${l2}))=0$ より $\lambda_1=${l1},\ \lambda_2=${l2}.$</div>`+
+      S`<div class="step">$\lambda_1=${l1}$：$(A-${l1}E)\mathbf x=\mathbf 0$ を解いて $\mathbf x=c${vecTex(v1)}$（$c\neq0$）。$\lambda_2=${l2}$ は $${vecTex([M[0][1],M[1][1]])}.$</div>`
+  };
+}};
+
+// 第14回：対角化（固有値＋固有ベクトル）
+GEN.diag={name:'対角化',build(){
+  const {A,l1,l2,M}=eigenMatrix();const v1=[M[0][0],M[1][0]],v2=[M[0][1],M[1][1]],tr=A[0][0]+A[1][1],de=det2(A);
+  return {
+    q:S`行列 $A=${matTex(A)}$ を対角化する。固有値 $\lambda_1<\lambda_2$ と、それぞれに対する固有ベクトルを求めよ。`,
+    fields:[{id:'l1',label:'λ₁'},{id:'l2',label:'λ₂'},{id:'x1',label:'u₁: x'},{id:'y1',label:'u₁: y'},{id:'x2',label:'u₂: x'},{id:'y2',label:'u₂: y'}],
+    hint:'P=[u₁ u₂] とおくと P⁻¹AP=diag(λ₁,λ₂)。',
+    check(v){const o1=proportional(v1,[v.x1,v.y1]),o2=proportional(v2,[v.x2,v.y2]);return [v.l1===l1,v.l2===l2,o1,o1,o2,o2];},
+    solution:S`<h4>解答</h4>`+
+      S`<div class="step">固有方程式 $t^2-(${tr})t+(${de})=0\Rightarrow \lambda_1=${l1},\ \lambda_2=${l2}.$</div>`+
+      S`<div class="step">固有ベクトル：$\lambda_1$ に $\mathbf u_1=${vecTex(v1)}$、$\lambda_2$ に $\mathbf u_2=${vecTex(v2)}.$</div>`+
+      S`<div class="step">$P=[\mathbf u_1\ \mathbf u_2]=${matTex(M)}$ とおくと $P^{-1}AP=\begin{pmatrix}${l1}&0\\ 0&${l2}\end{pmatrix}.$</div>`
+  };
+}};
+
+// 第15回：行列の n 乗
+GEN.power={name:'行列の n 乗',build(){
+  const {A,l1,l2,M}=eigenMatrix(),Mi=inv2(M),n=ri(2,3);
+  const Bn=[[Math.pow(l1,n),0],[0,Math.pow(l2,n)]],An=matmul2(matmul2(M,Bn),Mi).map(r=>r.map(x=>Math.round(x)));
+  return {
+    q:S`行列 $A=${matTex(A)}$ を対角化して $A^{${n}}$ を求めよ（4 成分）。`,
+    fields:[{id:'a',label:'(1,1)'},{id:'b',label:'(1,2)'},{id:'c',label:'(2,1)'},{id:'d',label:'(2,2)'}],
+    hint:'A=PBP⁻¹ なら Aⁿ=PBⁿP⁻¹、Bⁿ は対角成分を n 乗するだけ。',
+    check(v){return [v.a===An[0][0],v.b===An[0][1],v.c===An[1][0],v.d===An[1][1]];},
+    solution:S`<h4>解答</h4>`+
+      S`<div class="step">固有値 $\lambda=${l1},${l2}$、$P=${matTex(M)}$ で $P^{-1}AP=\begin{pmatrix}${l1}&0\\ 0&${l2}\end{pmatrix}=B.$</div>`+
+      S`<div class="step">$B^{${n}}=\begin{pmatrix}${Math.pow(l1,n)}&0\\ 0&${Math.pow(l2,n)}\end{pmatrix},\ A^{${n}}=PB^{${n}}P^{-1}=${matTex(An)}.$</div>`
+  };
+}};
+
+// ---------- UI ----------
+const order=['repmat','change','comp','rot','compose','eigen','diag','power'];
+let currentKey='repmat',current=null;
+function buildCats(){
+  const c=document.getElementById('cats');c.innerHTML='';
+  const rnd=document.createElement('button');rnd.textContent='🎲 ランダム';rnd.dataset.k='__rand';
+  rnd.onclick=()=>{currentKey=pick(order);setActive('__rand');newProblem();};c.appendChild(rnd);
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=GEN[k].name;b.dataset.k=k;
+    b.onclick=()=>{currentKey=k;setActive(k);newProblem();};c.appendChild(b);});
+  setActive('repmat');
+}
+function setActive(k){document.querySelectorAll('.cats button').forEach(b=>b.classList.toggle('active',b.dataset.k===k));}
+function newProblem(){
+  current=GEN[currentKey].build();
+  document.getElementById('badge').textContent=GEN[currentKey].name;
+  document.getElementById('question').innerHTML=current.q;
+  const fw=document.getElementById('fields');fw.innerHTML='';
+  current.fields.forEach(f=>{const d=document.createElement('div');d.className='field';
+    d.innerHTML=`<label>${f.label}</label><input type="text" inputmode="numeric" id="in_${f.id}" autocomplete="off">`;fw.appendChild(d);});
+  document.getElementById('hint').textContent=current.hint||'';
+  const ver=document.getElementById('verdict');ver.className='verdict';ver.textContent='';
+  const sol=document.getElementById('solution');sol.className='solution';sol.innerHTML=current.solution;
+  if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise();
+}
+function readVals(){const v={};current.fields.forEach(f=>{const el=document.getElementById('in_'+f.id);const raw=(el.value||'').trim().replace(/[，]/g,'');v[f.id]=raw===''?NaN:parseFloat(raw);});return v;}
+function doCheck(){
+  const v=readVals(),res=current.check(v);
+  current.fields.forEach((f,i)=>{const el=document.getElementById('in_'+f.id);const ok=res.length===current.fields.length?res[i]:res[0];el.classList.remove('ok','ng');el.classList.add(ok?'ok':'ng');});
+  const all=res.every(Boolean),ver=document.getElementById('verdict');
+  ver.className='verdict show '+(all?'correct':'wrong');ver.textContent=all?'○ 正解！':'× 不正解。解答を確認しよう。';
+  document.getElementById('solution').className='solution show';
+  if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise();
+}
+function showSol(){document.getElementById('solution').className='solution show';if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise();}
+document.getElementById('checkBtn').onclick=doCheck;
+document.getElementById('solBtn').onclick=showSol;
+document.getElementById('newBtn').onclick=newProblem;
+buildCats();newProblem();
+</script>
+</body>
+</html>
