@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>統計学 練習 — 文章題・選択題・計算題</title>
+<style>
+  :root{
+    --bg:#f4f7fb; --card:#ffffff; --ink:#1f2d3d; --sub:#5b6b7d;
+    --accent:#1F4E79; --accent2:#2E74B5; --ok:#1f8a5b; --okbg:#e6f6ee;
+    --ng:#c0392b; --ngbg:#fdecea; --line:#e2e8f0; --given:#F7FAFD;
+    --exbg:#FFF8E8; --exbd:#EBD9A8; --exink:#8A6D3B;
+    --solbg:#FFFBF0; --solbd:#E8D5A8;
+  }
+  html[data-theme="dark"]{
+    --bg:#11151b; --card:#1a2028; --ink:#e4e9f0; --sub:#95a2b6;
+    --accent:#5590ff; --accent2:#79a8e6; --ok:#4bd08b; --okbg:#16302433;
+    --ng:#ff9d9d; --ngbg:#3b212733; --line:#2d3641; --given:#141b23;
+    --exbg:#2a2415; --exbd:#4a3f22; --exink:#e0c987;
+    --solbg:#22201a; --solbd:#4a3f22; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%;transition:background .18s,color .18s}
+  .wrap{max-width:720px;margin:0 auto;padding:16px 16px 60px}
+  header{text-align:center;padding:14px 0 6px;position:relative}
+  header h1{margin:0;font-size:22px;color:var(--accent)}
+  header p{margin:4px 0 0;font-size:13px;color:var(--sub)}
+  .themeBtn{position:absolute;right:0;top:10px;border:none;border-radius:8px;padding:6px 11px;font-size:12.5px;
+    cursor:pointer;background:#e7eef7;color:var(--accent2);font-family:inherit}
+  html[data-theme="dark"] .themeBtn{background:#242c37;color:#a9bdd9}
+  .home{position:absolute;left:0;top:10px;font-size:12.5px;color:var(--accent2);text-decoration:none}
+  .tabs{display:flex;gap:8px;margin:16px 0 10px}
+  .tab{flex:1;padding:12px 8px;border:none;border-radius:12px;background:#e7eef7;color:var(--accent);
+    font-size:15px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
+  html[data-theme="dark"] .tab{background:#242c37;color:#a9bdd9}
+  .tab small{display:block;font-weight:400;font-size:11px;color:var(--sub);margin-top:2px}
+  .tab.active{background:var(--accent);color:#fff}
+  .tab.active small{color:#dbe7f5}
+  .bar{display:flex;align-items:center;gap:8px;margin:6px 0 14px;flex-wrap:wrap}
+  .bar .prog{font-size:13px;color:var(--sub);flex:1}
+  .bar .prog b{color:var(--accent);font-size:15px}
+  .btn{padding:9px 14px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn-line{background:var(--card);border:1.5px solid var(--accent2);color:var(--accent2)}
+  .btn-accent{background:var(--accent2);color:#fff}
+  .btn-sm{padding:7px 12px;font-size:13px}
+  .card{background:var(--card);border-radius:16px;padding:20px 18px;box-shadow:0 2px 14px rgba(31,78,121,.08);
+    border:1px solid var(--line)}
+  .qno{font-size:12px;color:var(--sub);letter-spacing:.05em}
+  .src{font-size:12px;color:var(--accent2);font-weight:700;margin-top:2px}
+  .qtext{font-size:18px;font-weight:600;margin:10px 0 4px;white-space:pre-wrap}
+  .ctx{font-size:14px;color:var(--sub);margin-top:8px;white-space:pre-wrap;border-left:3px solid var(--line);padding-left:10px}
+  .given{background:var(--given);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:15px}
+  .given table{border-collapse:collapse;margin-top:6px;width:100%}
+  .given th,.given td{border:1px solid var(--line);padding:5px 8px;text-align:center;font-size:14px}
+  .given th{background:var(--bg)}
+  .given code{font-size:15px;color:var(--accent2)}
+  .fld{margin-top:12px}
+  .fld label{display:block;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:5px}
+  .fld input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;
+    background:var(--card);color:var(--ink);font-family:inherit}
+  .fld input:focus{outline:none;border-color:var(--accent2)}
+  .fld .mk{margin-left:8px;font-weight:800}
+  .bline{font-size:16.5px;line-height:2.6;margin:2px 0}
+  input.bi{display:inline-block;border:none;border-bottom:2px solid var(--accent2);background:var(--given);
+    border-radius:5px 5px 0 0;font-size:16px;font-weight:700;color:var(--accent);
+    padding:2px 8px;margin:0 3px;text-align:center;font-family:inherit;min-width:70px}
+  input.bi:focus{outline:none;filter:brightness(1.04)}
+  input.bi.ok{border-color:var(--ok);color:var(--ok);background:var(--okbg)}
+  input.bi.ng{border-color:var(--ng);color:var(--ng);background:var(--ngbg)}
+  .opts{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+  .opt{text-align:left;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);
+    font-size:15px;cursor:pointer;transition:.12s;color:var(--ink);font-family:inherit}
+  .opt:hover{border-color:var(--accent2)}
+  .opt.correct{background:var(--okbg);border-color:var(--ok);color:var(--ok);font-weight:700}
+  .opt.wrong{background:var(--ngbg);border-color:var(--ng);color:var(--ng)}
+  .opt.disabled{pointer-events:none}
+  .feedback{margin-top:10px;font-size:14px;font-weight:700;min-height:20px}
+  .feedback.ok{color:var(--ok)}
+  .feedback.ng{color:var(--ng)}
+  .sol{margin-top:14px;padding:13px 15px;border-radius:12px;background:var(--solbg);border:1px solid var(--solbd);display:none}
+  .sol.show{display:block}
+  .sol h4{margin:0 0 6px;font-size:14px;color:var(--exink)}
+  .sol .stp{font-size:14.5px;line-height:1.9;color:var(--ink)}
+  .sol .fin{font-weight:800;color:var(--ng);font-size:16px}
+  .why{margin-top:12px;padding:10px 13px;border-radius:10px;background:var(--given);
+    border-left:4px solid var(--accent2);font-size:14px;line-height:1.75;color:var(--ink);display:none}
+  .why.show{display:block}
+  .why b{color:var(--accent)}
+  .ex{font-size:13.5px;color:var(--exink);background:var(--exbg);border:1px solid var(--exbd);border-radius:10px;
+    padding:9px 12px;margin-top:12px;line-height:1.7;display:none}
+  .ex.show{display:block}
+  .ex b{color:var(--exink)}
+  .nav{display:flex;gap:8px;margin-top:16px}
+  .nav .btn{flex:1}
+  .hidebtn{background:none;border:none;color:var(--accent2);font-size:13px;cursor:pointer;text-decoration:underline;margin-top:10px;font-family:inherit}
+  .done{text-align:center;padding:30px 16px}
+  .done .big{font-size:44px;font-weight:800;color:var(--accent)}
+  .done p{color:var(--sub)}
+  .kbd{font-size:12px;color:var(--sub);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="home" href="index.html">← ハブ</a>
+    <button class="themeBtn" id="themeBtn" onclick="toggleTheme()">🌙 ダーク</button>
+    <h1>統計学 練習</h1>
+    <p>文章題（穴埋め）・選択題・計算題　<span style="color:#8fa3b8;font-size:11px">v1</span></p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" id="tabA" onclick="switchMode('bunsho')">文章題<small>穴埋め</small></button>
+    <button class="tab" id="tabB" onclick="switchMode('sentaku')">選択題<small>定義・考え方</small></button>
+    <button class="tab" id="tabC" onclick="switchMode('keisan')">計算題<small>毎回 数値が変わる</small></button>
+  </div>
+
+  <div class="bar">
+    <div class="prog">第 <b id="cur">1</b> / <span id="total">0</span> 問
+      <span id="scorewrap">　正解 <b id="score" style="color:var(--ok)">0</b></span>
+    </div>
+    <button class="btn btn-line btn-sm" id="btnShuf" onclick="shuffleNow()">🔀 シャッフル</button>
+    <button class="btn btn-line btn-sm" id="btnRe" onclick="restart()">↻ 最初から</button>
+  </div>
+
+  <div id="stage"></div>
+</div>
+
+<script>
+/* ---------- theme ---------- */
+function applyTheme(t){document.documentElement.dataset.theme=t;var b=document.getElementById('themeBtn');
+  if(b)b.textContent=(t==='dark'?'☀️ ライト':'🌙 ダーク');try{localStorage.setItem('quizTheme',t)}catch(e){}}
+function toggleTheme(){applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark')}
+(function(){var t='light';try{t=localStorage.getItem('quizTheme')||'light'}catch(e){}applyTheme(t)})();
+
+/* ---------- helpers ---------- */
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const round=(x,d=2)=>{const p=Math.pow(10,d);return Math.round((x+Number.EPSILON)*p)/p};
+function norm(s){return (s||'').toString().trim().replace(/\s+/g,'')
+  .replace(/[Ａ-Ｚａ-ｚ０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+  .replace(/[，、]/g,',').replace(/．/g,'.').replace(/[（）]/g,m=>m==='（'?'(':')').toLowerCase()}
+function numClose(v,ans,tol){const x=parseFloat((v||'').toString().replace(/[^0-9.\-]/g,''));
+  if(isNaN(x))return false;return Math.abs(x-ans)<=tol}
+function mean(a){return a.reduce((s,x)=>s+x,0)/a.length}
+function variance(a){const m=mean(a);return a.reduce((s,x)=>s+(x-m)*(x-m),0)/a.length}
+
+/* =========================================================
+   文章題（穴埋め）  —  text に {n:...} を書き、blanks[n] が答え
+   ========================================================= */
+const BUNSHO=[
+ {src:"第1回 データの分類",
+  text:"演算（和・比率）に意味がある数値データを【1】データ、選択肢・カテゴリから選ばれたデータを【2】データという。観測項目が1つのものを【3】データとよぶ。",
+  blanks:{1:["量的"],2:["質的"],3:["1次元","一次元"]},
+  ex:"性別・天気は質的、身長・体重は量的。"},
+ {src:"第1回 度数分布表",
+  text:"各階級の「(下限＋上限)÷2」を【1】、度数÷総度数を【2】、最初の階級からの度数の累積和を【3】という。",
+  blanks:{1:["階級値"],2:["相対度数"],3:["累積度数"]},
+  ex:"相対度数の理論上の総和は1。"},
+ {src:"第2回 代表値",
+  text:"分布の特徴を1つの数で要約した値を分布の【1】という。総和をnで割った値を【2】、大きさ順で中央の値を【3】、最も度数の多い値を【4】という。",
+  blanks:{1:["代表値"],2:["平均値","平均"],3:["中央値","メディアン"],4:["最頻値","モード"]},
+  ex:"平均・中央値・最頻値。"},
+ {src:"第2回 平均の意味",
+  text:"平均値はデータの物理的な【1】を表す。各データの平均からのずれ（偏差）の総和は必ず【2】になる。",
+  blanks:{1:["重心"],2:["0","ゼロ","零"]},
+  ex:"Σ(xᵢ−x̄)=0。だから偏差そのものでは散らばりを測れない。"},
+ {src:"第3回 分散・標準偏差",
+  text:"散らばりを、偏差を【1】した値の平均で測ったものを【2】といい、その【3】を標準偏差という。標準偏差は元データと単位が【4】。",
+  blanks:{1:["2乗","二乗","平方"],2:["分散"],3:["平方根","√","ルート"],4:["同じ","等しい"]},
+  ex:"偏差は正負で相殺するので2乗する。分散の単位は元の2乗。"},
+ {src:"第4回 標準化・偏差値",
+  text:"観測値から平均を引き標準偏差で割る操作を【1】という。標準化後の平均は【2】、分散は【3】になる。偏差値は T = 50 + 10 ×（標準化した値）で、平均点の人の偏差値は【4】。",
+  blanks:{1:["標準化"],2:["0"],3:["1"],4:["50"]},
+  ex:"Xᵢ=(xᵢ−x̄)/S。平均より1標準偏差上なら偏差値60。"},
+ {src:"第5回 正規分布",
+  text:"ヒストグラムの概形を近似する関数を確率【1】関数という。左右対称な釣り鐘型の分布を【2】分布といい、μ±σの範囲に入る確率は約【3】％である。",
+  blanks:{1:["密度"],2:["正規","ガウス"],3:["68.3","68"]},
+  ex:"μ±2σ→95.5%、μ±3σ→99.7%。"},
+ {src:"第5回 標準正規分布",
+  text:"正規分布を平均0・標準偏差1に標準化したものを【1】正規分布という。上側5％点のzは【2】、上側2.5％点のzは【3】である。",
+  blanks:{1:["標準"],2:["1.645","1.64"],3:["1.96"]},
+  ex:"両側95%は ±1.96、両側90%は ±1.645。"},
+ {src:"第6回 共分散",
+  text:"2変数の関係を散布図の【1】的な傾向で見る見方を【2】関係という。(1/n)Σ(xᵢ−x̄)(yᵢ−ȳ) を【3】という。ただしこれは【4】に依存する欠点がある。",
+  blanks:{1:["直線"],2:["相関"],3:["共分散"],4:["単位"]},
+  ex:"cm→mで共分散は1/100倍。傾向は変わらないのに値が変わる。"},
+ {src:"第7回 相関係数",
+  text:"共分散を両変数の標準偏差の積で割った値を【1】という、必ず【2】≤ γ ≤【3】の範囲に入る。完全な正の相関では γ=【4】。",
+  blanks:{1:["相関係数"],2:["-1","−1"],3:["1"],4:["1"]},
+  ex:"γ=Cxy/(Sx·Sy)。無単位。"},
+ {src:"第8回 相関と因果",
+  text:"原因と結果が明確な関係を【1】関係という。第三の変数の影響で見かけ上高くなる相関を【2】（偽相関）という、第三変数の影響を除いた【3】係数で補正する。",
+  blanks:{1:["因果"],2:["見せかけの相関","みせかけの相関","偽相関"],3:["偏相関"]},
+  ex:"相関が強くても因果とは限らない。"},
+ {src:"第9回 その他の相関",
+  text:"順位（ランク）から相関を測る【1】の順位相関係数、同じ変数の現在と過去の相関を測る【2】相関係数がある。",
+  blanks:{1:["スピアマン"],2:["自己"]},
+  ex:"γs=1−6Σd²/(n³−n)。時系列では自己相関関数。"},
+ {src:"第10回 回帰直線",
+  text:"XでYを説明する直線 Y=a+bX を、残差の平方和を最小にするように定める方法を【1】法という。推定した回帰直線は必ず点【2】を通る。傾きの推定量は b̂ = 共分散 ÷ Xの【3】。",
+  blanks:{1:["最小2乗","最小二乗"],2:["(x̄,ȳ)","(x̄, ȳ)","重心"],3:["分散"]},
+  ex:"â=ȳ−b̂x̄。"},
+ {src:"第11回 決定係数",
+  text:"回帰直線のあてはまりの良さを表す指標を【1】といい、単回帰では相関係数の【2】に等しい。0≤値≤1で、1に近いほどあてはまりが【3】。",
+  blanks:{1:["決定係数"],2:["2乗","二乗","平方"],3:["良い","よい"]},
+  ex:"R²=γ²。"},
+];
+
+/* =========================================================
+   選択題
+   ========================================================= */
+const SENTAKU=[
+ {q:"次のうち「質的データ」はどれか。",opts:["身長(cm)","体重(kg)","天気(晴・曇・雨)","気温℃"],c:2,
+  why:"質的データはカテゴリから選ばれたもの。天気が該当。他は量的データ。"},
+ {q:"各データの「平均からの偏差」の総和はいくつか。",opts:["常に正","常に1","常に0","データによる"],c:2,
+  why:"Σ(xᵢ−x̄)=0。だから散らばりは偏差の2乗（分散）で測る。"},
+ {q:"分散を求めるとき、偏差を2乗する主な理由は？",opts:["計算を速くするため","偏差の和が0になり相殺するため","単位をそろえるため","最頻値に合わせるため"],c:1,
+  why:"偏差は正負が相殺して和が0になるので、2乗して符号を消す。"},
+ {q:"標準偏差が分散より実用的な点は？",opts:["常に小さいから","元データと同じ単位になるから","負にならないから","計算が不要だから"],c:1,
+  why:"分散の単位は元の2乗。平方根をとると元と同じ単位で散らばりを伝えられる。"},
+ {q:"あるテストで偏差値60だった。これはどういう意味か。",opts:["平均点だった","平均より1標準偏差上","満点だった","平均より2標準偏差上"],c:1,
+  why:"T=50+10Z。60は Z=1、すなわち平均+1標準偏差。"},
+ {q:"正規分布で μ±2σ の範囲に入る確率はおよそ？",opts:["68.3%","95.5%","99.7%","50%"],c:1,
+  why:"68-95-99.7 法則。±σ:68.3、±2σ:95.5、±3σ:99.7。"},
+ {q:"標準正規分布で上側2.5％点の z の値は？",opts:["1.645","1.96","2.33","2.58"],c:1,
+  why:"両側95%＝±1.96。上側2.5%点は1.96。上側5%点は1.645。"},
+ {q:"共分散の欠点として正しいものは？",opts:["負にならない","単位（尺度）に依存して値が変わる","必ず−1〜1に入る","平均が必要ない"],c:1,
+  why:"単位を変えると値が変わる。そこで標準偏差で割った相関係数を使う。"},
+ {q:"相関係数 γ の取りうる範囲は？",opts:["0 ≤ γ ≤ 1","−1 ≤ γ ≤ 1","−∞ 〜 ∞","0 〜 100"],c:1,
+  why:"−1≤γ≤1。+1で完全な正、−1で完全な負の相関。"},
+ {q:"相関係数がほぼ0だった。正しい解釈は？",opts:["2変数は完全に無関係","直線的な関係が弱いだけで、非線形の関係はありうる","因果関係がある","計算ミス"],c:1,
+  why:"相関係数は直線的傾向のみを測る。円やV字など非線形の関係は残りうる。"},
+ {q:"「見せかけの相関（偽相関）」への対処に使うのは？",opts:["平均値","偏差値","偏相関係数","最頻値"],c:2,
+  why:"第三変数の影響を除いた偏相関係数で補正する。"},
+ {q:"最小2乗法で推定した回帰直線が必ず通る点は？",opts:["原点(0,0)","(x̄, ȳ)（重心）","最大値の点","中央値の点"],c:1,
+  why:"â=ȳ−b̂x̄ より、直線は必ず重心(x̄,ȳ)を通る。"},
+ {q:"単回帰における決定係数 R² と相関係数 γ の関係は？",opts:["R²=γ","R²=γ²","R²=1−γ","R²=2γ"],c:1,
+  why:"単回帰では R²=γ²。1に近いほどあてはまりが良い。"},
+ {q:"データを標準化すると、平均と分散はそれぞれいくつになるか。",opts:["平均1・分散0","平均0・分散1","平均0・分散0","平均50・分散10"],c:1,
+  why:"標準化 Xᵢ=(xᵢ−x̄)/S により平均0・分散1になる。"},
+ {q:"「相関関係が強い」ことから必ず言えるのは？",opts:["因果関係がある","直線的な傾向が強い","原因がわかる","偏差値が高い"],c:1,
+  why:"相関は直線的傾向の強さ。因果関係の有無は別問題。"},
+ {q:"順位（ランク）データから相関を測るのに適した係数は？",opts:["ピアソンの相関係数","スピアマンの順位相関係数","共分散","決定係数"],c:1,
+  why:"質的・順位データにはスピアマンの順位相関係数を使う。"},
+];
+
+/* =========================================================
+   計算題  （毎回数値が変わる）
+   各generatorは {src,given,q,fields:[{label,ans,tol,suffix}],sol} を返す
+   ========================================================= */
+const GEN=[
+ function(){ // 平均・中央値・最頻値
+   let n=5, a; // 5個, 最頻値が出るよう1つ重複
+   a=[R(2,9),R(2,9),R(2,9),R(2,9)]; a.push(pick(a));
+   const m=mean(a); const sorted=a.slice().sort((x,y)=>x-y); const med=sorted[2];
+   const cnt={}; a.forEach(x=>cnt[x]=(cnt[x]||0)+1); let mode=a[0],mx=0;
+   for(const k in cnt){if(cnt[k]>mx){mx=cnt[k];mode=+k}}
+   return {src:"第2回 代表値",
+     given:"データ： "+a.join(", "),
+     q:"このデータの 平均値・中央値・最頻値 を求めよ。",
+     fields:[{label:"平均値",ans:round(m,2),tol:0.05},{label:"中央値",ans:med,tol:0.001},{label:"最頻値",ans:mode,tol:0.001}],
+     sol:"平均 = ("+a.join("+")+")/5 = "+a.reduce((s,x)=>s+x,0)+"/5 = <b>"+round(m,2)+"</b><br>"+
+         "並べ替え： "+sorted.join(", ") +" → 中央（3番目）= <b>"+med+"</b><br>"+
+         "最も多く出た値 = <b>"+mode+"</b>"};
+ },
+ function(){ // 分散・標準偏差（整数になりやすい小データ）
+   const base=R(4,8)*2; const a=[base-4,base-2,base,base+2,base+4]; // 平均=base, 分散=8
+   const m=mean(a); const v=variance(a); const sd=Math.sqrt(v);
+   return {src:"第3回 分散・標準偏差",
+     given:"データ： "+a.join(", "),
+     q:"分散と標準偏差を求めよ（標準偏差は小数第2位まで）。",
+     fields:[{label:"分散",ans:round(v,2),tol:0.05},{label:"標準偏差",ans:round(sd,2),tol:0.05}],
+     sol:"平均 = "+m+"<br>偏差の2乗の和 = "+a.map(x=>"("+(x-m)+")²").join("+")+" = "+a.reduce((s,x)=>s+(x-m)*(x-m),0)+"<br>"+
+         "分散 = "+a.reduce((s,x)=>s+(x-m)*(x-m),0)+"/5 = <b>"+round(v,2)+"</b>　標準偏差 = √"+round(v,2)+" ≈ <b>"+round(sd,2)+"</b>"};
+ },
+ function(){ // 標準化・偏差値
+   const m=R(50,70), sd=pick([5,8,10]), x=m+pick([-2,-1,1,2,3])*sd/ (pick([1,2]));
+   const xi=Math.round(x); const z=(xi-m)/sd; const T=50+10*z;
+   return {src:"第4回 標準化・偏差値",
+     given:"平均 x̄ = "+m+"　標準偏差 S = "+sd+"　観測値 x = "+xi,
+     q:"標準化した値 z と 偏差値 T を求めよ（小数第2位まで）。",
+     fields:[{label:"標準化 z",ans:round(z,2),tol:0.05},{label:"偏差値 T",ans:round(T,1),tol:0.5}],
+     sol:"z = (x − x̄)/S = ("+xi+"−"+m+")/"+sd+" = <b>"+round(z,2)+"</b><br>"+
+         "T = 50 + 10z = 50 + 10×"+round(z,2)+" = <b>"+round(T,1)+"</b>"};
+ },
+ function(){ // 正規分布 68-95-99.7 人数
+   const N=pick([100,200,400,1000]); const k=pick([1,2,3]); const p={1:0.683,2:0.955,3:0.997}[k];
+   const ans=Math.round(N*p);
+   return {src:"第5回 正規分布",
+     given:"得点は正規分布に従うと仮定。受験者 N = "+N+" 名。",
+     q:"平均 μ から ±"+k+"σ の範囲に入る人数はおよそ何名か。",
+     fields:[{label:"人数（名）",ans:ans,tol:Math.max(1,Math.round(N*0.01))}],
+     sol:"μ±"+k+"σ の確率 = "+(p*100)+"%<br>人数 ≈ "+N+" × "+p+" = <b>約"+ans+"名</b>"};
+ },
+ function(){ // 上側確率→人数
+   const N=pick([100,200,1000]); const ans=Math.round(N*(1-0.955)/2);
+   return {src:"第5回 正規分布",
+     given:"得点は正規分布に従うと仮定。受験者 N = "+N+" 名。",
+     q:"得点が μ+2σ を超える人はおよそ何名か。",
+     fields:[{label:"人数（名）",ans:ans,tol:Math.max(1,Math.round(N*0.005))}],
+     sol:"μ±2σ の外側は 1−0.955 = 0.045。上側はその半分 = 0.0225<br>人数 ≈ "+N+"×0.0225 = <b>約"+ans+"名</b>"};
+ },
+ function(){ // 共分散（小2次元データ）
+   const xs=[R(1,4),R(1,4),R(1,4),R(1,4)]; const ys=xs.map(x=>x+R(-1,1)+R(1,3));
+   const mx=mean(xs),my=mean(ys); let cov=0; for(let i=0;i<xs.length;i++)cov+=(xs[i]-mx)*(ys[i]-my); cov/=xs.length;
+   let tbl="<table><tr><th>X</th>"+xs.map(x=>"<td>"+x+"</td>").join("")+"</tr><tr><th>Y</th>"+ys.map(y=>"<td>"+y+"</td>").join("")+"</tr></table>";
+   return {src:"第6回 共分散",
+     given:"2次元データ（4組）："+tbl,
+     q:"共分散 Cₓᵧ を求めよ（小数第2位まで）。",
+     fields:[{label:"共分散",ans:round(cov,2),tol:0.06}],
+     sol:"x̄ = "+round(mx,2)+"　ȳ = "+round(my,2)+"<br>Cₓᵧ = (1/4)Σ(xᵢ−x̄)(yᵢ−ȳ) = <b>"+round(cov,2)+"</b>"};
+ },
+ function(){ // 相関係数（共分散と標準偏差を与える）
+   const cov=round(R(10,40)/10,1); const sx=pick([2,2.5,3,4]); const sy=pick([2,3,4,5]);
+   const g=cov/(sx*sy);
+   return {src:"第7回 相関係数",
+     given:"共分散 Cₓᵧ = "+cov+"　Sₓ = "+sx+"　Sᵧ = "+sy,
+     q:"相関係数 γ を求めよ（小数第2位まで）。",
+     fields:[{label:"相関係数 γ",ans:round(g,2),tol:0.03}],
+     sol:"γ = Cₓᵧ / (Sₓ·Sᵧ) = "+cov+" / ("+sx+"×"+sy+") = "+cov+" / "+(sx*sy)+" = <b>"+round(g,2)+"</b>"};
+ },
+ function(){ // 回帰直線
+   const cov=round(R(15,45)/10,1); const vx=pick([2,4,5,8]); const mx=R(150,170); const my=R(45,60);
+   const b=cov/vx; const a=my-b*mx;
+   return {src:"第10回 回帰直線",
+     given:"共分散 Cₓᵧ = "+cov+"　Xの分散 Sₓ² = "+vx+"　x̄ = "+mx+"　ȳ = "+my,
+     q:"回帰直線 Y = â + b̂X の 傾き b̂ と 切片 â を求めよ（小数第2位まで）。",
+     fields:[{label:"傾き b̂",ans:round(b,2),tol:0.03},{label:"切片 â",ans:round(a,1),tol:0.6}],
+     sol:"b̂ = Cₓᵧ / Sₓ² = "+cov+"/"+vx+" = <b>"+round(b,2)+"</b><br>"+
+         "â = ȳ − b̂·x̄ = "+my+" − "+round(b,2)+"×"+mx+" = <b>"+round(a,1)+"</b>"};
+ },
+ function(){ // 決定係数
+   const g=round(pick([0.5,0.6,0.7,0.71,0.8,0.85,0.9]),2); const r2=g*g;
+   return {src:"第11回 決定係数",
+     given:"相関係数 γ = "+g,
+     q:"単回帰の決定係数 R² を求めよ（小数第2位まで）。",
+     fields:[{label:"決定係数 R²",ans:round(r2,2),tol:0.02}],
+     sol:"R² = γ² = "+g+"² = <b>"+round(r2,2)+"</b>"};
+ },
+ function(){ // 度数分布の平均
+   const vals=[R(1,2),0,0,0].map((_,i)=>i+1); // 階級値 1..4
+   const cls=[1,2,3,4]; const fr=[R(1,4),R(2,5),R(2,5),R(1,4)];
+   const N=fr.reduce((s,x)=>s+x,0); const sum=cls.reduce((s,c,i)=>s+c*fr[i],0); const m=sum/N;
+   let tbl="<table><tr><th>階級値</th>"+cls.map(c=>"<td>"+c+"</td>").join("")+"</tr><tr><th>度数</th>"+fr.map(f=>"<td>"+f+"</td>").join("")+"</tr></table>";
+   return {src:"第2回 度数分布の平均",
+     given:"度数分布表："+tbl,
+     q:"この度数分布の平均値を求めよ（小数第2位まで）。",
+     fields:[{label:"平均値",ans:round(m,2),tol:0.05}],
+     sol:"平均 = Σ(階級値×度数)/Σ度数 = "+cls.map((c,i)=>c+"×"+fr[i]).join(" + ")+" all /"+N+"<br>= "+sum+"/"+N+" = <b>"+round(m,2)+"</b>"};
+ },
+];
+
+/* =========================================================
+   engine
+   ========================================================= */
+let mode='bunsho', order=[], idx=0, score=0, answered={};
+function buildOrder(){
+  if(mode==='bunsho'){order=shuffle(BUNSHO.map((_,i)=>i));}
+  else if(mode==='sentaku'){order=shuffle(SENTAKU.map((_,i)=>i));}
+  else{order=shuffle(GEN.map((_,i)=>i)); order=order.concat(shuffle(GEN.map((_,i)=>i)));} // 計算は2周分
+  idx=0;score=0;answered={};
+}
+function total(){return order.length}
+function switchMode(m){mode=m;
+  document.getElementById('tabA').classList.toggle('active',m==='bunsho');
+  document.getElementById('tabB').classList.toggle('active',m==='sentaku');
+  document.getElementById('tabC').classList.toggle('active',m==='keisan');
+  buildOrder();render();}
+function shuffleNow(){buildOrder();render();}
+function restart(){buildOrder();render();}
+function updBar(){document.getElementById('cur').textContent=Math.min(idx+1,total());
+  document.getElementById('total').textContent=total();
+  document.getElementById('score').textContent=score;}
+
+function render(){
+  updBar();
+  const stage=document.getElementById('stage');
+  if(idx>=total()){
+    stage.innerHTML='<div class="card done"><div class="big">'+score+' / '+total()+'</div>'+
+      '<p>おつかれさまでした。もう一度挑戦するとシャッフルされます。</p>'+
+      '<div class="nav"><button class="btn btn-accent" onclick="restart()">↻ もう一度</button></div></div>';
+    return;
+  }
+  if(mode==='bunsho')renderBunsho();
+  else if(mode==='sentaku')renderSentaku();
+  else renderKeisan();
+}
+
+/* ---- 文章題 ---- */
+function renderBunsho(){
+  const q=BUNSHO[order[idx]];
+  let html=q.text.replace(/【(\d+)】/g,(_,n)=>'<input class="bi" id="bi'+n+'" autocomplete="off">');
+  const stage=document.getElementById('stage');
+  stage.innerHTML='<div class="card"><div class="qno">文章題（穴埋め）</div><div class="src">'+q.src+'</div>'+
+    '<div class="bline">'+html+'</div>'+
+    '<div class="feedback" id="fb"></div>'+
+    '<div class="ex" id="ex"><b>ポイント：</b>'+q.ex+'</div>'+
+    '<div class="nav"><button class="btn btn-accent" id="chk" onclick="checkBunsho()">採点する</button>'+
+    '<button class="btn btn-line" onclick="next()">次へ →</button></div></div>';
+}
+function checkBunsho(){
+  const q=BUNSHO[order[idx]]; let ok=0,tot=0;
+  for(const n in q.blanks){tot++;const el=document.getElementById('bi'+n);
+    const oks=q.blanks[n].map(norm); el.classList.remove('ok','ng');
+    if(oks.includes(norm(el.value))){el.classList.add('ok');ok++}else{el.classList.add('ng');el.value=el.value?el.value:'';}
+  }
+  const fb=document.getElementById('fb');
+  if(ok===tot){fb.className='feedback ok';fb.textContent='✓ 全部正解！';if(!answered[idx]){score++;answered[idx]=1}}
+  else{fb.className='feedback ng';fb.textContent='× '+ok+'/'+tot+' 正解。正答： '+Object.keys(q.blanks).map(n=>q.blanks[n][0]).join(' / ');
+    for(const n in q.blanks){const el=document.getElementById('bi'+n); if(!el.classList.contains('ok'))el.value=q.blanks[n][0];}
+  }
+  document.getElementById('ex').classList.add('show');
+  document.getElementById('chk').disabled=true;
+}
+
+/* ---- 選択題 ---- */
+function renderSentaku(){
+  const q=SENTAKU[order[idx]];
+  const oo=shuffle(q.opts.map((t,i)=>({t,i})));
+  const stage=document.getElementById('stage');
+  let opts=oo.map((o,vi)=>'<button class="opt" data-i="'+o.i+'" onclick="pickOpt(this,'+o.i+','+q.c+')">'+o.t+'</button>').join('');
+  stage.innerHTML='<div class="card"><div class="qno">選択題</div>'+
+    '<div class="qtext">'+q.q+'</div><div class="opts">'+opts+'</div>'+
+    '<div class="why" id="why"><span style="font-size:12.5px;color:var(--sub)">解説</span><br>'+q.why+'</div>'+
+    '<div class="nav"><button class="btn btn-line" onclick="next()">次へ →</button></div></div>';
+}
+function pickOpt(el,i,c){
+  document.querySelectorAll('.opt').forEach(b=>{b.classList.add('disabled');
+    const bi=+b.dataset.i; if(bi===c)b.classList.add('correct'); else if(bi===i)b.classList.add('wrong');});
+  if(i===c&&!answered[idx]){score++;answered[idx]=1}
+  document.getElementById('why').classList.add('show');updBar();
+}
+
+/* ---- 計算題 ---- */
+let curCalc=null;
+function renderKeisan(){
+  const g=GEN[order[idx]]; curCalc=g();
+  const stage=document.getElementById('stage');
+  let flds=curCalc.fields.map((f,i)=>'<div class="fld"><label>'+f.label+(f.suffix?'（'+f.suffix+'）':'')+
+    '<span class="mk" id="mk'+i+'"></span></label><input id="ci'+i+'" inputmode="decimal" autocomplete="off"></div>').join('');
+  stage.innerHTML='<div class="card"><div class="qno">計算題（毎回 数値が変わる）</div><div class="src">'+curCalc.src+'</div>'+
+    '<div class="given">'+curCalc.given+'</div>'+
+    '<div class="qtext" style="font-size:16px;margin-top:12px">'+curCalc.q+'</div>'+flds+
+    '<div class="feedback" id="fb"></div>'+
+    '<div class="sol" id="sol"><h4>解き方</h4><div class="stp">'+curCalc.sol+'</div></div>'+
+    '<div class="nav"><button class="btn btn-accent" id="chk" onclick="checkKeisan()">採点する</button>'+
+    '<button class="btn btn-line" onclick="next()">次へ →</button></div>'+
+    '<button class="hidebtn" onclick="document.getElementById(\'sol\').classList.add(\'show\')">解き方を見る</button></div>';
+}
+function checkKeisan(){
+  let ok=0;const tot=curCalc.fields.length;
+  curCalc.fields.forEach((f,i)=>{const el=document.getElementById('ci'+i);const mk=document.getElementById('mk'+i);
+    if(numClose(el.value,f.ans,f.tol)){mk.textContent='✓';mk.style.color='var(--ok)';el.style.borderColor='var(--ok)';ok++;}
+    else{mk.textContent='✗ 正答 '+f.ans;mk.style.color='var(--ng)';el.style.borderColor='var(--ng)';}
+  });
+  const fb=document.getElementById('fb');
+  if(ok===tot){fb.className='feedback ok';fb.textContent='✓ 正解！';if(!answered[idx]){score++;answered[idx]=1}}
+  else{fb.className='feedback ng';fb.textContent='× '+ok+'/'+tot+' 正解';}
+  document.getElementById('sol').classList.add('show');
+  document.getElementById('chk').disabled=true;updBar();
+}
+
+function next(){idx++;render();}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const c=document.getElementById('chk');if(c&&!c.disabled)c.click();}});
+
+buildOrder();render();
+</script>
+</body>
+</html>
