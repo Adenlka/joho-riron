@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OS 期末复习 · 置換え技法〜仮想化 (L8–L14)</title>
+<style>
+  :root{
+    --bg:#0f1420; --panel:#171d2b; --panel2:#1e2637; --ink:#e8ecf5; --sub:#9aa6be;
+    --acc:#5aa0ff; --acc2:#38d39f; --warn:#ffb454; --line:#2a3346; --jp:#ffe08a; --cn:#b8c6e0;
+    --ok:#2ecc71; --ng:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,"Hiragino Sans","Yu Gothic","Microsoft YaHei",sans-serif;
+    line-height:1.75;font-size:16px}
+  header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#141a28,#141a28ee);
+    border-bottom:1px solid var(--line);padding:14px 20px;backdrop-filter:blur(6px)}
+  header h1{margin:0;font-size:18px;letter-spacing:.3px}
+  header .scope{color:var(--sub);font-size:12.5px;margin-top:3px}
+  nav.tabs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  nav.tabs button{background:var(--panel2);color:var(--sub);border:1px solid var(--line);
+    padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13.5px;transition:.15s}
+  nav.tabs button.active{background:var(--acc);color:#04122b;border-color:var(--acc);font-weight:600}
+  main{max-width:900px;margin:0 auto;padding:22px 18px 90px}
+  .view{display:none} .view.active{display:block}
+  h2.sec{font-size:20px;margin:30px 0 6px;padding-left:12px;border-left:4px solid var(--acc)}
+  h2.sec .en{color:var(--sub);font-size:13px;font-weight:400;margin-left:8px}
+  h3{font-size:16.5px;margin:22px 0 8px;color:var(--acc2)}
+  p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .term{display:block;margin:14px 0;padding:12px 14px;background:var(--panel2);border-radius:10px;border-left:3px solid var(--jp)}
+  .term .jp{color:var(--jp);font-weight:700;font-size:15.5px}
+  .term .rome{color:var(--sub);font-size:12px;font-weight:400;margin-left:6px}
+  .term .ja{display:block;margin-top:4px;color:#dfe6f5;font-size:14.5px}
+  .term .zh{display:block;margin-top:4px;color:var(--cn);font-size:14px}
+  .term .zh::before{content:"🇨🇳 ";}
+  .tip{background:rgba(56,211,159,.08);border:1px solid rgba(56,211,159,.3);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:14px}
+  .tip b{color:var(--acc2)}
+  .warnbox{background:rgba(255,180,84,.08);border:1px solid rgba(255,180,84,.35);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:14px}
+  ul{margin:8px 0 8px 4px;padding-left:20px} li{margin:4px 0}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);color:var(--acc)}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .toc a{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 11px;
+    color:var(--sub);text-decoration:none;font-size:13px}
+  .toc a:hover{color:var(--acc)}
+  /* exam */
+  .q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:16px 0}
+  .q .qh{font-size:13px;color:var(--acc);font-weight:600;margin-bottom:6px}
+  .q .qt{font-size:15px;margin-bottom:10px}
+  .opt{display:block;margin:6px 0;padding:9px 12px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:8px;cursor:pointer;font-size:14px}
+  .opt:hover{border-color:var(--acc)}
+  .opt input{margin-right:8px}
+  .fill{background:#0d1320;border:1px solid var(--line);color:var(--jp);border-radius:6px;
+    padding:5px 8px;font-size:14px;min-width:120px;font-family:inherit}
+  .passage{line-height:2.5;font-size:15px}
+  .passage select,.passage .fill{margin:0 3px}
+  select.fill{color:var(--jp)}
+  .feedback{margin-top:9px;font-size:13.5px;padding:8px 12px;border-radius:8px;display:none}
+  .feedback.show{display:block}
+  .feedback.ok{background:rgba(46,204,113,.12);border:1px solid var(--ok);color:#a9f0c9}
+  .feedback.ng{background:rgba(255,107,107,.1);border:1px solid var(--ng);color:#ffc2c2}
+  .btn{background:var(--acc);color:#04122b;border:none;border-radius:8px;padding:10px 18px;
+    font-size:14px;font-weight:600;cursor:pointer;margin:6px 6px 6px 0}
+  .btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+  .score{font-size:17px;font-weight:700;margin:14px 0;padding:12px 16px;background:var(--panel2);
+    border-radius:10px;border:1px solid var(--line)}
+  .mini{color:var(--sub);font-size:12.5px}
+  .kbd{background:#0d1320;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px;color:var(--jp)}
+  code{background:#0d1320;padding:1px 6px;border-radius:5px;color:var(--acc2);font-size:13px}
+  a.top{color:var(--sub);font-size:12px;text-decoration:none;float:right}
+  hr{border:none;border-top:1px solid var(--line);margin:26px 0}
+  footer{max-width:900px;margin:0 auto;padding:20px 18px 40px;color:var(--sub);font-size:12.5px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header>
+  <h1>OS 期末复习 ｜ 置換え技法 〜 仮想化技術</h1>
+  <div class="scope">試験範囲：教科書 5.6「置換え技法」〜最後 ＋ 最後の2回の講義（L8 仮想記憶(2) ／ L9 ファイルシステム(1) ／ L10 ファイルシステム(2) ／ L11 割込みと入出力(1) ／ L12 割込みと入出力(2) ／ L13 マルチメディアOS ／ L14 OSと仮想化技術）</div>
+  <nav class="tabs">
+    <button data-view="notes" class="active">📖 笔记 Notes</button>
+    <button data-view="exam">📝 模拟考试 模擬試験</button>
+  </nav>
+</header>
+<main>
+<!-- ================= NOTES ================= -->
+<section id="notes" class="view active">
+  <div class="card">
+    <p style="margin:0"><b style="color:var(--acc)">使用说明</b>：每个术语按「<span style="color:var(--jp)">日文术语</span> → 日文解释 → <span style="color:var(--cn)">中文解释</span>」三层给出。<b>专有名词一定要按日文原文（含汉字/片假名/英文拼写）背，考试就考这些词。</b>先看笔记，再切到「模拟考试」自测。</p>
+  </div>
+  <div class="toc">
+    <a href="#l8">L8 置換え技法</a><a href="#l9">L9 ファイル(1)</a><a href="#l10">L10 ファイル(2)</a>
+    <a href="#l11">L11 割込み(1)</a><a href="#l12">L12 入出力(2)</a><a href="#l13">L13 マルチメディア</a>
+    <a href="#l14">L14 仮想化</a><a href="#terms">⭐ 高频名词表</a>
+  </div>
+
+  <!-- ---------- L8 ---------- -->
+  <h2 class="sec" id="l8">L8 仮想記憶の管理(2)：置換え技法 <span class="en">Replacement Techniques</span></h2>
+
+  <h3>記憶管理技術の3分類</h3>
+  <div class="card">
+  <span class="term"><span class="jp">フェッチ技法<span class="rome">fetch technique</span></span>
+    <span class="ja">いつ主記憶上に読み出すかに関する技術。要求時フェッチ（demand fetch）とプリフェッチ（prefetch）がある。</span>
+    <span class="zh">「何时」把页面调入主存。分「按需取（demand）」和「预取（prefetch）」。</span></span>
+  <span class="term"><span class="jp">割付け技法<span class="rome">placement technique</span></span>
+    <span class="ja">主記憶上のどこに読み出すかに関する技術（4章の内容）。</span>
+    <span class="zh">「放在哪里」——决定调入主存的位置。</span></span>
+  <span class="term"><span class="jp">置き換え技法<span class="rome">replacement technique</span></span>
+    <span class="ja">主記憶上のどこを追い出すかに関する技術。今回の主題。</span>
+    <span class="zh">「换出谁」——决定把主存哪一页赶出去。本讲重点。</span></span>
+  </div>
+
+  <h3>ページ置換えアルゴリズム</h3>
+  <div class="tip"><b>選択基準</b>：<b>ページフォールト率（page fault rate）</b>＝ページフォールト発生回数 ÷ 仮想記憶参照回数。この率が<b>最小</b>になるアルゴリズムを選ぶ（※「最大」は誤り、頻出ひっかけ）。参照列は<b>参照ストリング（reference string）</b>という。<br><span class="zh">缺页率＝缺页次数÷虚存访问次数，选缺页率<b>最小</b>的算法（「最大」是陷阱）。访问序列叫 reference string。</span></div>
+  <table>
+    <tr><th>算法</th><th>日文原文 / 说明</th><th>中文</th></tr>
+    <tr><td><b>FIFO</b></td><td>First In First Out。最も古いページ（最初に入ったページ）を退場させる。キューで管理し、新ページはキュー末尾につなぐ。</td><td>最先进先出，换出最老的页</td></tr>
+    <tr><td><b>OPT</b><br>(optimal)</td><td>参照ストリングの<b>将来</b>の知識を利用し、<b>最も遠い将来に必要とされるページ</b>を追い出す。最小のページフォールト数を与えるが<b>実現困難</b>（将来予測が難しい）。比較用の基準として使う。</td><td>最优：换出「未来最晚才用」的页；缺页最少但无法实现，只作基准</td></tr>
+    <tr><td><b>LRU</b><br>(Least Recently Used)</td><td>最も長い期間使用されていないページを退場させる。多くのシステムで利用。<b>ハードウェアのサポートが必要</b>（ソフトのみでは厳密に実現できない）。</td><td>最近最少使用：换出最久没用的页；需硬件支持</td></tr>
+  </table>
+  <div class="term"><span class="jp">Belady の異常（FIFO異常）<span class="rome">Belady's anomaly</span></span>
+    <span class="ja">一般にページ枠を増やすと性能向上が期待できるが、FIFOでは<b>ページ枠を増やすと逆にページフォールトが増える</b>ことがある現象。「Beladyの異常」または「FIFO異常」と呼ぶ（綴りに注意：Berady は誤り）。</span>
+    <span class="zh">通常增加页框（page枠）能提升性能，但 FIFO 中增加页框反而缺页更多的现象。写法要准确。</span></div>
+  <div class="tip"><b>LRU の実現方法</b>：①<b>カウンタ</b>（HW：各ページの最終参照時刻を記録、最小時刻を削除）②<b>スタック</b>（HW：参照されたページ番号を上へ、底のページを削除）③<b>参照ビット</b>（SW近似、定期的に見てソフトウェアカウンタ更新 → これは <b>NFU：Not Frequently Used</b> という）。<br><span class="zh">LRU 三种实现：计数器/栈（硬件），参照位（软件近似，即 NFU）。</span></div>
+
+  <h3>割付けと置換えの範囲</h3>
+  <div class="card">
+  <span class="term"><span class="jp">大域置換え<span class="rome">global replacement</span></span>
+    <span class="ja">すべてのページ枠から置き換えるページを選択。各プロセスが自分のページフォールト率を制御できない。</span>
+    <span class="zh">从所有页框里选换出页；进程无法控制自己的缺页率。</span></span>
+  <span class="term"><span class="jp">局所置換え<span class="rome">local replacement</span></span>
+    <span class="ja">そのプロセスに割り付けられたページ枠の中で置き換えるページを選択。</span>
+    <span class="zh">只在本进程分到的页框内选换出页。</span></span>
+  </div>
+  <p><b>マルチプログラミングの割付けアルゴリズム</b>：<b>均等割り付け</b>（各プロセスに同じ枠 p/n、p=有効ページ枠数、n=プロセス数）、<b>比例配分割付け</b>（仮想記憶の大きさで比例配分）、<b>優先度を考慮した割付け</b>。<span class="zh">均等/按比例/按优先级 三种分配。</span></p>
+
+  <h3>スラッシングと局所性</h3>
+  <div class="term"><span class="jp">スラッシング<span class="rome">thrashing</span></span>
+    <span class="ja">ページフォールトが頻繁に発生し、処理が進まない状態。悪循環：多重度増加→各プロセスがページ枠要求→ページフォールト→2次記憶読出し→CPU利用率低下→さらに多重度増加。<b>対応</b>：多重度を下げる。<b>回避策</b>：十分な主記憶、多重度を上げない。</span>
+    <span class="zh">缺页频繁、处理停滞的状态。多道度↑→缺页→读二级存储→CPU利用率↓→又加进程 的恶性循环。对策：降多道度；避免：足够主存、不过度增加多道度。</span></div>
+  <div class="term"><span class="jp">参照の局所性<span class="rome">locality of reference</span></span>
+    <span class="ja"><b>時間的局所性</b>：最近参照されたページは近い将来にも参照される確率が高い（ループ・サブルーチン・スタック・カウンタ）。<b>空間的局所性</b>：あるページが参照されると近くのページも参照される確率が高い（配列スキャン・逐次実行）。</span>
+    <span class="zh">时间局部性：刚访问的页不久会再访问；空间局部性：访问某页则邻近页也易被访问。</span></div>
+
+  <h3>ワーキングセット</h3>
+  <div class="term"><span class="jp">ワーキングセット<span class="rome">working set</span></span>
+    <span class="ja">プロセスが現在使っているページの集合。<b>ワーキングセット W(t, w)</b>＝ウィンドウ [t−w, t] の間に参照されるページの集合。<b>仮想時間</b>（当該プロセスのみが実行される時間）上に<b>ウィンドウサイズ w</b> を設定する。</span>
+    <span class="zh">进程当前正在使用的页集合。W(t,w)=在窗口[t−w,t]内被引用的页集合；窗口设在「虚拟时间」（只算该进程运行的时间）上。</span></div>
+  <div class="warnbox"><b>ウィンドウサイズの選択</b>（順序が頻出）：<br>
+  ・小さすぎる → ワーキングセットを取り込めない → ページフォルト多発 → スラッシング<br>
+  ・大きすぎる → 複数のワーキングセット取込み → 不要な情報が主記憶上に存在 → 主記憶を圧迫 → ページフォルト多発 → スラッシング<br>
+  <span class="zh">窗口太小或太大都会 →最终缺页多发→抖动。大的情况顺序：多个工作集被取入→存在多余信息→压迫主存→缺页多发→抖动。</span></div>
+  <p><b>ワーキングセット法の特徴</b> — 長所：参照の局所性を活かし効率がよい、プロセス特性・状態に応じた割付けが可能。短所：<b>ウィンドウサイズの決定が難しい</b>、ワーキングセットの<b>予測が難しい</b>。</p>
+  <a class="top" href="#top">↑</a>
+
+  <!-- ---------- L9 ---------- -->
+  <h2 class="sec" id="l9">L9 ファイルシステム(1) <span class="en">File System</span></h2>
+  <h3>ファイルの必要性と定義</h3>
+  <div class="tip"><b>ファイルシステムが必要な理由</b>：①仮想アドレス空間に収まらない大容量情報を扱う ②プロセス終了後も情報を<b>保存</b>する ③複数プロセスが<b>同時にアクセス</b>できる。ファイルシステムは<b>2次記憶を抽象化</b>する。<br><span class="zh">文件系统的必要性：大容量、持久保存、多进程共享；它把二级存储抽象化。</span></div>
+  <div class="term"><span class="jp">ファイル<span class="rome">file</span></span>
+    <span class="ja">関連のある情報の集まり又はその入れ物。データあるいはプログラムの名前付けられた集合であり、それらを格納するための論理的な単位。</span>
+    <span class="zh">相关信息的集合，是有名字的数据/程序集合，是存储的逻辑单位。</span></div>
+  <div class="term"><span class="jp">拡張子<span class="rome">extension</span></span>
+    <span class="ja">ファイルの種類を示す3〜4文字の文字列。MS-DOS（Windowsのもと）では3文字までの制限があった（今は制限緩和）。</span>
+    <span class="zh">扩展名，表示文件类型；MS-DOS 曾限3字符。</span></div>
+  <p class="mini">拡張子の対応（マッチング頻出）：.txt=テキスト、.mp3=音声、.pdf=ドキュメント、.html=WWW文書、.jpg=静止画、.mpg=動画、.c=C言語ソースプログラム、.gif=画像。</p>
+
+  <h3>レコードとブロック</h3>
+  <div class="term"><span class="jp">レコード<span class="rome">record</span></span>
+    <span class="ja">ファイルは互いに関連した項目からなる<b>論理レコード（logical record）</b>の集まり。ディスクから読み書きする単位を<b>物理レコード（physical record）</b>という。</span>
+    <span class="zh">记录：文件由「逻辑记录」组成；实际读写单位是「物理记录」。</span></div>
+  <div class="term"><span class="jp">ブロック<span class="rome">block</span></span>
+    <span class="ja">レコードの集合。記憶装置上の読み書きの単位。関連語：非ブロックレコード（1ブロックに1論理レコード）／ブロックレコード（1ブロックに複数）／固定長・可変長レコード／<b>インターレコードギャップ</b>（ブロック間の間隙）。</span>
+    <span class="zh">块：记录的集合，是设备读写单位。块间空隙叫 inter-record gap。</span></div>
+
+  <h3>ファイル操作と制御</h3>
+  <div class="tip"><b>ファイル操作の順序</b>：生成(Create,初回のみ) → オープン(Open) → 読み書き(Read/Write) → クローズ(Close) → 削除(Delete,最終回のみ/不要時)。代表的システムコール：Create/Delete, Open/Close, Read/Write, Append など。</div>
+  <div class="term"><span class="jp">ファイル制御ブロック<span class="rome">FCB: File Control Block</span></span>
+    <span class="ja">ファイル情報を読み込むメモリ領域（基本的にMS-DOS用語）。位置・レコードサイズ・アクセス方法などを含む。<b>複数のFCBの確保が可能</b>で、確保された数だけファイル操作を同時実行できる。</span>
+    <span class="zh">读入文件信息的内存区域；可分配多个 FCB，能同时操作多个文件。</span></div>
+  <div class="term"><span class="jp">ファイル記述子<span class="rome">file descriptor</span></span>
+    <span class="ja">ファイルを識別する情報。ファイルオープンのシステムコールの<b>戻り値（非負の整数）</b>で、オープンファイルテーブル（FCB）のインデックスとなる。標準入力0/標準出力1/標準エラー出力2、最初に開くファイルは3。</span>
+    <span class="zh">文件描述符：open 系统调用的返回值（非负整数），是打开文件表的索引。0/1/2 为标准输入/输出/错误。</span></div>
+  <div class="term"><span class="jp">ブロッキングとバッファリング<span class="rome">blocking / buffering</span></span>
+    <span class="ja">レコードをブロックに組み立て（ブロッキング）・分解（デブロッキング）する。<b>ダブルバッファリング</b>によりデータ転送とCPU処理を<b>並列</b>に行う（「直列」は誤り）。</span>
+    <span class="zh">成块/拆块；双缓冲让传输与CPU处理「并行」（不是串行）。</span></div>
+
+  <h3>ファイル構造とアクセス法</h3>
+  <table>
+    <tr><th>種類</th><th>説明</th><th>中文</th></tr>
+    <tr><td><b>逐次ファイル</b><br>sequential file</td><td>入出力順序が2次記憶上の格納位置で決まる。先頭から何ブロック目かで指定。連続読み書き○、挿入・削除△。</td><td>顺序文件</td></tr>
+    <tr><td><b>直接アクセスファイル</b><br>direct access file</td><td>別名<b>ランダムアクセスファイル（random access file）</b>。相対ブロック番号（relative block number）で指定。</td><td>直接/随机存取文件</td></tr>
+    <tr><td><b>索引付きファイル</b><br>indexed file</td><td>索引（index）でファイル構造を実現。<b>キー（key）</b>で指定。逐次・直接両アクセス可。索引の階層化。</td><td>索引文件，用 key 指定</td></tr>
+  </table>
+  <p class="mini"><b>ファイル編成（file organization）</b>：MVS(IBM)で採用。順編成（逐次）／直接編成（直接）／索引順編成（索引）。UNIXは1バイト=1レコードの順編成が基本＋シークで直接編成的に扱う。</p>
+
+  <h3>UNIX とシステムコール</h3>
+  <div class="term"><span class="jp">システムコール<span class="rome">system call</span></span>
+    <span class="ja">OSのカーネルを外部から呼び出すインタフェース（例：write(), read(), open()）。<b>標準ライブラリ関数</b>（printf(), scanf() 等）はカーネル処理を使うものと使わないものがある。</span>
+    <span class="zh">系统调用：从外部调用内核的接口；标准库函数有的用内核有的不用。</span></div>
+  <p class="mini">UNIXのファイル3種：<b>通常ファイル</b>（テキスト/バイナリ）、<b>スペシャルファイル（デバイスファイル）</b>、<b>ディレクトリ</b>。UNIX標準＝<b>POSIX</b>。</p>
+  <a class="top" href="#top">↑</a>
+
+  <!-- ---------- L10 ---------- -->
+  <h2 class="sec" id="l10">L10 ファイルシステム(2)：ディレクトリ・保護・割付け <span class="en">Directory</span></h2>
+  <div class="term"><span class="jp">ディレクトリ<span class="rome">directory</span></span>
+    <span class="ja">ファイルの台帳・登録簿。2次記憶上の全ファイルの<b>情報</b>を保持（ファイルそのものは含まない）。ディレクトリ自体も<b>2次記憶上</b>に保持（常に主記憶上ではない）。ファイルアクセスに先立ってディレクトリアクセスが必要。</span>
+    <span class="zh">目录：文件的台账，保存所有文件的「信息」（不含文件本身）；目录本身也在二级存储。</span></div>
+  <p class="mini">ディレクトリに保管される情報：名前・型・サイズ・構造や保護の情報・<b>2次記憶上のアドレス</b>（主記憶上ではない）・作成日時・更新日時・読出し/書込み回数。</p>
+  <div class="tip"><b>ディレクトリの構造</b>：<b>linear list（線型リスト）</b>＝線型探索、構造が簡単、作成・削除容易だがリンク格納領域が必要／<b>hash table</b>＝検索時間短い・挿入削除簡単だが<b>ファイル名の衝突</b>あり／<b>binary tree</b>。</div>
+
+  <h3>探索アルゴリズム（計算が出る）</h3>
+  <table>
+    <tr><th>算法</th><th>说明・计算</th></tr>
+    <tr><td><b>線型探索</b><br>linear search</td><td>端から順番に探す。1件チェックにp秒、総数n個なら最悪 <b>np秒</b>。<br><span class="mini">例：100万件×0.05μs＝… 平均は半分。1000万×… 練習で計算を確認。</span></td></tr>
+    <tr><td><b>二分探索</b><br>binary search</td><td>ソート済みデータが前提。中央値と比較して区間を半分に絞る。<b>10件なら最大3回</b>（1回目で5個、2回目で3個、3回目で1個除外）。</td></tr>
+    <tr><td><b>ハッシュ探索</b><br>hash search</td><td>ハッシュ関数で格納位置を計算。もとの数を<b>キー(key)</b>、返る値を<b>ハッシュ値</b>という。例：ハッシュ関数＝7で割った余り、キー51 → 51=7×7+2 → ハッシュ値 <b>2</b>。</td></tr>
+  </table>
+
+  <h3>ディレクトリの階層化</h3>
+  <p>ファイル数増加の問題（検索時間増、ディレクトリ自体のサイズ増、2次記憶アクセス増）を解決するため階層化。<b>2階層ディレクトリ</b>（マスタファイルディレクトリ＋ユーザディレクトリ）→ 共有が△。<b>木構造ディレクトリ（tree structured directory）</b>＝サブディレクトリで共有を実現、Windows/Linuxで採用。<b>ディレクトリのサイズはファイルの個数で決まる</b>（サイズではない）。</p>
+  <p class="mini"><b>パス名</b>：完全パス名（complete path）＝ルートから全ディレクトリ名を連結／相対パス名（relative path）＝カレントディレクトリから連結。</p>
+
+  <h3>ファイル保護</h3>
+  <div class="term"><span class="jp">ファイル保護<span class="rome">file protection</span></span>
+    <span class="ja">不当な操作からの保護＝<b>アクセス制御（access control）</b>、物理的障害からの保護＝<b>バックアップ（backup）と回復（recovery）</b>。</span>
+    <span class="zh">文件保护＝访问控制（防非法操作）＋备份/恢复（防物理故障）。</span></div>
+  <div class="tip"><b>アクセス制御</b>：①<b>アクセス制御行列</b>（ユーザ×ファイルで OK=1/NG=0）②<b>ユーザクラス（user class）</b>：所有者(owner)・グループ(group)・共有(public)。UNIXは各クラスに3ビット＝<b>rwxビット</b>（r=read, w=write, x=execute）。<br><b>ミラーリング（mirroring）</b>＝ディスクを2重化し両方に書く（物理障害対策）。</div>
+
+  <h3>2次記憶の割付け技法</h3>
+  <table>
+    <tr><th>方式</th><th>説明</th><th>欠点</th></tr>
+    <tr><td><b>連続割付け</b><br>contiguous</td><td>先頭ブロック番号＋ブロック数で管理。順アクセス高速。</td><td>削除領域の再利用に難、<b>コンパクション</b>必要</td></tr>
+    <tr><td><b>リンク割付け</b><br>linked</td><td>先頭＋最終ブロック番号で管理、ブロック内ポインタが次を指す。断片化なし・サイズ指定不要。</td><td>ポインタ領域必要、破損時復元困難、<b>順次アクセスのみ</b></td></tr>
+    <tr><td><b>索引割付け</b><br>index</td><td>全ポインタを<b>索引ブロック（index block）</b>に集約。<b>直接アクセス可能</b>。</td><td>索引ブロック領域必要、小さいと大ファイル不可、破損時復元困難</td></tr>
+  </table>
+  <a class="top" href="#top">↑</a>
+
+  <!-- ---------- L11 ---------- -->
+  <h2 class="sec" id="l11">L11 割込みと入出力の制御(1)：割込み <span class="en">Interrupt</span></h2>
+  <div class="term"><span class="jp">割込み処理<span class="rome">interrupt</span></span>
+    <span class="ja">ある要因（入出力完了・タイマ満了・エラー発生など）が発生したとき、通常のルーチンワークを抜けて該当処理を行い、その後もとに戻ること（OSの仕事）。C言語では関数として記述する。</span>
+    <span class="zh">中断：某事件发生时暂离常规流程去处理，处理后返回。</span></div>
+  <div class="tip"><b>割込みの種類</b><br>
+  ・<b>外部割込み（ハードウェア割込み）</b>：外部からCPUへ。入出力装置・タイマ・ユーザ操作/センサなど。<b>割込みベクタ方式</b>で処理。<br>
+  ・<b>内部割込み（ソフトウェア割込み）</b>：実行中プログラムが発生。<b>システムコール割込み</b>、プログラム例外（オーバーフロー・0除算・書込み禁止領域への書込み）、<b>ページフォールト割込み</b>（主記憶に無いページ参照）など。<br>
+  <span class="zh">外部=硬件（I/O、定时器、传感器…）；内部=软件（系统调用、异常、缺页）。</span></div>
+
+  <h3>割込みの処理方式（3つ）</h3>
+  <table>
+    <tr><th>方式</th><th>特徴</th></tr>
+    <tr><td>他の全ての割込みを禁止</td><td><b>実現が容易・オーバーヘッド少</b>。但し割込み処理中に他の割込みに対処できず、<b>割込み消失</b>の危険（※「難しく大きい」は誤り）。</td></tr>
+    <tr><td>割込みに優先度を設定</td><td><b>ネスト（nesting：入れ子）</b>を行う。低優先は待たせ、高優先は実行し現在の処理を中断。利点＝処理が速い、問題＝ネストのオーバーヘッド。</td></tr>
+    <tr><td>割込みの一部をプロセスとする</td><td>他の割込みに対処可能。問題＝メッセージ送受信のオーバーヘッド。</td></tr>
+  </table>
+  <div class="term"><span class="jp">割込みハンドラ<span class="rome">interrupt handler</span></span>
+    <span class="ja">割込みを処理・制御するためにメモリ上に待機しているプログラム。割込み発生時に原因を解析し、対応する処理ルーチンへ制御を移す。<b>割込みコントローラ</b>（複数割込みの交通整理を行うハードウェア）とは別物。</span>
+    <span class="zh">中断处理程序：常驻内存、分析中断原因并转到相应例程。别与「中断控制器（硬件）」混淆。</span></div>
+  <p><b>割込みハンドラの構成法</b>：①分岐先アドレスが固定 → ハンドラが要因解析／②<b>ベクタテーブル</b> → 割込みベクタテーブルのエントリにジャンプ（分岐命令が格納）。<br>
+  <b>割込みベクタ（Interrupt Vector）</b>＝割込みの方向を示すもの。流れ：割込み(要求元→CPU)①→応答(CPU→要求元)②→割込みベクタ通知(要求元→CPU)③→ベクタテーブル検索・処理ルーチンアドレス取得(CPU)④→割込み処理実行⑤。</p>
+
+  <h3>割込みの許可と禁止</h3>
+  <div class="tip"><b>割込み禁止フラグ</b>（0=禁止, 1=可）と<b>割込みマスク</b>（優先度順のビット列、0=有効/1=無効、境界＝マスク閾値）の2つを使う。<br><span class="zh">用「中断禁止标志」和「中断掩码」两者控制许可/禁止。</span></div>
+  <p class="mini"><b>割込み処理の流れ</b>（順序頻出）：1.受付可否を決定 → 2.フラグをリセットし全割込み禁止 → 3.退避用スタックに処理途中の情報をプッシュ → 4.フラグをセットし許可状態に → 5.処理ルーチンに分岐 → 6.終了後に当該割込みの無効化を解除 → 7.ネストされていればスタックをポップして回復し続きを実行。一度割込みコンテキストに入ると最後の割込みが終わるまでユーザプロセスは実行されない。</p>
+  <div class="term"><span class="jp">シグナル<span class="rome">signal</span></span>
+    <span class="ja">UNIX系OSで、プロセス間通信の形式でプロセスに<b>非同期</b>にイベント発生を通知するもの。<b>割込みの抽象化</b>（外部・内部割込みを統一的に扱う）。受信時の処理を<b>シグナルハンドラ</b>として書ける（例：signal(SIGINT, ...)）。</span>
+    <span class="zh">信号：UNIX 中异步通知进程事件，是「中断的抽象化」；处理函数叫信号处理程序。</span></div>
+  <a class="top" href="#top">↑</a>
+
+  <!-- ---------- L12 ---------- -->
+  <h2 class="sec" id="l12">L12 割込みと入出力の制御(2)：入出力 <span class="en">I/O Control</span></h2>
+  <div class="term"><span class="jp">入出力操作 / 入出力制御<span class="rome">I/O operation / control</span></span>
+    <span class="ja"><b>入出力操作</b>＝入出力装置と主記憶の間でデータ転送を行うこと。<b>入出力制御</b>＝各プロセスに入出力装置を割り付け、共有を管理し、システム全体で効率よくスケジューリングすること。入出力装置を<b>仮想化</b>し一様なインタフェースを提供する。</span>
+    <span class="zh">I/O操作=设备与主存间传数据；I/O控制=分配设备、管理共享、统一调度、虚拟化设备。</span></div>
+  <div class="tip"><b>デバイスの種類</b>：<b>ブロック型デバイス（block device）</b>＝ブロック単位で読み書き（ハードディスク・CDROM・USBメモリ）／<b>文字型デバイス（character device）</b>＝文字単位（プリンタ・マウス・キーボード・ネットワークインタフェース）。<br><span class="zh">块设备：HDD/CDROM/U盘；字符设备：打印机/鼠标/键盘/网卡。</span></div>
+  <div class="term"><span class="jp">デバイスドライバ<span class="rome">device driver</span></span>
+    <span class="ja">装置や機器を制御・操作するための<b>ソフトウェア</b>。OSが機器を制御するための橋渡し。抽象化・共通化されたインタフェースを提供。<b>デバイスごとに存在する</b>。</span>
+    <span class="zh">设备驱动：控制设备的「软件」，OS 与设备的桥梁；每种设备各有其驱动。</span></div>
+  <div class="term"><span class="jp">デバイスコントローラ<span class="rome">device controller</span></span>
+    <span class="ja">入出力装置と主記憶の間でデータの仲介を行う<b>装置（ハードウェア＋ファームウェア）</b>。デバイスごとにあり、ドライバの指示で動く。レジスタを持ちCPUと通信。※「ソフトウェア」ではない。</span>
+    <span class="zh">设备控制器：介于设备与主存的「硬件+固件」，含固件的硬件（不是软件）。</span></div>
+  <p class="mini"><b>チャネル（channel）</b>＝入出力専用のプロセッサ。<b>コマンドプログラム / チャネルプログラム</b>＝デバイスコントローラを制御する命令コマンド系列（シーク＋回転＋読出し等）。制御方式：<b>メモリマップ型入出力（memory-mapped I/O）</b>（レジスタがアドレス空間の一部）／コントローラが自らコマンドを取り出す方式。</p>
+  <div class="term"><span class="jp">DMA<span class="rome">Direct Memory Access</span></span>
+    <span class="ja">デバイスコントローラがデータ転送を行い、CPUは入出力動作を起動するだけ。高速なブロック型デバイスで使用。※CPUが直接転送する方式は<b>プログラム方式の入出力（programmed I/O）</b>。</span>
+    <span class="zh">DMA：由控制器传数据，CPU 只启动。CPU 亲自传的是 programmed I/O。</span></div>
+
+  <h3>同期/非同期・バッファリング・スプーリング</h3>
+  <table>
+    <tr><th>用語</th><th>説明</th></tr>
+    <tr><td><b>同期入出力</b><br>synchronous I/O</td><td>入出力要求後、完了の割込みが入るまで待つ（通常の方法）。</td></tr>
+    <tr><td><b>非同期入出力</b><br>asynchronous I/O</td><td>要求後すぐ制御権が返る。別のことができるが、プロセス側で完了との同期を取る必要。</td></tr>
+    <tr><td><b>バッファリング</b><br>buffering</td><td><b>バッファ（buffer）</b>＝緩衝域。CPUと入出力装置を常に動作状態にする仕掛け。バッファは<b>コンピュータ内部</b>、置いた後操作できない場合あり。</td></tr>
+    <tr><td><b>スプーリング</b><br>spooling</td><td>SPOOL＝Simultaneous Peripheral Operation On Line。記憶装置（内部HDD）で機器を並列動作。特定プロセスの長時間占有を防ぐ。置いた後も<b>操作可能</b>（例：削除）。プリンタ出力など。</td></tr>
+  </table>
+  <div class="warnbox">よくあるひっかけ：「スプーリング」と「バッファリング」の説明の入れ替え。スプーラは内部/外部どちらもあり得るのは<b>バッファ</b>の話。<span class="zh">buffer 在内部；spooling 用内部HDD、放入后仍可操作（可删除）。二者说明常被互换考。</span></div>
+  <p class="mini"><b>DCB（Device Control Block）</b>＝入出力装置を管理するテーブル（装置ごと）。cf. PCB(プロセス制御ブロック)・FCB(ファイル制御ブロック)。<b>IRB（I/O Request Block）</b>＝入出力要求の情報（要求ごと、キューを構成）。<br><b>タイマ管理</b>：時刻維持（UTC）、プロセスの時間制限、CPU使用の会計、監視。<b>watchdog timer（番犬）</b>＝プロセスや入出力装置の監視を行うタイマ。</p>
+  <a class="top" href="#top">↑</a>
+
+  <!-- ---------- L13 ---------- -->
+  <h2 class="sec" id="l13">L13 マルチメディアOS <span class="en">Multimedia OS</span></h2>
+  <div class="term"><span class="jp">マルチメディア<span class="rome">multimedia</span></span>
+    <span class="ja">コンピュータ上で文字・静止画・動画・音声など様々な形態の情報を統合して扱うこと。単なる統合でなく、利用者の操作に応じて表示・再生が変化する<b>双方向性（インタラクティブ性）</b>を重視する考え方もある。</span>
+    <span class="zh">多媒体：统合处理文字/图/视频/音频；强调交互性（双向性）。</span></div>
+  <div class="tip"><b>マルチメディアの要求</b>：①大量の情報 ②極めて速いデータ ③<b>実時間再生</b>。※「無制限にアクセス可能」はマルチメディアとは無関係（ひっかけ）。<b>VOD（Video On Demand）</b>＝観たい時に映像を視聴できるサービス（マルチメディアOSが最も要求される）。<br><span class="zh">要求：大容量、高速、实时再生。VOD 最需要多媒体OS。</span></div>
+  <div class="term"><span class="jp">マルチメディアファイル<span class="rome">multimedia file</span></span>
+    <span class="ja"><b>音声ファイル</b>と<b>映像ファイル</b>から構成。音声と映像の同期を<b>lip synchronization（リップシンク）</b>という。音声は複数トラック（オリジナル音声[原語/音楽・効果音]、副音声[吹替え]、字幕[原語/翻訳]）。</span>
+    <span class="zh">多媒体文件=音频+视频；音画同步叫 lip synchronization。</span></div>
+  <table>
+    <tr><th>圧縮</th><th>説明</th></tr>
+    <tr><td><b>静止画：JPEG</b></td><td>RGB（三原色＝赤 Red・緑 Green・青 Blue、※黄色ではない）。1画素(pixel)＝8bit×3＝24bit。<b>輝度(luminance)</b>には敏感・<b>色差(chrominance)</b>には鈍感 → 色差を粗く。<b>離散コサイン変換（DCT）</b>でさらに圧縮。</td></tr>
+    <tr><td><b>動画：MPEG</b></td><td>基本情報＋予測情報。<b>Iフレーム</b>（Intra-coded：JPEGを定期取得）／<b>Pフレーム</b>（Predictive：過去から予測、差分送信）／<b>Bフレーム</b>（Bidirectional：過去と未来から予測）。音声は<b>音響心理学</b>に基づく符号化（大きな音に隠れる小さな音は聞こえない）。</td></tr>
+  </table>
+
+  <h3>リアルタイムスケジューリング</h3>
+  <div class="tip"><b>リアルタイムOS</b>＝決められた時間内に処理完了を保証・重視するOS。マルチメディアOSは従来OSと①プロセススケジューリング②ファイルシステム③ディスク割付け・スケジューリング で異なる。<br><b>スケジューリング可能条件</b>：Σ(Cᵢ/Pᵢ) ≤ 1（Pᵢ=周期/納期、Cᵢ=1回のCPU時間）＝CPU使用率。</div>
+  <table>
+    <tr><th>方式</th><th>説明</th></tr>
+    <tr><td><b>RMS</b><br>Rate Monotonic Scheduling<br>（優先度固定）</td><td>優先度を固定して切り替え。<b>横取り可能（preemptive）</b>。優先度＝頻度（周波数、周期が短いほど高優先）。単純で実装しやすい。※「横取り不可能」は誤り。</td></tr>
+    <tr><td><b>EDF</b><br>Earliest Deadline First<br>（納期優先）</td><td>納期が近いプロセスを優先。横取り可能。<b>CPU使用率100%が可能</b>。RMSで不可でもEDFなら可能な場合がある。但しアルゴリズムが複雑。</td></tr>
+  </table>
+  <div class="term"><span class="jp">push server / pull server</span>
+    <span class="ja">マルチメディアファイルシステムでは<b>push server</b>を使う（startで一定間隔送信、stopで停止）。従来型は<b>pull server</b>（ユーザが一定間隔でreadを発行）。</span>
+    <span class="zh">多媒体文件系统用 push server（服务器主动定时推送）；传统是 pull server。</span></div>
+  <p class="mini"><b>ディスクスケジューリング</b>：FCFS（First-Come-First-Served、要求順、効率悪い）／SSF（Shortest Seek First、近い場所から、混むと中央に張り付く）／<b>エレベータアルゴリズム</b>（方向を変えず処理）。マルチメディア用は納期優先の<b>scan-EDF</b>（納期の近い要求をセットにし、セット内は物理アドレス順）。</p>
+  <a class="top" href="#top">↑</a>
+
+  <!-- ---------- L14 ---------- -->
+  <h2 class="sec" id="l14">L14 OSと仮想化技術 <span class="en">Virtualization</span></h2>
+  <div class="term"><span class="jp">仮想化<span class="rome">virtualization</span></span>
+    <span class="ja">実際には存在しないものをあたかも存在するように、あるいは実際とは違う形で見せること。コンピュータでは、リソースや処理を<b>抽象化</b>してユーザ・プログラムに見せること。1960年代からある古い考え方（最近生まれたものではない）。</span>
+    <span class="zh">虚拟化：把不存在的东西显示成存在，或以不同形式呈现；抽象化资源。1960年代就有。</span></div>
+  <div class="tip"><b>OSにおける3つの仮想化</b>：①処理（プログラムとCPU）の仮想化＝<b>プロセス</b> ②記憶（メモリ）の仮想化＝<b>仮想アドレス</b> ③情報（データ）の仮想化＝<b>ファイル</b>。「OSの歴史は仮想化の歴史」。<br><span class="zh">OS 三大虚拟化：进程（处理）、虚拟地址（内存）、文件（信息）。</span></div>
+  <p><b>従来のマルチコンピュータ環境</b>（役割別の複数物理マシンを高速ネットで接続）：利点＝性能（負荷分散）・信頼性・セキュリティ向上（一台の故障/攻撃が波及しない）。課題＝機器コスト・物理スペース・電力等の維持コスト。→ 仮想化技術で一台に複数の独立環境を構築し課題を解決。</p>
+
+  <h3>ハイパーバイザ</h3>
+  <div class="term"><span class="jp">ハイパーバイザ<span class="rome">hypervisor</span></span>
+    <span class="ja"><b>タイプ1（Type 1）</b>：ハードウェアとOSの間にソフトウェア階層を追加（ハードウェア直上）。<b>タイプ2（Type 2）</b>：ベースとなるOS（ホストOS）の<b>アプリケーション</b>としてインストール。<b>ゲストOSの下位層にホストOS</b>がある（逆ではない）。</span>
+    <span class="zh">Type1：直接在硬件上；Type2：作为宿主OS上的应用安装。宿主OS(host)在客户OS(guest)之下。</span></div>
+  <p class="mini">歴史：IBMの<b>VM/370</b>（対話型OS＝CMS: Conversational Monitor System を乗せる）、後継 z/VM。PCでは<b>1998年 VMware社創立</b>。インテルCPU(x86)は仮想化対応が遅れた（PopekとGoldbergの要件を満たさず、2005年に対応）。</p>
+  <div class="term"><span class="jp">Popek と Goldberg の仮想化要件<span class="rome">virtualization requirements</span></span>
+    <span class="ja"><b>①等価性/安全性</b>（資源管理）<b>②忠実性（Fidelity）</b>：仮想マシン上のプログラムは実ハードウェア上と同じように動く <b>③効率性（Efficiency）</b>：ハイパーバイザの介入で性能低下しない。忠実性の必要条件＝<b>センシティブ命令セットは特権命令セットの部分集合</b>でなければならない。センシティブ命令＝カーネル/ユーザモードで振舞いが異なる命令、特権命令＝ユーザモードで実行するとカーネルモードへ移行する命令。</span>
+    <span class="zh">虚拟化三要件：等价/忠实性(Fidelity)/效率性(Efficiency)。忠实性条件：敏感指令⊆特权指令。</span></div>
+  <p class="mini"><b>実アドレスの仮想化</b>：ゲストOSには実アドレスが見えねばならず、複数VM同居には<b>仮想実アドレス</b>が必要（ハイパーバイザが変換）。実入出力装置も同様に仮想化。</p>
+  <div class="tip"><b>仮想マシンの利用</b>：<b>仮想アプライアンス（Virtual Appliance）</b>＝動作環境＋アプリのセット。<b>クラウド（Cloud）</b>：<b>IaaS</b>(Infrastructure as a Service＝コンピュータ環境)／<b>PaaS</b>(Platform＝開発環境)／<b>SaaS</b>(Software＝ソフトウェア)。利点＝自前ITインフラ不要・従量課金。心配＝セキュリティ・信頼性。<br><span class="zh">云：IaaS(基础设施)/PaaS(平台/开发环境)/SaaS(软件)。</span></div>
+  <a class="top" href="#top">↑</a>
+
+  <!-- ---------- TERMS ---------- -->
+  <h2 class="sec" id="terms">⭐ 高频专有名词速记表 <span class="en">Key Terms</span></h2>
+  <table>
+    <tr><th>日文原文</th><th>英/略语</th><th>中文</th></tr>
+    <tr><td>置き換え技法</td><td>replacement technique</td><td>置换技术</td></tr>
+    <tr><td>ページフォールト率</td><td>page fault rate</td><td>缺页率（选最小）</td></tr>
+    <tr><td>参照ストリング</td><td>reference string</td><td>引用串</td></tr>
+    <tr><td>Beladyの異常 / FIFO異常</td><td>Belady's anomaly</td><td>Belady异常</td></tr>
+    <tr><td>スラッシング</td><td>thrashing</td><td>抖动（缺页频发处理停滞）</td></tr>
+    <tr><td>参照の局所性（時間的/空間的）</td><td>locality of reference</td><td>引用局部性（时间/空间）</td></tr>
+    <tr><td>ワーキングセット</td><td>working set W(t,w)</td><td>工作集</td></tr>
+    <tr><td>レコード（論理/物理）</td><td>logical / physical record</td><td>记录</td></tr>
+    <tr><td>ファイル制御ブロック</td><td>FCB</td><td>文件控制块</td></tr>
+    <tr><td>ファイル記述子</td><td>file descriptor</td><td>文件描述符（open返回值）</td></tr>
+    <tr><td>木構造ディレクトリ</td><td>tree structured directory</td><td>树形目录</td></tr>
+    <tr><td>ミラーリング</td><td>mirroring</td><td>镜像（盘双重化）</td></tr>
+    <tr><td>割込みハンドラ</td><td>interrupt handler</td><td>中断处理程序</td></tr>
+    <tr><td>割込みベクタ / マスク / ネスト</td><td>vector / mask / nesting</td><td>中断向量/掩码/嵌套</td></tr>
+    <tr><td>シグナル</td><td>signal</td><td>信号（中断的抽象化）</td></tr>
+    <tr><td>デバイスドライバ / コントローラ</td><td>device driver / controller</td><td>驱动(软)/控制器(硬+固件)</td></tr>
+    <tr><td>直接メモリアクセス</td><td>DMA</td><td>直接内存访问</td></tr>
+    <tr><td>スプーリング / バッファリング</td><td>spooling / buffering</td><td>假脱机/缓冲</td></tr>
+    <tr><td>watchdog timer</td><td>—</td><td>看门狗定时器</td></tr>
+    <tr><td>lip synchronization</td><td>—</td><td>音画同步</td></tr>
+    <tr><td>離散コサイン変換</td><td>DCT</td><td>离散余弦变换</td></tr>
+    <tr><td>優先度固定 / 納期優先</td><td>RMS / EDF</td><td>速率单调/最早截止优先</td></tr>
+    <tr><td>ハイパーバイザ（Type1/2）</td><td>hypervisor</td><td>虚拟机监控器</td></tr>
+    <tr><td>Popekとゴールドバーグの仮想化要件</td><td>Fidelity / Efficiency</td><td>虚拟化要件（忠实/效率）</td></tr>
+    <tr><td>仮想アプライアンス / クラウド</td><td>IaaS / PaaS / SaaS</td><td>虚拟设备/云</td></tr>
+  </table>
+  <a class="top" href="#top">↑</a>
+
+  <!-- NOTES_END -->
+</section>
+
+<!-- ================= EXAM ================= -->
+<section id="exam" class="view">
+  <div class="card">
+    <p style="margin:0"><b style="color:var(--acc)">模擬試験の使い方</b>：全問<b>日本語</b>（本番と同じ形式）。①〇×判定 ②穴埋め ③選択 ④並べ替え ⑤長文穴埋め の5部構成。解答を入力・選択したら一番下の <span class="kbd">採点する</span> を押すと自動採点し、各問に正解と解説が出ます。<span class="mini">穴埋めは全角/半角どちらでも概ね正解になるよう調整済み。</span></p>
+  </div>
+
+  <h2 class="sec">第1部　〇×で答えなさい <span class="en">True / False</span></h2>
+
+  <div class="q" data-a="×">
+    <div class="qh">問1</div>
+    <div class="qt">ページ置換えアルゴリズムは、ページフォールト率が<b>最大</b>となるように選択するべきである。</div>
+    <label class="opt"><input type="radio" name="q1" value="○">〇</label>
+    <label class="opt"><input type="radio" name="q1" value="×">×</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="○">
+    <div class="qh">問2</div>
+    <div class="qt">FIFOアルゴリズムでは、最も古いページ（最初に入ってきたページ）を退場させる。</div>
+    <label class="opt"><input type="radio" name="q2" value="○">〇</label>
+    <label class="opt"><input type="radio" name="q2" value="×">×</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="×">
+    <div class="qh">問3</div>
+    <div class="qt">LRUはソフトウェアだけで厳密に実現できる。</div>
+    <label class="opt"><input type="radio" name="q3" value="○">〇</label>
+    <label class="opt"><input type="radio" name="q3" value="×">×</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="○">
+    <div class="qh">問4</div>
+    <div class="qt">ダブルバッファリングによって、データの転送とCPU処理を並列に行うことができる。</div>
+    <label class="opt"><input type="radio" name="q4" value="○">〇</label>
+    <label class="opt"><input type="radio" name="q4" value="×">×</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="×">
+    <div class="qh">問5</div>
+    <div class="qt">デバイスコントローラは、入出力装置と主記憶の間でデータの仲介を行う<b>ソフトウェア</b>である。</div>
+    <label class="opt"><input type="radio" name="q5" value="○">〇</label>
+    <label class="opt"><input type="radio" name="q5" value="×">×</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="×">
+    <div class="qh">問6</div>
+    <div class="qt">MPEGは静止画の圧縮方式である。</div>
+    <label class="opt"><input type="radio" name="q6" value="○">〇</label>
+    <label class="opt"><input type="radio" name="q6" value="×">×</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="○">
+    <div class="qh">問7</div>
+    <div class="qt">RMSではスケジューリングできないが、EDFではスケジューリングできる場合がある。</div>
+    <label class="opt"><input type="radio" name="q7" value="○">〇</label>
+    <label class="opt"><input type="radio" name="q7" value="×">×</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="×">
+    <div class="qh">問8</div>
+    <div class="qt">ホストOSの下位層にゲストOSがある。</div>
+    <label class="opt"><input type="radio" name="q8" value="○">〇</label>
+    <label class="opt"><input type="radio" name="q8" value="×">×</label>
+    <div class="feedback"></div>
+  </div>
+
+  <h2 class="sec">第2部　穴埋め（ことばを書きなさい） <span class="en">Fill in</span></h2>
+
+  <div class="q">
+    <div class="qh">問9</div>
+    <div class="qt">主記憶上のすべてのページのキューが構成され、置換えが必要になるとキューの先頭のページが置き換えられ、新しいページはキューの最後につながれる。このページ置換えアルゴリズムを英字（半角大文字）で書きなさい。<br>答え：<input class="fill gr" data-a="FIFO"></div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q">
+    <div class="qh">問10</div>
+    <div class="qt">ページフォールトが頻繁に発生し、処理が進まない状態を何というか。カタカナまたは英語で書きなさい。<br>答え：<input class="fill gr" data-a="スラッシング|thrashing"></div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q">
+    <div class="qh">問11</div>
+    <div class="qt">FIFOでページ枠を増やすと、逆にページフォールトが増える場合がある。この現象を何というか（人名を含む語で）。<br>答え：<input class="fill gr" data-a="Beladyの異常|ベラディの異常|FIFO異常|Belady異常"></div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q">
+    <div class="qh">問12</div>
+    <div class="qt">ファイル情報を読み込むメモリ領域を何と呼ぶか。日本語または英語で書きなさい。<br>答え：<input class="fill gr" data-a="ファイル制御ブロック|FCB|File Control Block"></div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q">
+    <div class="qh">問13</div>
+    <div class="qt">ファイルオープンのシステムコールの戻り値であり、ファイルを識別し、オープンファイルテーブルのインデックスとなるものを何と呼ぶか。<br>答え：<input class="fill gr" data-a="ファイル記述子|file descriptor|ファイルディスクリプタ"></div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q">
+    <div class="qh">問14</div>
+    <div class="qt">割込みを処理・制御するためにメモリ上に待機し、割込み発生時に原因を解析して対応する処理ルーチンへ制御を移すプログラムを何というか。<br>答え：<input class="fill gr" data-a="割込みハンドラ|割り込みハンドラ|interrupt handler|割込ハンドラ"></div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q">
+    <div class="qh">問15</div>
+    <div class="qt">デバイスコントローラがデータ転送を行い、CPUは入出力動作を起動するだけの方式を何というか。英字（略語）で書きなさい。<br>答え：<input class="fill gr" data-a="DMA|Direct Memory Access"></div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q">
+    <div class="qh">問16</div>
+    <div class="qt">プロセスや入出力装置の監視を行うタイマを何というか。英語（半角）で書きなさい。<br>答え：<input class="fill gr" data-a="watchdog timer|watchdogtimer|ウォッチドッグタイマ"></div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q">
+    <div class="qh">問17</div>
+    <div class="qt">「最近参照されたページは近い将来にも参照される確率が高い」「あるページが参照されると近くのページも参照される確率が高い」という性質を「参照の〇〇〇」という。〇〇〇を漢字で書きなさい。<br>答え：<input class="fill gr" data-a="局所性"></div>
+    <div class="feedback"></div>
+  </div>
+
+  <h2 class="sec">第3部　選択（1つ選びなさい） <span class="en">Choice</span></h2>
+
+  <div class="q" data-a="b">
+    <div class="qh">問18</div>
+    <div class="qt">コンピュータシステムに<b>接続される入出力装置</b>として適切でないものを1つ選びなさい。</div>
+    <label class="opt"><input type="radio" name="q18" value="a">a. マウス</label>
+    <label class="opt"><input type="radio" name="q18" value="b">b. 主記憶</label>
+    <label class="opt"><input type="radio" name="q18" value="c">c. ハードディスク</label>
+    <label class="opt"><input type="radio" name="q18" value="d">d. プリンタ</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="a">
+    <div class="qh">問19</div>
+    <div class="qt">ディレクトリに保管されるファイルの情報として適切でないものを1つ選びなさい。</div>
+    <label class="opt"><input type="radio" name="q19" value="a">a. 主記憶上のアドレス</label>
+    <label class="opt"><input type="radio" name="q19" value="b">b. ファイルの型</label>
+    <label class="opt"><input type="radio" name="q19" value="c">c. ファイル更新日時</label>
+    <label class="opt"><input type="radio" name="q19" value="d">d. ファイルのサイズ</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="c">
+    <div class="qh">問20</div>
+    <div class="qt">音声と映像の同期のことを何というか。正しいものを1つ選びなさい。</div>
+    <label class="opt"><input type="radio" name="q20" value="a">a. rip synchronization</label>
+    <label class="opt"><input type="radio" name="q20" value="b">b. lip symmetry</label>
+    <label class="opt"><input type="radio" name="q20" value="c">c. lip synchronization</label>
+    <label class="opt"><input type="radio" name="q20" value="d">d. sync sound</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="d">
+    <div class="qh">問21</div>
+    <div class="qt">入出力装置を管理するために用いるものはどれか。</div>
+    <label class="opt"><input type="radio" name="q21" value="a">a. FCB</label>
+    <label class="opt"><input type="radio" name="q21" value="b">b. PCB</label>
+    <label class="opt"><input type="radio" name="q21" value="c">c. DMA</label>
+    <label class="opt"><input type="radio" name="q21" value="d">d. DCB</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q" data-a="b">
+    <div class="qh">問22</div>
+    <div class="qt">7で割った余りをハッシュ関数とする。キーが51のとき、ハッシュ値はいくらか。</div>
+    <label class="opt"><input type="radio" name="q22" value="a">a. 1</label>
+    <label class="opt"><input type="radio" name="q22" value="b">b. 2</label>
+    <label class="opt"><input type="radio" name="q22" value="c">c. 5</label>
+    <label class="opt"><input type="radio" name="q22" value="d">d. 7</label>
+    <div class="feedback"></div>
+  </div>
+
+  <h2 class="sec">第4部　並べ替え <span class="en">Ordering</span></h2>
+  <div class="q">
+    <div class="qh">問23</div>
+    <div class="qt">通常のファイル操作の順序になるよう、各操作の番号（1〜5）を選びなさい。</div>
+    <div style="line-height:2.6">
+      ファイル読み書き　<select class="fill gr" data-a="3"><option value="">…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><br>
+      ファイル生成　<select class="fill gr" data-a="1"><option value="">…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><br>
+      ファイルクローズ　<select class="fill gr" data-a="4"><option value="">…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><br>
+      ファイル削除　<select class="fill gr" data-a="5"><option value="">…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><br>
+      ファイルオープン　<select class="fill gr" data-a="2"><option value="">…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="q">
+    <div class="qh">問24</div>
+    <div class="qt">ワーキングセット法のウィンドウサイズが<b>大きすぎる</b>場合に発生する現象の順序を選びなさい（最初＝1、最後＝5）。</div>
+    <div style="line-height:2.6">
+      複数のワーキングセットの取り込み　<select class="fill gr" data-a="1"><option value="">…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><br>
+      主記憶上に不要な情報が存在　<select class="fill gr" data-a="2"><option value="">…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><br>
+      主記憶を圧迫　<select class="fill gr" data-a="3"><option value="">…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><br>
+      ページフォルト多発　<select class="fill gr" data-a="4"><option value="">…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><br>
+      スラッシング（効率低下）　<select class="fill gr" data-a="5"><option value="">…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <h2 class="sec">第5部　長文穴埋め <span class="en">Passage — pull-down</span></h2>
+  <div class="q">
+    <div class="qh">問25（本番形式の長文問題）</div>
+    <div class="qt mini">プルダウンから最も適切な語を選び、文章を完成させなさい。</div>
+    <div class="passage card">
+    仮想記憶では、主記憶に無いページを参照すると
+    <select class="fill gr" data-a="内部"><option value="">▼</option><option>内部</option><option>外部</option></select>割込みの一種である
+    <select class="fill gr" data-a="ページフォールト"><option value="">▼</option><option>ページフォールト</option><option>スラッシング</option><option>コンパクション</option></select>が発生する。どのページを追い出すかを決めるのが
+    <select class="fill gr" data-a="置き換え"><option value="">▼</option><option>フェッチ</option><option>割付け</option><option>置き換え</option></select>技法である。アルゴリズムは
+    <select class="fill gr" data-a="ページフォールト率"><option value="">▼</option><option>ページフォールト率</option><option>CPU使用率</option><option>ヒット率</option></select>が最小になるように選ぶ。代表例として、最も古いページを退場させる
+    <select class="fill gr" data-a="FIFO"><option value="">▼</option><option>FIFO</option><option>OPT</option><option>LRU</option></select>、最も遠い将来に必要とされるページを追い出すが実現困難な
+    <select class="fill gr" data-a="OPT"><option value="">▼</option><option>FIFO</option><option>OPT</option><option>LRU</option></select>、最も長い期間使用されていないページを退場させ、ハードウェアの支援を要する
+    <select class="fill gr" data-a="LRU"><option value="">▼</option><option>FIFO</option><option>OPT</option><option>LRU</option></select>がある。<br><br>
+    プロセスが現在使っているページの集合を
+    <select class="fill gr" data-a="ワーキングセット"><option value="">▼</option><option>ワーキングセット</option><option>参照ストリング</option><option>ページ枠</option></select>という。これを追跡し主記憶上に置こうとする方式では、
+    <select class="fill gr" data-a="ウィンドウ"><option value="">▼</option><option>ウィンドウ</option><option>ブロック</option><option>セグメント</option></select>サイズが小さすぎても大きすぎても、最終的には
+    <select class="fill gr" data-a="スラッシング"><option value="">▼</option><option>スラッシング</option><option>ミラーリング</option><option>スプーリング</option></select>を招く。多重度を上げすぎてこの状態に陥ると、CPU利用率が
+    <select class="fill gr" data-a="低下"><option value="">▼</option><option>低下</option><option>向上</option></select>する。なお「最近参照されたページは近い将来も参照されやすい」という性質を
+    <select class="fill gr" data-a="時間的局所性"><option value="">▼</option><option>時間的局所性</option><option>空間的局所性</option></select>という。
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <button class="btn" id="grade">採点する</button>
+  <button class="btn ghost" id="reset">リセット</button>
+  <div class="score" id="score" style="display:none"></div>
+  <p class="mini">満点＝各問1点（長文は空欄ごとに1点）。8割以上を目標に。</p>
+</section>
+</main>
+<footer>
+  仅供 Aden 个人复习使用 ｜ 内容整理自 オペレーティングシステム（尾崎） 講義スライド L8–L14 及 小テスト・確認テスト。
+</footer>
+<script>
+  // tab switching
+  document.querySelectorAll('nav.tabs button').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      document.getElementById(b.dataset.view).classList.add('active');
+      window.scrollTo(0,0);
+    };
+  });
+
+  // ---- exam grading ----
+  function norm(s){
+    s=(s||'').trim().replace(/[！-～]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+    return s.replace(/\s+/g,'').toLowerCase();
+  }
+  const expl = {
+    q1:'ページフォールト率が<b>最小</b>になるように選ぶ。',
+    q2:'First In First Out ＝最初に入ったものが最初に出る。',
+    q3:'厳密な実現にはハードウェア（カウンタ等）の支援が必要。ソフトは近似（NFU）。',
+    q4:'ダブルバッファリングで転送とCPU処理は<b>並列</b>に行われる。',
+    q5:'デバイスコントローラはファームウェアを持つ<b>ハードウェア</b>。ソフトはデバイスドライバ。',
+    q6:'MPEGは<b>動画</b>の圧縮方式。静止画はJPEG。',
+    q7:'EDFはCPU使用率100%まで可能で、RMS不可の場合もスケジューリングできる。',
+    q8:'逆。ゲストOSの下位層にホストOSがある。',
+    q18:'主記憶はコンピュータ内部の構成要素で、接続される入出力装置ではない。',
+    q19:'2次記憶上のアドレスであり、主記憶上のアドレスではない。',
+    q20:'lip synchronization（リップシンク）。',
+    q21:'DCB（Device Control Block）。cf. FCB=ファイル, PCB=プロセス。',
+    q22:'51 = 7×7 + 2 → ハッシュ値は 2。'
+  };
+  function grade(){
+    let got=0, total=0;
+    // radio questions
+    document.querySelectorAll('#exam .q[data-a]').forEach(q=>{
+      total++;
+      const ans=q.getAttribute('data-a');
+      const sel=q.querySelector('input[type=radio]:checked');
+      const fb=q.querySelector('.feedback');
+      const name=q.querySelector('input[type=radio]')?.name;
+      const ok = sel && norm(sel.value)===norm(ans);
+      if(ok) got++;
+      fb.className='feedback show '+(ok?'ok':'ng');
+      fb.innerHTML=(ok?'✅ 正解':'❌ 不正解')+' ｜ 正解：<b>'+ans+'</b>'+(expl[name]?' ｜ '+expl[name]:'');
+    });
+    // fill / select
+    document.querySelectorAll('#exam .gr').forEach(el=>{
+      total++;
+      const alts=el.getAttribute('data-a').split('|').map(norm);
+      const ok=alts.includes(norm(el.value));
+      if(ok) got++;
+      el.style.borderColor = ok? 'var(--ok)' : 'var(--ng)';
+      el.style.color = ok? 'var(--acc2)' : 'var(--ng)';
+      // group feedback for passage/ordering blocks handled below
+      if(!ok){ el.title='正解: '+el.getAttribute('data-a').split('|')[0]; }
+      else { el.title='正解'; }
+    });
+    // per-question feedback for grouped (.gr-containing) questions without data-a
+    document.querySelectorAll('#exam .q:not([data-a])').forEach(q=>{
+      const grs=q.querySelectorAll('.gr'); if(!grs.length) return;
+      const fb=q.querySelector('.feedback'); if(!fb) return;
+      let c=0; grs.forEach(el=>{ if(el.getAttribute('data-a').split('|').map(norm).includes(norm(el.value))) c++; });
+      const all=c===grs.length;
+      fb.className='feedback show '+(all?'ok':'ng');
+      const list=[...grs].map(el=>el.getAttribute('data-a').split('|')[0]).join(' / ');
+      fb.innerHTML=(all?'✅ 全問正解':'⚠️ '+c+' / '+grs.length+' 正解')+' ｜ 正解一覧：<b>'+list+'</b>';
+    });
+    const s=document.getElementById('score');
+    s.style.display='block';
+    const pct=Math.round(got/total*100);
+    let mark = pct>=80?'🎉':(pct>=60?'💪':'📚');
+    s.innerHTML=mark+' 得点：<b>'+got+' / '+total+'</b>（'+pct+'%）'+(pct>=80?' ── 合格ライン到達！':' ── もう少し、間違えた問題を復習しよう。');
+    s.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  document.getElementById('grade').onclick=grade;
+  document.getElementById('reset').onclick=()=>{
+    document.querySelectorAll('#exam input[type=radio]').forEach(r=>r.checked=false);
+    document.querySelectorAll('#exam .gr').forEach(el=>{el.value='';el.style.borderColor='';el.style.color='var(--jp)';el.title='';});
+    document.querySelectorAll('#exam .feedback').forEach(f=>{f.className='feedback';f.innerHTML='';});
+    document.getElementById('score').style.display='none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+</script>
+</body>
+</html>
