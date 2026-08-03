@@ -117,7 +117,7 @@ function eigenMatrix(){let M,l1,l2,A;for(let t=0;t<300;t++){M=randUnimodular(4);
 const GEN={};
 
 // 第10回：表現行列 B=P⁻¹AP
-GEN.repmat={name:'表現行列 B=P⁻¹AP',build(){
+GEN.repmat={name:'表現行列（基底に関する）',build(){
   let A,P,B;
   do{ A=[[rinz(-3,4),rinz(-3,4)],[rinz(-3,4),rinz(-3,4)]]; P=randUnimodular(4); const Pi=inv2(P);
       B=matmul2(matmul2(Pi,A),P).map(r=>r.map(x=>Math.round(x)));
