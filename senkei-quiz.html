@@ -124,7 +124,7 @@ GEN.repmat={name:'表現行列 B=P⁻¹AP',build(){
   }while(B.flat().some(x=>Math.abs(x)>20));
   const Pi=inv2(P);
   return {
-    q:S`標準基底に関する表現行列が $A=${matTex(A)}$ の線形変換 $T_A$ について、基底 $\mathbf b_1=${vecTex([P[0][0],P[1][0]])},\ \mathbf b_2=${vecTex([P[0][1],P[1][1]])}$ に関する表現行列 $B=P^{-1}AP$ を求めよ。`,
+    q:S`標準基底に関する表現行列が $A=${matTex(A)}$ の線形変換 $T_A$ について、基底 $\mathbf b_1=${vecTex([P[0][0],P[1][0]])},\ \mathbf b_2=${vecTex([P[0][1],P[1][1]])}$ に関する表現行列 $B$ を求めよ。`,
     fields:[{id:'a',label:'B₁₁'},{id:'b',label:'B₁₂'},{id:'c',label:'B₂₁'},{id:'d',label:'B₂₂'}],
     hint:'P は基底を列に並べた行列。B=P⁻¹AP。',
     check(v){return [v.a===B[0][0],v.b===B[0][1],v.c===B[1][0],v.d===B[1][1]];},
@@ -264,7 +264,7 @@ function newProblem(){
   const fw=document.getElementById('fields');fw.innerHTML='';
   current.fields.forEach(f=>{const d=document.createElement('div');d.className='field';
     d.innerHTML=`<label>${f.label}</label><input type="text" inputmode="numeric" id="in_${f.id}" autocomplete="off">`;fw.appendChild(d);});
-  document.getElementById('hint').textContent=current.hint||'';
+  document.getElementById('hint').textContent='';
   const ver=document.getElementById('verdict');ver.className='verdict';ver.textContent='';
   const sol=document.getElementById('solution');sol.className='solution';sol.innerHTML=current.solution;
   if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise();
